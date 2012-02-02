@@ -100,7 +100,7 @@ namespace NWebp.Internal.enc
 		  }
 		}
 
-		static WEBP_INLINE int clip(int v, int m, int M) {
+		static int clip(int v, int m, int M) {
 		  return v < m ? m : v > M ? M : v;
 		}
 

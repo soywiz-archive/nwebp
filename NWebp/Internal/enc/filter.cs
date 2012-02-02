@@ -41,7 +41,7 @@ namespace NWebp.Internal.enc
 		// Edge filtering functions
 
 		// 4 pixels in, 2 pixels out
-		static WEBP_INLINE void do_filter2(byte* p, int step) {
+		static void do_filter2(byte* p, int step) {
 		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
 		  const int a = 3 * (q0 - p0) + sclip1[1020 + p1 - q1];
 		  const int a1 = sclip2[112 + ((a + 4) >> 3)];
@@ -51,7 +51,7 @@ namespace NWebp.Internal.enc
 		}
 
 		// 4 pixels in, 4 pixels out
-		static WEBP_INLINE void do_filter4(byte* p, int step) {
+		static void do_filter4(byte* p, int step) {
 		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
 		  const int a = 3 * (q0 - p0);
 		  const int a1 = sclip2[112 + ((a + 4) >> 3)];
@@ -64,17 +64,17 @@ namespace NWebp.Internal.enc
 		}
 
 		// high edge-variance
-		static WEBP_INLINE int hev(const byte* p, int step, int thresh) {
+		static int hev(const byte* p, int step, int thresh) {
 		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
 		  return (abs0[255 + p1 - p0] > thresh) || (abs0[255 + q1 - q0] > thresh);
 		}
 
-		static WEBP_INLINE int needs_filter(const byte* p, int step, int thresh) {
+		static int needs_filter(const byte* p, int step, int thresh) {
 		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
 		  return (2 * abs0[255 + p0 - q0] + abs1[255 + p1 - q1]) <= thresh;
 		}
 
-		static WEBP_INLINE int needs_filter2(const byte* p,
+		static int needs_filter2(const byte* p,
 											 int step, int t, int it) {
 		  const int p3 = p[-4*step], p2 = p[-3*step], p1 = p[-2*step], p0 = p[-step];
 		  const int q0 = p[0], q1 = p[step], q2 = p[2*step], q3 = p[3*step];
@@ -125,7 +125,7 @@ namespace NWebp.Internal.enc
 		//------------------------------------------------------------------------------
 		// Complex In-loop filtering (Paragraph 15.3)
 
-		static WEBP_INLINE void FilterLoop24(byte* p,
+		static void FilterLoop24(byte* p,
 											 int hstride, int vstride, int size,
 											 int thresh, int ithresh, int hev_thresh) {
 		  while (size-- > 0) {

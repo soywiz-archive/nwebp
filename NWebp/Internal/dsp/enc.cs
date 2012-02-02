@@ -86,7 +86,7 @@ namespace NWebp.Internal.dsp
 			}
 		}
 
-		static WEBP_INLINE byte clip_8b(int v) {
+		static byte clip_8b(int v) {
 			return (!(v & ~0xff)) ? v : v < 0 ? 0 : 255;
 		}
 
@@ -100,7 +100,7 @@ namespace NWebp.Internal.dsp
 		static const int kC2 = 35468;
 		#define MUL(a, b) (((a) * (b)) >> 16)
 
-		static WEBP_INLINE void ITransformOne(const byte* ref, const short* in,
+		static void ITransformOne(const byte* ref, const short* in,
 												byte* dst) {
 			int C[4 * 4], *tmp;
 			int i;
@@ -234,14 +234,14 @@ namespace NWebp.Internal.dsp
 
 		#define DST(x, y) dst[(x) + (y) * BPS]
 
-		static WEBP_INLINE void Fill(byte* dst, int value, int size) {
+		static void Fill(byte* dst, int value, int size) {
 			int j;
 			for (j = 0; j < size; ++j) {
 			memset(dst + j * BPS, value, size);
 			}
 		}
 
-		static WEBP_INLINE void VerticalPred(byte* dst,
+		static void VerticalPred(byte* dst,
 												const byte* top, int size) {
 			int j;
 			if (top) {
@@ -251,7 +251,7 @@ namespace NWebp.Internal.dsp
 			}
 		}
 
-		static WEBP_INLINE void HorizontalPred(byte* dst,
+		static void HorizontalPred(byte* dst,
 												const byte* left, int size) {
 			if (left) {
 			int j;
@@ -263,7 +263,7 @@ namespace NWebp.Internal.dsp
 			}
 		}
 
-		static WEBP_INLINE void TrueMotion(byte* dst, const byte* left,
+		static void TrueMotion(byte* dst, const byte* left,
 											const byte* top, int size) {
 			int y;
 			if (left) {
@@ -293,7 +293,7 @@ namespace NWebp.Internal.dsp
 			}
 		}
 
-		static WEBP_INLINE void DCMode(byte* dst, const byte* left,
+		static void DCMode(byte* dst, const byte* left,
 										const byte* top,
 										int size, int round, int shift) {
 			int DC = 0;
@@ -538,7 +538,7 @@ namespace NWebp.Internal.dsp
 		//------------------------------------------------------------------------------
 		// Metric
 
-		static WEBP_INLINE int GetSSE(const byte* a, const byte* b,
+		static int GetSSE(const byte* a, const byte* b,
 										int w, int h) {
 			int count = 0;
 			int y, x;
@@ -663,7 +663,7 @@ namespace NWebp.Internal.dsp
 		//------------------------------------------------------------------------------
 		// Block copy
 
-		static WEBP_INLINE void Copy(const byte* src, byte* dst, int size) {
+		static void Copy(const byte* src, byte* dst, int size) {
 			int y;
 			for (y = 0; y < size; ++y) {
 			memcpy(dst, src, size);

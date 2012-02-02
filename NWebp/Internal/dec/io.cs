@@ -190,7 +190,7 @@ namespace NWebp.Internal.dec
 		  return 0;
 		}
 
-		static WEBP_INLINE uint clip(uint v, uint max_value) {
+		static uint clip(uint v, uint max_value) {
 		  return (v > max_value) ? max_value : v;
 		}
 
@@ -252,7 +252,7 @@ namespace NWebp.Internal.dec
 		  wrk->frow = work + dst_width;
 		}
 
-		static WEBP_INLINE void ImportRow(const byte* const src,
+		static void ImportRow(const byte* const src,
 										  WebPRescaler* const wrk) {
 		  int x_in = 0;
 		  int x_out;

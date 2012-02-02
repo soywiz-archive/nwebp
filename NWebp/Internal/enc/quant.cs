@@ -23,7 +23,7 @@ namespace NWebp.Internal.enc
 
 		//------------------------------------------------------------------------------
 
-		static WEBP_INLINE int clip(int v, int m, int M) {
+		static int clip(int v, int m, int M) {
 		  return v < m ? m : v > M ? M : v;
 		}
 
@@ -394,12 +394,12 @@ namespace NWebp.Internal.enc
 		#define NUM_NODES (MIN_DELTA + 1 + MAX_DELTA)
 		#define NODE(n, l) (nodes[(n) + 1][(l) + MIN_DELTA])
 
-		static WEBP_INLINE void SetRDScore(int lambda, VP8ModeScore* const rd) {
+		static void SetRDScore(int lambda, VP8ModeScore* const rd) {
 		  // TODO: incorporate the "* 256" in the tables?
 		  rd->score = rd->R * lambda + 256 * (rd->D + rd->SD);
 		}
 
-		static WEBP_INLINE score_t RDScoreTrellis(int lambda, score_t rate,
+		static score_t RDScoreTrellis(int lambda, score_t rate,
 												  score_t distortion) {
 		  return rate * lambda + 256 * distortion;
 		}

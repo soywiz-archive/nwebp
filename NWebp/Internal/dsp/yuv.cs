@@ -16,7 +16,7 @@ namespace NWebp.Internal.dsp
 		extern byte VP8kClip[YUV_RANGE_MAX - YUV_RANGE_MIN];
 		extern byte VP8kClip4Bits[YUV_RANGE_MAX - YUV_RANGE_MIN];
 
-		static WEBP_INLINE void VP8YuvToRgb(byte y, byte u, byte v,
+		static void VP8YuvToRgb(byte y, byte u, byte v,
 											byte* const rgb) {
 		  const int r_off = VP8kVToR[v];
 		  const int g_off = (VP8kVToG[v] + VP8kUToG[u]) >> YUV_FIX;
@@ -26,7 +26,7 @@ namespace NWebp.Internal.dsp
 		  rgb[2] = VP8kClip[y + b_off - YUV_RANGE_MIN];
 		}
 
-		static WEBP_INLINE void VP8YuvToRgb565(byte y, byte u, byte v,
+		static void VP8YuvToRgb565(byte y, byte u, byte v,
 											   byte* const rgb) {
 		  const int r_off = VP8kVToR[v];
 		  const int g_off = (VP8kVToG[v] + VP8kUToG[u]) >> YUV_FIX;
@@ -37,19 +37,19 @@ namespace NWebp.Internal.dsp
 					(VP8kClip[y + b_off - YUV_RANGE_MIN] >> 3));
 		}
 
-		static WEBP_INLINE void VP8YuvToArgbKeepA(byte y, byte u, byte v,
+		static void VP8YuvToArgbKeepA(byte y, byte u, byte v,
 												  byte* const argb) {
 		  // Don't update Aplha (argb[0])
 		  VP8YuvToRgb(y, u, v, argb + 1);
 		}
 
-		static WEBP_INLINE void VP8YuvToArgb(byte y, byte u, byte v,
+		static void VP8YuvToArgb(byte y, byte u, byte v,
 											 byte* const argb) {
 		  argb[0] = 0xff;
 		  VP8YuvToArgbKeepA(y, u, v, argb);
 		}
 
-		static WEBP_INLINE void VP8YuvToRgba4444KeepA(byte y, byte u, byte v,
+		static void VP8YuvToRgba4444KeepA(byte y, byte u, byte v,
 													  byte* const argb) {
 		  const int r_off = VP8kVToR[v];
 		  const int g_off = (VP8kVToG[v] + VP8kUToG[u]) >> YUV_FIX;
@@ -60,13 +60,13 @@ namespace NWebp.Internal.dsp
 		  argb[1] = (argb[1] & 0x0f) | (VP8kClip4Bits[y + b_off - YUV_RANGE_MIN] << 4);
 		}
 
-		static WEBP_INLINE void VP8YuvToRgba4444(byte y, byte u, byte v,
+		static void VP8YuvToRgba4444(byte y, byte u, byte v,
 												 byte* const argb) {
 		  argb[1] = 0x0f;
 		  VP8YuvToRgba4444KeepA(y, u, v, argb);
 		}
 
-		static WEBP_INLINE void VP8YuvToBgr(byte y, byte u, byte v,
+		static void VP8YuvToBgr(byte y, byte u, byte v,
 											byte* const bgr) {
 		  const int r_off = VP8kVToR[v];
 		  const int g_off = (VP8kVToG[v] + VP8kUToG[u]) >> YUV_FIX;
@@ -76,13 +76,13 @@ namespace NWebp.Internal.dsp
 		  bgr[2] = VP8kClip[y + r_off - YUV_RANGE_MIN];
 		}
 
-		static WEBP_INLINE void VP8YuvToBgra(byte y, byte u, byte v,
+		static void VP8YuvToBgra(byte y, byte u, byte v,
 											 byte* const bgra) {
 		  VP8YuvToBgr(y, u, v, bgra);
 		  bgra[3] = 0xff;
 		}
 
-		static WEBP_INLINE void VP8YuvToRgba(byte y, byte u, byte v,
+		static void VP8YuvToRgba(byte y, byte u, byte v,
 											 byte* const rgba) {
 		  VP8YuvToRgb(y, u, v, rgba);
 		  rgba[3] = 0xff;
@@ -98,7 +98,7 @@ namespace NWebp.Internal.dsp
 
 		static int done = 0;
 
-		static WEBP_INLINE byte clip(int v, int max_value) {
+		static byte clip(int v, int max_value) {
 		  return v < 0 ? 0 : v > max_value ? max_value : v;
 		}
 

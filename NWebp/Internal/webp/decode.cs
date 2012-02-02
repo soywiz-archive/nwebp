@@ -336,7 +336,7 @@ namespace NWebp.Internal
 	// Initialize the configuration as empty. This function must always be
 	// called first, unless WebPGetFeatures() is to be called.
 	// Returns false in case of mismatched version.
-	static WEBP_INLINE int WebPInitDecoderConfig(WebPDecoderConfig* const config) {
+	static int WebPInitDecoderConfig(WebPDecoderConfig* const config) {
 		return WebPInitDecoderConfigInternal(config, WEBP_DECODER_ABI_VERSION);
 	}
 

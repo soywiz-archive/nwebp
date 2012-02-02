@@ -215,7 +215,7 @@ namespace NWebp.Internal.enc
 
 		#define RFIX 30
 		#define MULT(x,y) (((long)(x) * (y) + (1 << (RFIX - 1))) >> RFIX)
-		static WEBP_INLINE void ImportRow(const byte* src, int src_width,
+		static void ImportRow(const byte* src, int src_width,
 										  int* frow, int* irow, int dst_width) {
 		  const int x_expand = (src_width < dst_width);
 		  const int fx_scale = (1 << RFIX) / dst_width;
@@ -420,22 +420,22 @@ namespace NWebp.Internal.enc
 
 		enum { YUV_FRAC = 16 };
 
-		static WEBP_INLINE int clip_uv(int v) {
+		static int clip_uv(int v) {
 		   v = (v + (257 << (YUV_FRAC + 2 - 1))) >> (YUV_FRAC + 2);
 		   return ((v & ~0xff) == 0) ? v : (v < 0) ? 0 : 255;
 		}
 
-		static WEBP_INLINE int rgb_to_y(int r, int g, int b) {
+		static int rgb_to_y(int r, int g, int b) {
 		  const int kRound = (1 << (YUV_FRAC - 1)) + (16 << YUV_FRAC);
 		  const int luma = 16839 * r + 33059 * g + 6420 * b;
 		  return (luma + kRound) >> YUV_FRAC;  // no need to clip
 		}
 
-		static WEBP_INLINE int rgb_to_u(int r, int g, int b) {
+		static int rgb_to_u(int r, int g, int b) {
 		  return clip_uv(-9719 * r - 19081 * g + 28800 * b);
 		}
 
-		static WEBP_INLINE int rgb_to_v(int r, int g, int b) {
+		static int rgb_to_v(int r, int g, int b) {
 		  return clip_uv(+28800 * r - 24116 * g - 4684 * b);
 		}
 
@@ -601,7 +601,7 @@ namespace NWebp.Internal.enc
 		  return 1;
 		}
 
-		static WEBP_INLINE void flatten(byte* ptr, int v, int stride, int size) {
+		static void flatten(byte* ptr, int v, int stride, int size) {
 		  int y;
 		  for (y = 0; y < size; ++y) {
 			memset(ptr, v, size);

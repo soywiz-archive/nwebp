@@ -5,52 +5,30 @@ using System.Text;
 
 namespace NWebp.Internal
 {
-	class thread
+	unsafe class thread
 	{
-		#if WEBP_USE_THREAD
-
-		#if defined(_WIN32)
-
-		#include <windows.h>
-		typedef HANDLE pthread_t;
-		typedef CRITICAL_SECTION pthread_mutex_t;
-		typedef struct {
-		  HANDLE waiting_sem_;
-		  HANDLE received_sem_;
-		  HANDLE signal_event_;
-		} pthread_cond_t;
-
-		#else
-
-		#include <pthread.h>
-
-		#endif    /* _WIN32 */
-		#endif    /* WEBP_USE_THREAD */
-
+		/*
 		// State of the worker thread object
-		typedef enum {
+		enum WebPWorkerStatus
+		{
 		  NOT_OK = 0,   // object is unusable
 		  OK,           // ready to work
 		  WORK          // busy finishing the current task
-		} WebPWorkerStatus;
+		}
 
 		// Function to be called by the worker thread. Takes two opaque pointers as
 		// arguments (data1 and data2), and should return false in case of error.
-		typedef int (*WebPWorkerHook)(void*, void*);
+		delegate int WebPWorkerHook(void*, void*);
 
 		// Synchronize object used to launch job in the worker thread
-		typedef struct {
-		#if WEBP_USE_THREAD
-		  pthread_mutex_t mutex_;
-		  pthread_cond_t  condition_;
-		  pthread_t       thread_;
-		#endif
+		struct WebPWorker
+		{
 		  WebPWorkerStatus status_;
 		  WebPWorkerHook hook;    // hook to call
 		  void* data1;            // first argument passed to 'hook'
 		  void* data2;            // second argument passed to 'hook'
 		  int had_error;          // return value of the last call to 'hook'
-		} WebPWorker;
+		}
 
 		// Must be called first, before any other method.
 		void WebPWorkerInit(WebPWorker* const worker);
@@ -67,32 +45,21 @@ namespace NWebp.Internal
 		// Kill the thread and terminate the object. To use the object again, one
 		// must call WebPWorkerReset() again.
 		void WebPWorkerEnd(WebPWorker* const worker);
-
 		//------------------------------------------------------------------------------
 
-
-		#ifdef WEBP_USE_THREAD
-
-		#if defined(_WIN32)
-
-		//------------------------------------------------------------------------------
-		// simplistic pthread emulation layer
-
-		#include <process.h>
 
 		// _beginthreadex requires __stdcall
-		#define THREADFN unsigned int __stdcall
 		#define THREAD_RETURN(val) (unsigned int)((DWORD_PTR)val)
 
-		static int pthread_create(pthread_t* const thread, const void* attr,
-								  unsigned int (__stdcall *start)(void*), void* arg) {
+		static int pthread_create(pthread_t* const thread, const void* attr, uint (__stdcall *start)(void*), void* arg)
+		{
 		  (void)attr;
-		  *thread = (pthread_t)_beginthreadex(null,   /* void *security */
-											  0,      /* unsigned stack_size */
+		  *thread = (pthread_t)_beginthreadex(null,   // void *security 
+											  0,      // unsigned stack_size 
 											  start,
 											  arg,
-											  0,      /* unsigned initflag */
-											  null);  /* unsigned *thrdaddr */
+											  0,      // unsigned initflag 
+											  null);  // unsigned *thrdaddr 
 		  if (*thread == null) return 1;
 		  SetThreadPriority(*thread, THREAD_PRIORITY_ABOVE_NORMAL);
 		  return 0;
@@ -100,8 +67,7 @@ namespace NWebp.Internal
 
 		static int pthread_join(pthread_t thread, void** value_ptr) {
 		  (void)value_ptr;
-		  return (WaitForSingleObject(thread, INFINITE) != WAIT_OBJECT_0 ||
-				  CloseHandle(thread) == 0);
+		  return (WaitForSingleObject(thread, INFINITE) != WAIT_OBJECT_0 || CloseHandle(thread) == 0);
 		}
 
 		// Mutex
@@ -291,5 +257,6 @@ namespace NWebp.Internal
 		}
 
 		//------------------------------------------------------------------------------
+		*/
 	}
 }

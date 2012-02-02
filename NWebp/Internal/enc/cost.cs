@@ -12,14 +12,14 @@ namespace NWebp.Internal.enc
 		extern const ushort VP8EntropyCost[256];        // 8bit fixed-point log(p)
 
 		// Cost of coding one event with probability 'proba'.
-		static WEBP_INLINE int VP8BitCost(int bit, byte proba) {
+		static int VP8BitCost(int bit, byte proba) {
 		  return !bit ? VP8EntropyCost[proba] : VP8EntropyCost[255 - proba];
 		}
 
 		// Level cost calculations
 		extern const ushort VP8LevelCodes[MAX_VARIABLE_LEVEL][2];
 		void VP8CalculateLevelCosts(VP8Proba* const proba);
-		static WEBP_INLINE int VP8LevelCost(const ushort* const table, int level) {
+		static int VP8LevelCost(const ushort* const table, int level) {
 		  return VP8LevelFixedCosts[level]
 			   + table[(level > MAX_VARIABLE_LEVEL) ? MAX_VARIABLE_LEVEL : level];
 		}

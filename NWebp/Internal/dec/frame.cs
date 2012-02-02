@@ -519,7 +519,7 @@ namespace NWebp.Internal.dec
 			0 + 12 * BPS,  4 + 12 * BPS, 8 + 12 * BPS, 12 + 12 * BPS
 		};
 
-		static WEBP_INLINE int CheckMode(VP8Decoder* const dec, int mode) {
+		static int CheckMode(VP8Decoder* const dec, int mode) {
 			if (mode == B_DC_PRED) {
 			if (dec->mb_x_ == 0) {
 				return (dec->mb_y_ == 0) ? B_DC_PRED_NOTOPLEFT : B_DC_PRED_NOLEFT;
@@ -530,7 +530,7 @@ namespace NWebp.Internal.dec
 			return mode;
 		}
 
-		static WEBP_INLINE void Copy32b(byte* dst, byte* src) {
+		static void Copy32b(byte* dst, byte* src) {
 			*(uint*)dst = *(uint*)src;
 		}
 

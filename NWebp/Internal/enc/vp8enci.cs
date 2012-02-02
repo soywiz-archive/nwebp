@@ -144,7 +144,7 @@ namespace NWebp.Internal.enc
 		#define BIAS(b)  ((b) << (QFIX - 8))
 		// Fun fact: this is the _only_ line where we're actually being lossy and
 		// discarding bits.
-		static WEBP_INLINE int QUANTDIV(int n, int iQ, int B) {
+		static int QUANTDIV(int n, int iQ, int B) {
 		  return (n * iQ + B) >> QFIX;
 		}
 		extern const byte VP8Zigzag[16];
@@ -330,7 +330,7 @@ namespace NWebp.Internal.enc
 		int VP8EmitTokens(const VP8TBuffer* const b, VP8BitWriter* const bw,
 						  const byte* const probas);
 
-		static WEBP_INLINE int VP8AddToken(VP8TBuffer* const b,
+		static int VP8AddToken(VP8TBuffer* const b,
 										   int bit, int proba_idx) {
 		  if (b->left_ > 0 || VP8TBufferNewPage(b)) {
 			const int slot = --b->left_;

@@ -40,16 +40,16 @@ namespace NWebp.Internal.utils
 							   const byte* data, uint size);
 
 		// return approximate write position (in bits)
-		static WEBP_INLINE ulong VP8BitWriterPos(const VP8BitWriter* const bw) {
+		static ulong VP8BitWriterPos(const VP8BitWriter* const bw) {
 		  return (ulong)(bw->pos_ + bw->run_) * 8 + 8 + bw->nb_bits_;
 		}
 
 		// Returns a pointer to the internal buffer.
-		static WEBP_INLINE byte* VP8BitWriterBuf(const VP8BitWriter* const bw) {
+		static byte* VP8BitWriterBuf(const VP8BitWriter* const bw) {
 		  return bw->buf_;
 		}
 		// Returns the size of the internal buffer.
-		static WEBP_INLINE uint VP8BitWriterSize(const VP8BitWriter* const bw) {
+		static uint VP8BitWriterSize(const VP8BitWriter* const bw) {
 		  return bw->pos_;
 		}
 

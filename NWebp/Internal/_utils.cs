@@ -30,5 +30,12 @@ namespace NWebp.Internal
 		{
 			Debug.Assert(Condition);
 		}
+
+		static public void SWAP<T>(ref T a, ref T b)
+		{
+			T tmp = a;
+			a = b;
+			b = tmp;
+		}
 	}
 }

@@ -2,3 +2,5 @@
 /NWebp/bin
 /NWebp/obj
 *.suo
+/NWebp.Test/bin
+/NWebp.Test/obj

@@ -13,7 +13,7 @@ namespace NWebp.Internal.dsp
 
 		// apple/darwin gcc-4.0.1 defines __PIC__, but not __pic__ with -fPIC.
 		#if (defined(__pic__) || defined(__PIC__)) && defined(__i386__)
-		static WEBP_INLINE void GetCPUInfo(int cpu_info[4], int info_type) {
+		static void GetCPUInfo(int cpu_info[4], int info_type) {
 		  __asm__ volatile (
 			"mov %%ebx, %%edi\n"
 			"cpuid\n"
@@ -22,7 +22,7 @@ namespace NWebp.Internal.dsp
 			: "a"(info_type));
 		}
 		#elif defined(__i386__) || defined(__x86_64__)
-		static WEBP_INLINE void GetCPUInfo(int cpu_info[4], int info_type) {
+		static void GetCPUInfo(int cpu_info[4], int info_type) {
 		  __asm__ volatile (
 			"cpuid\n"
 			: "=a"(cpu_info[0]), "=b"(cpu_info[1]), "=c"(cpu_info[2]), "=d"(cpu_info[3])
