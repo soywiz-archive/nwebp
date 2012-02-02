@@ -75,13 +75,13 @@ namespace NWebp.Internal.dec
 			if (chunk_size != VP8X_CHUNK_SIZE) {
 			  return VP8_STATUS_BITSTREAM_ERROR;  // Wrong chunk size.
 			}
-			if (flags != NULL) {
+			if (flags != null) {
 			  *flags = get_le32(*data + 8);
 			}
-			if (width != NULL) {
+			if (width != null) {
 			  *width = get_le32(*data + 12);
 			}
-			if (height != NULL) {
+			if (height != null) {
 			  *height = get_le32(*data + 16);
 			}
 			// Skip over VP8X header bytes.
@@ -109,7 +109,7 @@ namespace NWebp.Internal.dec
 		  buf = *data;
 		  buf_size = *data_size;
 		  *bytes_skipped = 0;
-		  *alpha_data = NULL;
+		  *alpha_data = null;
 		  *alpha_size = 0;
 
 		  while (1) {
@@ -208,10 +208,10 @@ namespace NWebp.Internal.dec
 
 		  *vp8_size = 0;
 		  *bytes_skipped = 0;
-		  *alpha_data = NULL;
+		  *alpha_data = null;
 		  *alpha_size = 0;
 
-		  if (buf == NULL || buf_size < RIFF_HEADER_SIZE) {
+		  if (buf == null || buf_size < RIFF_HEADER_SIZE) {
 			return VP8_STATUS_NOT_ENOUGH_DATA;
 		  }
 
@@ -221,7 +221,7 @@ namespace NWebp.Internal.dec
 		  }
 
 		  // Skip over VP8X header.
-		  status = WebPParseVP8X(&buf, &buf_size, &vp8x_skip_size, NULL, NULL, NULL);
+		  status = WebPParseVP8X(&buf, &buf_size, &vp8x_skip_size, null, null, null);
 		  if (status != VP8_STATUS_OK) {
 			return status;  // Wrong VP8X chunk / insufficient data.
 		  }
@@ -272,7 +272,7 @@ namespace NWebp.Internal.dec
 		  VP8Io io;
 
 		  assert(params);
-		  if (dec == NULL) {
+		  if (dec == null) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 
@@ -314,8 +314,8 @@ namespace NWebp.Internal.dec
 											 byte* rgba, int stride, int size) {
 		  WebPDecParams params;
 		  WebPDecBuffer buf;
-		  if (rgba == NULL) {
-			return NULL;
+		  if (rgba == null) {
+			return null;
 		  }
 		  WebPInitDecBuffer(&buf);
 		  WebPResetDecParams(&params);
@@ -326,7 +326,7 @@ namespace NWebp.Internal.dec
 		  buf.u.RGBA.size   = size;
 		  buf.is_external_memory = 1;
 		  if (DecodeInto(data, data_size, &params) != VP8_STATUS_OK) {
-			return NULL;
+			return null;
 		  }
 		  return rgba;
 		}
@@ -362,7 +362,7 @@ namespace NWebp.Internal.dec
 								   byte* v, int v_size, int v_stride) {
 		  WebPDecParams params;
 		  WebPDecBuffer output;
-		  if (luma == NULL) return NULL;
+		  if (luma == null) return null;
 		  WebPInitDecBuffer(&output);
 		  WebPResetDecParams(&params);
 		  params.output = &output;
@@ -378,7 +378,7 @@ namespace NWebp.Internal.dec
 		  output.u.YUVA.v_size   = v_size;
 		  output.is_external_memory = 1;
 		  if (DecodeInto(data, data_size, &params) != VP8_STATUS_OK) {
-			return NULL;
+			return null;
 		  }
 		  return luma;
 		}
@@ -398,16 +398,16 @@ namespace NWebp.Internal.dec
 
 		  // Retrieve (and report back) the required dimensions from bitstream.
 		  if (!WebPGetInfo(data, data_size, &output.width, &output.height)) {
-			return NULL;
+			return null;
 		  }
-		  if (width != NULL) *width = output.width;
-		  if (height != NULL) *height = output.height;
+		  if (width != null) *width = output.width;
+		  if (height != null) *height = output.height;
 
 		  // Decode
 		  if (DecodeInto(data, data_size, &params) != VP8_STATUS_OK) {
-			return NULL;
+			return null;
 		  }
-		  if (keep_info != NULL) {    // keep track of the side-info
+		  if (keep_info != null) {    // keep track of the side-info
 			WebPCopyDecBuffer(&output, keep_info);
 		  }
 		  // return decoded samples (don't clear 'output'!)
@@ -416,27 +416,27 @@ namespace NWebp.Internal.dec
 
 		byte* WebPDecodeRGB(const byte* data, uint data_size,
 							   int* width, int* height) {
-		  return Decode(MODE_RGB, data, data_size, width, height, NULL);
+		  return Decode(MODE_RGB, data, data_size, width, height, null);
 		}
 
 		byte* WebPDecodeRGBA(const byte* data, uint data_size,
 								int* width, int* height) {
-		  return Decode(MODE_RGBA, data, data_size, width, height, NULL);
+		  return Decode(MODE_RGBA, data, data_size, width, height, null);
 		}
 
 		byte* WebPDecodeARGB(const byte* data, uint data_size,
 								int* width, int* height) {
-		  return Decode(MODE_ARGB, data, data_size, width, height, NULL);
+		  return Decode(MODE_ARGB, data, data_size, width, height, null);
 		}
 
 		byte* WebPDecodeBGR(const byte* data, uint data_size,
 							   int* width, int* height) {
-		  return Decode(MODE_BGR, data, data_size, width, height, NULL);
+		  return Decode(MODE_BGR, data, data_size, width, height, null);
 		}
 
 		byte* WebPDecodeBGRA(const byte* data, uint data_size,
 								int* width, int* height) {
-		  return Decode(MODE_BGRA, data, data_size, width, height, NULL);
+		  return Decode(MODE_BGRA, data, data_size, width, height, null);
 		}
 
 		byte* WebPDecodeYUV(const byte* data, uint data_size,
@@ -446,7 +446,7 @@ namespace NWebp.Internal.dec
 		  byte* const out = Decode(MODE_YUV, data, data_size,
 									  width, height, &output);
 
-		  if (out != NULL) {
+		  if (out != null) {
 			const WebPYUVABuffer* const buf = &output.u.YUVA;
 			*u = buf->u;
 			*v = buf->v;
@@ -474,7 +474,7 @@ namespace NWebp.Internal.dec
 		  int* const height = &features->height;
 		  VP8StatusCode status;
 
-		  if (features == NULL || data == NULL) {
+		  if (features == null || data == null) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 		  DefaultFeatures(features);
@@ -525,10 +525,10 @@ namespace NWebp.Internal.dec
 			return 0;
 		  }
 
-		  if (width != NULL) {
+		  if (width != null) {
 			*width  = features.width;
 		  }
-		  if (height != NULL) {
+		  if (height != null) {
 			*height = features.height;
 		  }
 
@@ -543,7 +543,7 @@ namespace NWebp.Internal.dec
 		  if (version != WEBP_DECODER_ABI_VERSION) {
 			return 0;   // version mismatch
 		  }
-		  if (config == NULL) {
+		  if (config == null) {
 			return 0;
 		  }
 		  memset(config, 0, sizeof(*config));
@@ -559,7 +559,7 @@ namespace NWebp.Internal.dec
 		  if (version != WEBP_DECODER_ABI_VERSION) {
 			return VP8_STATUS_INVALID_PARAM;   // version mismatch
 		  }
-		  if (features == NULL) {
+		  if (features == null) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 
@@ -575,7 +575,7 @@ namespace NWebp.Internal.dec
 		  WebPDecParams params;
 		  VP8StatusCode status;
 
-		  if (config == NULL) {
+		  if (config == null) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 

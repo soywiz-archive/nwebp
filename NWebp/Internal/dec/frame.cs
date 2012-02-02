@@ -192,10 +192,10 @@ namespace NWebp.Internal.dec
 			if (y_end > io->crop_bottom) {
 				y_end = io->crop_bottom;    // make sure we don't overflow on last row.
 			}
-			io->a = NULL;
+			io->a = null;
 			if (dec->alpha_data_ && y_start < y_end) {
 				io->a = VP8DecompressAlphaRows(dec, y_start, y_end - y_start);
-				if (io->a == NULL) {
+				if (io->a == null) {
 				return VP8SetError(dec, VP8_STATUS_BITSTREAM_ERROR,
 									"Could not decode alpha data.");
 				}
@@ -421,7 +421,7 @@ namespace NWebp.Internal.dec
 			free(dec->mem_);
 			dec->mem_size_ = 0;
 			dec->mem_ = (byte*)malloc(needed);
-			if (dec->mem_ == NULL) {
+			if (dec->mem_ == null) {
 				return VP8SetError(dec, VP8_STATUS_OUT_OF_MEMORY,
 									"no memory during frame initialization.");
 			}
@@ -442,7 +442,7 @@ namespace NWebp.Internal.dec
 			dec->mb_info_ = ((VP8MB*)mem) + 1;
 			mem += mb_info_size;
 
-			dec->f_info_ = f_info_size ? (VP8FInfo*)mem : NULL;
+			dec->f_info_ = f_info_size ? (VP8FInfo*)mem : null;
 			mem += f_info_size;
 			dec->thread_ctx_.id_ = 0;
 			dec->thread_ctx_.f_info_ = dec->f_info_;
@@ -477,7 +477,7 @@ namespace NWebp.Internal.dec
 			mem += cache_size;
 
 			// alpha plane
-			dec->alpha_plane_ = alpha_size ? (byte*)mem : NULL;
+			dec->alpha_plane_ = alpha_size ? (byte*)mem : null;
 			mem += alpha_size;
 
 			// note: left-info is initialized once for all.
@@ -498,7 +498,7 @@ namespace NWebp.Internal.dec
 			io->y_stride = dec->cache_y_stride_;
 			io->uv_stride = dec->cache_uv_stride_;
 			io->fancy_upsampling = 0;    // default
-			io->a = NULL;
+			io->a = null;
 		}
 
 		int VP8InitFrame(VP8Decoder* const dec, VP8Io* io) {

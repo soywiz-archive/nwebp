@@ -14,8 +14,8 @@ namespace NWebp.Internal.enc
 		// WebPPicture
 		//------------------------------------------------------------------------------
 
-		int WebPPictureAlloc(WebPPicture* const picture) {
-		  if (picture != NULL) {
+		int WebPPictureAlloc(ref WebPPicture picture) {
+		  if (picture != null) {
 			const WebPEncCSP uv_csp = picture->colorspace & WEBP_CSP_UV_MASK;
 			const int has_alpha = picture->colorspace & WEBP_CSP_ALPHA_BIT;
 			const int width = picture->width;
@@ -26,7 +26,7 @@ namespace NWebp.Internal.enc
 			const int uv_stride = uv_width;
 			int uv0_stride = 0;
 			int a_width, a_stride;
-			uint64_t y_size, uv_size, uv0_size, a_size, total_size;
+			ulong y_size, uv_size, uv0_size, a_size, total_size;
 			byte* mem;
 
 			// U/V
@@ -51,9 +51,9 @@ namespace NWebp.Internal.enc
 			// alpha
 			a_width = has_alpha ? width : 0;
 			a_stride = a_width;
-			y_size = (uint64_t)y_stride * height;
-			uv_size = (uint64_t)uv_stride * uv_height;
-			a_size =  (uint64_t)a_stride * height;
+			y_size = (ulong)y_stride * height;
+			uv_size = (ulong)uv_stride * uv_height;
+			a_size =  (ulong)a_stride * height;
 
 			total_size = y_size + a_size + 2 * uv_size + 2 * uv0_size;
 
@@ -61,7 +61,7 @@ namespace NWebp.Internal.enc
 			if (width <= 0 || height <= 0 ||       // check for luma/alpha param error
 				uv_width < 0 || uv_height < 0 ||   // check for u/v param error
 				y_size >= (1ULL << 40) ||            // check for reasonable global size
-				(size_t)total_size != total_size) {  // check for overflow on 32bit
+				(uint)total_size != total_size) {  // check for overflow on 32bit
 			  return 0;
 			}
 			picture->y_stride  = y_stride;
@@ -69,8 +69,8 @@ namespace NWebp.Internal.enc
 			picture->a_stride  = a_stride;
 			picture->uv0_stride  = uv0_stride;
 			WebPPictureFree(picture);   // erase previous buffer
-			mem = (byte*)malloc((size_t)total_size);
-			if (mem == NULL) return 0;
+			mem = (byte*)malloc((uint)total_size);
+			if (mem == null) return 0;
 
 			picture->y = mem;
 			mem += y_size;
@@ -95,20 +95,20 @@ namespace NWebp.Internal.enc
 		}
 
 		// Grab the 'specs' (writer, *opaque, width, height...) from 'src' and copy them
-		// into 'dst'. Mark 'dst' as not owning any memory. 'src' can be NULL.
+		// into 'dst'. Mark 'dst' as not owning any memory. 'src' can be null.
 		static void WebPPictureGrabSpecs(const WebPPicture* const src,
 										 WebPPicture* const dst) {
-		  if (src != NULL) *dst = *src;
-		  dst->y = dst->u = dst->v = NULL;
-		  dst->u0 = dst->v0 = NULL;
-		  dst->a = NULL;
+		  if (src != null) *dst = *src;
+		  dst->y = dst->u = dst->v = null;
+		  dst->u0 = dst->v0 = null;
+		  dst->a = null;
 		}
 
 		// Release memory owned by 'picture'.
 		void WebPPictureFree(WebPPicture* const picture) {
-		  if (picture != NULL) {
+		  if (picture != null) {
 			free(picture->y);
-			WebPPictureGrabSpecs(NULL, picture);
+			WebPPictureGrabSpecs(null, picture);
 		  }
 		}
 
@@ -126,7 +126,7 @@ namespace NWebp.Internal.enc
 		}
 
 		int WebPPictureCopy(const WebPPicture* const src, WebPPicture* const dst) {
-		  if (src == NULL || dst == NULL) return 0;
+		  if (src == null || dst == null) return 0;
 		  if (src == dst) return 1;
 
 		  WebPPictureGrabSpecs(src, dst);
@@ -138,12 +138,12 @@ namespace NWebp.Internal.enc
 					dst->u, dst->uv_stride, HALVE(dst->width), HALVE(dst->height));
 		  CopyPlane(src->v, src->uv_stride,
 					dst->v, dst->uv_stride, HALVE(dst->width), HALVE(dst->height));
-		  if (dst->a != NULL)  {
+		  if (dst->a != null)  {
 			CopyPlane(src->a, src->a_stride,
 					  dst->a, dst->a_stride, dst->width, dst->height);
 		  }
 		#ifdef WEBP_EXPERIMENTAL_FEATURES
-		  if (dst->u0 != NULL)  {
+		  if (dst->u0 != null)  {
 			int uv0_width = src->width;
 			if ((dst->colorspace & WEBP_CSP_UV_MASK) == WEBP_YUV422) {
 			  uv0_width = HALVE(uv0_width);
@@ -164,7 +164,7 @@ namespace NWebp.Internal.enc
 							int left, int top, int width, int height) {
 		  WebPPicture tmp;
 
-		  if (pic == NULL) return 0;
+		  if (pic == null) return 0;
 		  if (width <= 0 || height <= 0) return 0;
 		  if (left < 0 || ((left + width + 1) & ~1) > pic->width) return 0;
 		  if (top < 0 || ((top + height + 1) & ~1) > pic->height) return 0;
@@ -185,13 +185,13 @@ namespace NWebp.Internal.enc
 					  tmp.v, tmp.uv_stride, HALVE(width), HALVE(height));
 		  }
 
-		  if (tmp.a != NULL) {
+		  if (tmp.a != null) {
 			const int a_offset = top * pic->a_stride + left;
 			CopyPlane(pic->a + a_offset, pic->a_stride,
 					  tmp.a, tmp.a_stride, width, height);
 		  }
 		#ifdef WEBP_EXPERIMENTAL_FEATURES
-		  if (tmp.u0 != NULL) {
+		  if (tmp.u0 != null) {
 			int w = width;
 			int l = left;
 			if (tmp.colorspace == WEBP_YUV422) {
@@ -214,9 +214,9 @@ namespace NWebp.Internal.enc
 		// Simple picture rescaler
 
 		#define RFIX 30
-		#define MULT(x,y) (((int64_t)(x) * (y) + (1 << (RFIX - 1))) >> RFIX)
+		#define MULT(x,y) (((long)(x) * (y) + (1 << (RFIX - 1))) >> RFIX)
 		static WEBP_INLINE void ImportRow(const byte* src, int src_width,
-										  int32_t* frow, int32_t* irow, int dst_width) {
+										  int* frow, int* irow, int dst_width) {
 		  const int x_expand = (src_width < dst_width);
 		  const int fx_scale = (1 << RFIX) / dst_width;
 		  int x_in = 0;
@@ -230,8 +230,8 @@ namespace NWebp.Internal.enc
 				sum += src[x_in++];
 			  }
 			  {        // Emit next horizontal pixel.
-				const int32_t base = src[x_in++];
-				const int32_t frac = base * (-x_accum);
+				const int base = src[x_in++];
+				const int frac = base * (-x_accum);
 				frow[x_out] = (sum + base) * dst_width - frac;
 				sum = MULT(frac, fx_scale);    // fresh fractional start for next pixel
 			  }
@@ -254,8 +254,8 @@ namespace NWebp.Internal.enc
 		  }
 		}
 
-		static void ExportRow(int32_t* frow, int32_t* irow, byte* dst, int dst_width,
-							  const int yscale, const int64_t fxy_scale) {
+		static void ExportRow(int* frow, int* irow, byte* dst, int dst_width,
+							  const int yscale, const long fxy_scale) {
 		  int x_out;
 		  for (x_out = 0; x_out < dst_width; ++x_out) {
 			const int frac = MULT(frow[x_out], yscale);
@@ -269,16 +269,16 @@ namespace NWebp.Internal.enc
 								 int src_width, int src_height, int src_stride,
 								 byte* dst,
 								 int dst_width, int dst_height, int dst_stride,
-								 int32_t* const work) {
+								 int* const work) {
 		  const int x_expand = (src_width < dst_width);
 		  const int fy_scale = (1 << RFIX) / dst_height;
-		  const int64_t fxy_scale = x_expand ?
-			  ((int64_t)dst_height << RFIX) / (dst_width * src_height) :
-			  ((int64_t)dst_height << RFIX) / (src_width * src_height);
+		  const long fxy_scale = x_expand ?
+			  ((long)dst_height << RFIX) / (dst_width * src_height) :
+			  ((long)dst_height << RFIX) / (src_width * src_height);
 		  int y_accum = src_height;
 		  int y;
-		  int32_t* irow = work;              // integral contribution
-		  int32_t* frow = work + dst_width;  // fractional contribution
+		  int* irow = work;              // integral contribution
+		  int* frow = work + dst_width;  // fractional contribution
 
 		  memset(work, 0, 2 * dst_width * sizeof(*work));
 		  for (y = 0; y < src_height; ++y) {
@@ -300,9 +300,9 @@ namespace NWebp.Internal.enc
 		int WebPPictureRescale(WebPPicture* const pic, int width, int height) {
 		  WebPPicture tmp;
 		  int prev_width, prev_height;
-		  int32_t* work;
+		  int* work;
 
-		  if (pic == NULL) return 0;
+		  if (pic == null) return 0;
 		  prev_width = pic->width;
 		  prev_height = pic->height;
 		  // if width is unspecified, scale original proportionally to height ratio.
@@ -321,8 +321,8 @@ namespace NWebp.Internal.enc
 		  tmp.height = height;
 		  if (!WebPPictureAlloc(&tmp)) return 0;
 
-		  work = (int32_t*)malloc(2 * width * sizeof(int32_t));
-		  if (work == NULL) {
+		  work = (int*)malloc(2 * width * sizeof(int));
+		  if (work == null) {
 			WebPPictureFree(&tmp);
 			return 0;
 		  }
@@ -338,12 +338,12 @@ namespace NWebp.Internal.enc
 					   tmp.v,
 					   HALVE(width), HALVE(height), tmp.uv_stride, work);
 
-		  if (tmp.a != NULL) {
+		  if (tmp.a != null) {
 			RescalePlane(pic->a, prev_width, prev_height, pic->a_stride,
 						 tmp.a, width, height, tmp.a_stride, work);
 		  }
 		#ifdef WEBP_EXPERIMENTAL_FEATURES
-		  if (tmp.u0 != NULL) {
+		  if (tmp.u0 != null) {
 			int s = 1;
 			if ((tmp.colorspace & WEBP_CSP_UV_MASK) == WEBP_YUV422) {
 			  s = 2;
@@ -368,31 +368,31 @@ namespace NWebp.Internal.enc
 
 		typedef struct {
 		  byte** mem;
-		  size_t    max_size;
-		  size_t*   size;
+		  uint    max_size;
+		  uint*   size;
 		} WebPMemoryWriter;
 
 		static void WebPMemoryWriterInit(WebPMemoryWriter* const writer) {
-		  *writer->mem = NULL;
+		  *writer->mem = null;
 		  *writer->size = 0;
 		  writer->max_size = 0;
 		}
 
-		static int WebPMemoryWrite(const byte* data, size_t data_size,
+		static int WebPMemoryWrite(const byte* data, uint data_size,
 								   const WebPPicture* const picture) {
 		  WebPMemoryWriter* const w = (WebPMemoryWriter*)picture->custom_ptr;
-		  size_t next_size;
-		  if (w == NULL) {
+		  uint next_size;
+		  if (w == null) {
 			return 1;
 		  }
 		  next_size = (*w->size) + data_size;
 		  if (next_size > w->max_size) {
 			byte* new_mem;
-			size_t next_max_size = w->max_size * 2;
+			uint next_max_size = w->max_size * 2;
 			if (next_max_size < next_size) next_max_size = next_size;
 			if (next_max_size < 8192) next_max_size = 8192;
 			new_mem = (byte*)malloc(next_max_size);
-			if (new_mem == NULL) {
+			if (new_mem == null) {
 			  return 0;
 			}
 			if ((*w->size) > 0) {
@@ -614,10 +614,10 @@ namespace NWebp.Internal.enc
 		  const byte* a_ptr;
 		  int values[3] = { 0 };
 
-		  if (pic == NULL) return;
+		  if (pic == null) return;
 
 		  a_ptr = pic->a;
-		  if (a_ptr == NULL) return;    // nothing to do
+		  if (a_ptr == null) return;    // nothing to do
 
 		  w = pic->width / SIZE;
 		  h = pic->height / SIZE;
@@ -662,7 +662,7 @@ namespace NWebp.Internal.enc
 
 		  if (pic1->width != pic2->width ||
 			  pic1->height != pic2->height ||
-			  (pic1->a == NULL) != (pic2->a == NULL)) {
+			  (pic1->a == null) != (pic2->a == null)) {
 			return 0;
 		  }
 
@@ -678,7 +678,7 @@ namespace NWebp.Internal.enc
 								 pic2->v, pic2->uv_stride,
 								 (pic1->width + 1) >> 1, (pic1->height + 1) >> 1,
 								 &stats[2]);
-		  if (pic1->a != NULL) {
+		  if (pic1->a != null) {
 			VP8SSIMAccumulatePlane(pic1->a, pic1->a_stride,
 								   pic2->a, pic2->a_stride,
 								   pic1->width, pic1->height, &stats[3]);
@@ -704,9 +704,9 @@ namespace NWebp.Internal.enc
 
 		typedef int (*Importer)(WebPPicture* const, const byte* const, int);
 
-		static size_t Encode(const byte* rgba, int width, int height, int stride,
+		static uint Encode(const byte* rgba, int width, int height, int stride,
 							 Importer import, float quality_factor, byte** output) {
-		  size_t output_size = 0;
+		  uint output_size = 0;
 		  WebPPicture pic;
 		  WebPConfig config;
 		  WebPMemoryWriter wrt;
@@ -730,14 +730,14 @@ namespace NWebp.Internal.enc
 		  WebPPictureFree(&pic);
 		  if (!ok) {
 			free(*output);
-			*output = NULL;
+			*output = null;
 			return 0;
 		  }
 		  return output_size;
 		}
 
 		#define ENCODE_FUNC(NAME, IMPORTER) \
-		size_t NAME(const byte* in, int w, int h, int bps, float q, \
+		uint NAME(const byte* in, int w, int h, int bps, float q, \
 					byte** out) { \
 		  return Encode(in, w, h, bps, IMPORTER, q, out);  \
 		}

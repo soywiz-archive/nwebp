@@ -52,7 +52,7 @@ namespace NWebp.Internal.enc
 
 		#define SKIP_PROBA_THRESHOLD 250  // value below which using skip_proba is OK.
 
-		static int CalcSkipProba(uint64_t nb, uint64_t total) {
+		static int CalcSkipProba(ulong nb, ulong total) {
 		  return (int)(total ? (total - nb) * 255 / total : 255);
 		}
 
@@ -403,7 +403,7 @@ namespace NWebp.Internal.enc
 								  const VP8ModeScore* const rd) {
 		  int x, y, ch;
 		  VP8Residual res;
-		  uint64_t pos1, pos2, pos3;
+		  ulong pos1, pos2, pos3;
 		  const int i16 = (it->mb_->type_ == 1);
 		  const int segment = it->mb_->segment_;
 		  VP8Encoder* const enc = it->enc_;
@@ -502,16 +502,16 @@ namespace NWebp.Internal.enc
 		#ifdef USE_TOKEN_BUFFER
 
 		void VP8TBufferInit(VP8TBuffer* const b) {
-		  b->rows_ = NULL;
-		  b->tokens_ = NULL;
+		  b->rows_ = null;
+		  b->tokens_ = null;
 		  b->last_ = &b->rows_;
 		  b->left_ = 0;
 		  b->error_ = 0;
 		}
 
 		int VP8TBufferNewPage(VP8TBuffer* const b) {
-		  VP8Tokens* const page = b->error_ ? NULL : (VP8Tokens*)malloc(sizeof(*page));
-		  if (page == NULL) {
+		  VP8Tokens* const page = b->error_ ? null : (VP8Tokens*)malloc(sizeof(*page));
+		  if (page == null) {
 			b->error_ = 1;
 			return 0;
 		  }
@@ -523,9 +523,9 @@ namespace NWebp.Internal.enc
 		}
 
 		void VP8TBufferClear(VP8TBuffer* const b) {
-		  if (b != NULL) {
+		  if (b != null) {
 			const VP8Tokens* p = b->rows_;
-			while (p != NULL) {
+			while (p != null) {
 			  const VP8Tokens* const next = p->next_;
 			  free((void*)p);
 			  p = next;
@@ -538,8 +538,8 @@ namespace NWebp.Internal.enc
 						  const byte* const probas) {
 		  VP8Tokens* p = b->rows_;
 		  if (b->error_) return 0;
-		  while (p != NULL) {
-			const int N = (p->next_ == NULL) ? b->left_ : 0;
+		  while (p != null) {
+			const int N = (p->next_ == null) ? b->left_ : 0;
 			int n = MAX_NUM_TOKEN;
 			while (n-- > N) {
 			  VP8PutBit(bw, (p->tokens_[n] >> 15) & 1, probas[p->tokens_[n] & 0x7fff]);
@@ -823,9 +823,9 @@ namespace NWebp.Internal.enc
 		static int OneStatPass(VP8Encoder* const enc, float q, int rd_opt, int nb_mbs,
 							   float* const PSNR, int percent_delta) {
 		  VP8EncIterator it;
-		  uint64_t size = 0;
-		  uint64_t distortion = 0;
-		  const uint64_t pixel_count = nb_mbs * 384;
+		  ulong size = 0;
+		  ulong distortion = 0;
+		  const ulong pixel_count = nb_mbs * 384;
 
 		  // Make sure the quality parameter is inside valid bounds
 		  if (q < 0.) {
@@ -887,7 +887,7 @@ namespace NWebp.Internal.enc
 		  if (!do_search) {
 			for (pass = 0; pass < max_passes; ++pass) {
 			  const int rd_opt = (enc->method_ > 2);
-			  if (!OneStatPass(enc, q, rd_opt, nb_mbs, NULL, percent_per_pass)) {
+			  if (!OneStatPass(enc, q, rd_opt, nb_mbs, null, percent_per_pass)) {
 				return 0;
 			  }
 			}

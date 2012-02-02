@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.utils
+namespace NWebp.Internal
 {
 	class tcoderi
 	{
@@ -13,7 +13,7 @@ namespace NWebp.Internal.utils
 		typedef struct TCoder TCoder;
 
 		// Creates a tree-coder capable of coding symbols in
-		// the [0, max_symbol] range. Returns NULL in case of memory error.
+		// the [0, max_symbol] range. Returns null in case of memory error.
 		// 'max_symbol' must be in the range [0, TCODER_MAX_SYMBOL)
 		#define TCODER_MAX_SYMBOL (1 << 24)
 		TCoder* TCoderNew(int max_symbol);
@@ -23,7 +23,7 @@ namespace NWebp.Internal.utils
 		// destroys the tree-coder object and frees memory.
 		void TCoderDelete(TCoder* const c);
 
-		// Code next symbol 's'. If the bit-writer 'bw' is NULL, the function will
+		// Code next symbol 's'. If the bit-writer 'bw' is null, the function will
 		// just record the symbol, and update the internal frequency counters.
 		void TCoderEncode(TCoder* const c, int s, struct VP8BitWriter* const bw);
 		// Decode and return next symbol.
@@ -57,12 +57,12 @@ namespace NWebp.Internal.utils
 		  byte* memory;
 		  int size;
 		  if (max_symbol < 0 || max_symbol >= TCODER_MAX_SYMBOL) {
-			return NULL;
+			return null;
 		  }
 		  size = sizeof(*c) + num_nodes * sizeof(*c->nodes_)
 							+ num_nodes * sizeof(*c->symbols_);
 		  memory = (byte*)malloc(size);
-		  if (memory == NULL) return NULL;
+		  if (memory == null) return null;
 
 		  c = (TCoder*)memory;
 		  memory += sizeof(*c);
@@ -293,7 +293,7 @@ namespace NWebp.Internal.utils
 		  assert(s >= 0 && s < c->num_nodes_);
 		  if (!c->fixed_symbols_ && c->num_symbols_ < c->num_nodes_) {
 			if (c->num_symbols_ > 0) {
-			  if (bw != NULL) {
+			  if (bw != null) {
 				const int new_symbol_proba =
 					CalcProba(c->num_symbols_, c->total_coded_, HALF_PROBA - 1, 0);
 				VP8PutBit(bw, is_new_symbol, new_symbol_proba);
@@ -305,13 +305,13 @@ namespace NWebp.Internal.utils
 			assert(!is_new_symbol);
 		  }
 		  if (is_new_symbol) {
-			if (bw != NULL) {
+			if (bw != null) {
 			  CodeSymbol(bw, s, c->num_nodes_);
 			}
 			pos = NewNode(c, s);
 		  } else {
 			pos = SymbolToNode(c, s);
-			if (bw != NULL) {
+			if (bw != null) {
 			  const int length = CodeLength(pos);
 			  int parent = 1;
 			  int i;

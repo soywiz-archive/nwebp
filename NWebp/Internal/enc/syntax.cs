@@ -38,7 +38,7 @@ namespace NWebp.Internal.enc
 		// Writers for header's various pieces (in order of appearance)
 
 		static WebPEncodingError PutRIFFHeader(const VP8Encoder* const enc,
-											   size_t riff_size) {
+											   uint riff_size) {
 		  const WebPPicture* const pic = enc->pic_;
 		  byte riff[RIFF_HEADER_SIZE] = {
 			'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'E', 'B', 'P'
@@ -100,7 +100,7 @@ namespace NWebp.Internal.enc
 		}
 
 		static WebPEncodingError PutVP8Header(const WebPPicture* const pic,
-											  size_t vp8_size) {
+											  uint vp8_size) {
 		  byte vp8_chunk_hdr[CHUNK_HEADER_SIZE] = {
 			'V', 'P', '8', ' '
 		  };
@@ -112,7 +112,7 @@ namespace NWebp.Internal.enc
 		}
 
 		static WebPEncodingError PutVP8FrameHeader(const WebPPicture* const pic,
-												   int profile, size_t size0) {
+												   int profile, uint size0) {
 		  byte vp8_frm_hdr[VP8_FRAME_HEADER_SIZE];
 		  uint bits;
 
@@ -145,8 +145,8 @@ namespace NWebp.Internal.enc
 		}
 
 		// WebP Headers.
-		static int PutWebPHeaders(const VP8Encoder* const enc, size_t size0,
-								  size_t vp8_size, size_t riff_size) {
+		static int PutWebPHeaders(const VP8Encoder* const enc, uint size0,
+								  uint vp8_size, uint riff_size) {
 		  WebPPicture* const pic = enc->pic_;
 		  WebPEncodingError err = VP8_ENC_OK;
 
@@ -249,7 +249,7 @@ namespace NWebp.Internal.enc
 		  byte buf[3 * (MAX_NUM_PARTITIONS - 1)];
 		  int p;
 		  for (p = 0; p < enc->num_parts_ - 1; ++p) {
-			const size_t part_size = VP8BitWriterSize(enc->parts_ + p);
+			const uint part_size = VP8BitWriterSize(enc->parts_ + p);
 			if (part_size >= MAX_PARTITION_SIZE) {
 			  return WebPEncodingSetError(pic, VP8_ENC_ERROR_PARTITION_OVERFLOW);
 			}
@@ -266,7 +266,7 @@ namespace NWebp.Internal.enc
 
 		#define KTRAILER_SIZE 8
 
-		static void PutLE24(byte* buf, size_t value) {
+		static void PutLE24(byte* buf, uint value) {
 		  buf[0] = (value >>  0) & 0xff;
 		  buf[1] = (value >>  8) & 0xff;
 		  buf[2] = (value >> 16) & 0xff;
@@ -300,10 +300,10 @@ namespace NWebp.Internal.enc
 
 		//------------------------------------------------------------------------------
 
-		static size_t GeneratePartition0(VP8Encoder* const enc) {
+		static uint GeneratePartition0(VP8Encoder* const enc) {
 		  VP8BitWriter* const bw = &enc->bw_;
 		  const int mb_size = enc->mb_w_ * enc->mb_h_;
-		  uint64_t pos1, pos2, pos3;
+		  ulong pos1, pos2, pos3;
 		#ifdef WEBP_EXPERIMENTAL_FEATURES
 		  const int need_extensions = enc->use_layer_;
 		#endif
@@ -359,7 +359,7 @@ namespace NWebp.Internal.enc
 		  const int percent_per_part = task_percent / enc->num_parts_;
 		  const int final_percent = enc->percent_ + task_percent;
 		  int ok = 0;
-		  size_t vp8_size, pad, riff_size;
+		  uint vp8_size, pad, riff_size;
 		  int p;
 
 		  // Partition #0 with header and partition sizes
@@ -394,7 +394,7 @@ namespace NWebp.Internal.enc
 		  // Emit headers and partition #0
 		  {
 			const byte* const part0 = VP8BitWriterBuf(bw);
-			const size_t size0 = VP8BitWriterSize(bw);
+			const uint size0 = VP8BitWriterSize(bw);
 			ok = ok && PutWebPHeaders(enc, size0, vp8_size, riff_size)
 					&& pic->writer(part0, size0, pic)
 					&& EmitPartitionsSize(enc, pic);
@@ -404,7 +404,7 @@ namespace NWebp.Internal.enc
 		  // Token partitions
 		  for (p = 0; p < enc->num_parts_; ++p) {
 			const byte* const buf = VP8BitWriterBuf(enc->parts_ + p);
-			const size_t size = VP8BitWriterSize(enc->parts_ + p);
+			const uint size = VP8BitWriterSize(enc->parts_ + p);
 			if (size)
 			  ok = ok && pic->writer(buf, size, pic);
 			VP8BitWriterWipeOut(enc->parts_ + p);    // will free the internal buffer.

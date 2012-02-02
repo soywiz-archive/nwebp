@@ -417,10 +417,10 @@ namespace NWebp.Internal.dsp
 		}
 
 		// helper for chroma-DC predictions
-		static WEBP_INLINE void Put8x8uv(uint64_t v, byte* dst) {
+		static WEBP_INLINE void Put8x8uv(ulong v, byte* dst) {
 		  int j;
 		  for (j = 0; j < 8; ++j) {
-			*(uint64_t*)(dst + j * BPS) = v;
+			*(ulong*)(dst + j * BPS) = v;
 		  }
 		}
 
@@ -430,7 +430,7 @@ namespace NWebp.Internal.dsp
 		  for (i = 0; i < 8; ++i) {
 			dc0 += dst[i - BPS] + dst[-1 + i * BPS];
 		  }
-		  Put8x8uv((uint64_t)((dc0 >> 4) * 0x0101010101010101ULL), dst);
+		  Put8x8uv((ulong)((dc0 >> 4) * 0x0101010101010101ULL), dst);
 		}
 
 		static void DC8uvNoLeft(byte *dst) {   // DC with no left samples
@@ -439,7 +439,7 @@ namespace NWebp.Internal.dsp
 		  for (i = 0; i < 8; ++i) {
 			dc0 += dst[i - BPS];
 		  }
-		  Put8x8uv((uint64_t)((dc0 >> 3) * 0x0101010101010101ULL), dst);
+		  Put8x8uv((ulong)((dc0 >> 3) * 0x0101010101010101ULL), dst);
 		}
 
 		static void DC8uvNoTop(byte *dst) {  // DC with no top samples
@@ -448,7 +448,7 @@ namespace NWebp.Internal.dsp
 		  for (i = 0; i < 8; ++i) {
 			dc0 += dst[-1 + i * BPS];
 		  }
-		  Put8x8uv((uint64_t)((dc0 >> 3) * 0x0101010101010101ULL), dst);
+		  Put8x8uv((ulong)((dc0 >> 3) * 0x0101010101010101ULL), dst);
 		}
 
 		static void DC8uvNoTopLeft(byte *dst) {    // DC with nothing

@@ -108,7 +108,7 @@ namespace NWebp.Internal.dec
 
 		  if (y == 0) {
 			// First line is special cased. We mirror the u/v samples at boundary.
-			upsample(NULL, cur_y, cur_u, cur_v, cur_u, cur_v, NULL, dst, mb_w);
+			upsample(null, cur_y, cur_u, cur_v, cur_u, cur_v, null, dst, mb_w);
 		  } else {
 			// We can finish the left-over line from previous call.
 			// Warning! Don't overwrite the alpha values (if any), as they
@@ -142,8 +142,8 @@ namespace NWebp.Internal.dec
 		  } else {
 			// Process the very last row of even-sized picture
 			if (!(y_end & 1)) {
-			  upsample(cur_y, NULL, cur_u, cur_v, cur_u, cur_v,
-					  dst + buf->stride, NULL, mb_w);
+			  upsample(cur_y, null, cur_u, cur_v, cur_u, cur_v,
+					  dst + buf->stride, null, mb_w);
 			}
 		  }
 		  return num_lines_out;
@@ -155,7 +155,7 @@ namespace NWebp.Internal.dec
 
 		static int EmitAlphaYUV(const VP8Io* const io, WebPDecParams* const p) {
 		  const byte* alpha = io->a;
-		  if (alpha != NULL) {
+		  if (alpha != null) {
 			int j;
 			const int mb_w = io->mb_w;
 			const int mb_h = io->mb_h;
@@ -222,14 +222,14 @@ namespace NWebp.Internal.dec
 		// this code in.
 
 		#define RFIX 30
-		#define MULT(x,y) (((int64_t)(x) * (y) + (1 << (RFIX - 1))) >> RFIX)
+		#define MULT(x,y) (((long)(x) * (y) + (1 << (RFIX - 1))) >> RFIX)
 
 		static void InitRescaler(WebPRescaler* const wrk,
 								 int src_width, int src_height,
 								 byte* dst,
 								 int dst_width, int dst_height, int dst_stride,
 								 int x_add, int x_sub, int y_add, int y_sub,
-								 int32_t* work) {
+								 int* work) {
 		  wrk->x_expand = (src_width < dst_width);
 		  wrk->src_width = src_width;
 		  wrk->src_height = src_height;
@@ -246,8 +246,8 @@ namespace NWebp.Internal.dec
 		  wrk->fx_scale = (1 << RFIX) / x_sub;
 		  wrk->fy_scale = (1 << RFIX) / y_sub;
 		  wrk->fxy_scale = wrk->x_expand ?
-			  ((int64_t)dst_height << RFIX) / (x_sub * src_height) :
-			  ((int64_t)dst_height << RFIX) / (x_add * src_height);
+			  ((long)dst_height << RFIX) / (x_sub * src_height) :
+			  ((long)dst_height << RFIX) / (x_add * src_height);
 		  wrk->irow = work;
 		  wrk->frow = work + dst_width;
 		}
@@ -265,8 +265,8 @@ namespace NWebp.Internal.dec
 				sum += src[x_in++];
 			  }
 			  {        // Emit next horizontal pixel.
-				const int32_t base = src[x_in++];
-				const int32_t frac = base * (-accum);
+				const int base = src[x_in++];
+				const int frac = base * (-accum);
 				wrk->frow[x_out] = (sum + base) * wrk->x_sub - frac;
 				// fresh fractional start for next pixel
 				sum = MULT(frac, wrk->fx_scale);
@@ -335,7 +335,7 @@ namespace NWebp.Internal.dec
 		}
 
 		static int EmitRescaledAlphaYUV(const VP8Io* const io, WebPDecParams* const p) {
-		  if (io->a != NULL) {
+		  if (io->a != null) {
 			Rescale(io->a, io->width, io->mb_h, &p->scaler_a);
 		  }
 		  return 0;
@@ -358,17 +358,17 @@ namespace NWebp.Internal.dec
 		  const uint work_size = 2 * out_width;   // scratch memory for luma rescaler
 		  const uint uv_work_size = 2 * uv_out_width;  // and for each u/v ones
 		  uint tmp_size;
-		  int32_t* work;
+		  int* work;
 
 		  tmp_size = work_size + 2 * uv_work_size;
 		  if (has_alpha) {
 			tmp_size += work_size;
 		  }
 		  p->memory = calloc(1, tmp_size * sizeof(*work));
-		  if (p->memory == NULL) {
+		  if (p->memory == null) {
 			return 0;   // memory error
 		  }
-		  work = (int32_t*)p->memory;
+		  work = (int*)p->memory;
 		  InitRescaler(&p->scaler_y, io->mb_w, io->mb_h,
 					   buf->y, out_width, out_height, buf->y_stride,
 					   io->mb_w, out_width, io->mb_h, out_height,
@@ -492,7 +492,7 @@ namespace NWebp.Internal.dec
 		}
 
 		static int EmitRescaledAlphaRGB(const VP8Io* const io, WebPDecParams* const p) {
-		  if (io->a != NULL) {
+		  if (io->a != null) {
 			int (* const output_func)(WebPDecParams* const, int) =
 				(p->output->colorspace == MODE_RGBA_4444) ? ExportAlphaRGBA4444
 														  : ExportAlpha;
@@ -513,7 +513,7 @@ namespace NWebp.Internal.dec
 		  const int uv_in_width  = (io->mb_w + 1) >> 1;
 		  const int uv_in_height = (io->mb_h + 1) >> 1;
 		  const uint work_size = 2 * out_width;   // scratch memory for one rescaler
-		  int32_t* work;  // rescalers work area
+		  int* work;  // rescalers work area
 		  byte* tmp;   // tmp storage for scaled YUV444 samples before RGB conversion
 		  uint tmp_size1, tmp_size2;
 
@@ -525,10 +525,10 @@ namespace NWebp.Internal.dec
 		  }
 		  p->memory =
 			  calloc(1, tmp_size1 * sizeof(*work) + tmp_size2 * sizeof(*tmp));
-		  if (p->memory == NULL) {
+		  if (p->memory == null) {
 			return 0;   // memory error
 		  }
-		  work = (int32_t*)p->memory;
+		  work = (int*)p->memory;
 		  tmp = (byte*)(work + tmp_size1);
 		  InitRescaler(&p->scaler_y, io->mb_w, io->mb_h,
 					   tmp + 0 * out_width, out_width, out_height, 0,
@@ -565,7 +565,7 @@ namespace NWebp.Internal.dec
 		  int x = 0, y = 0, w = W, h = H;
 
 		  // Cropping
-		  io->use_cropping = (options != NULL) && (options->use_cropping > 0);
+		  io->use_cropping = (options != null) && (options->use_cropping > 0);
 		  if (io->use_cropping) {
 			w = options->crop_width;
 			h = options->crop_height;
@@ -584,7 +584,7 @@ namespace NWebp.Internal.dec
 		  io->mb_h = h;
 
 		  // Scaling
-		  io->use_scaling = (options != NULL) && (options->use_scaling > 0);
+		  io->use_scaling = (options != null) && (options->use_scaling > 0);
 		  if (io->use_scaling) {
 			if (options->scaled_width <= 0 || options->scaled_height <= 0) {
 			  return 0;
@@ -598,7 +598,7 @@ namespace NWebp.Internal.dec
 
 		  // Fancy upsampler
 		#ifdef FANCY_UPSAMPLING
-		  io->fancy_upsampling = (options == NULL) || (!options->no_fancy_upsampling);
+		  io->fancy_upsampling = (options == null) || (!options->no_fancy_upsampling);
 		#endif
 
 		  if (io->use_scaling) {
@@ -614,9 +614,9 @@ namespace NWebp.Internal.dec
 		  WebPDecParams* const p = (WebPDecParams*)io->opaque;
 		  const int is_rgb = (p->output->colorspace < MODE_YUV);
 
-		  p->memory = NULL;
-		  p->emit = NULL;
-		  p->emit_alpha = NULL;
+		  p->memory = null;
+		  p->emit = null;
+		  p->emit_alpha = null;
 		  if (!InitFromOptions(p->options, io)) {
 			return 0;
 		  }
@@ -633,7 +633,7 @@ namespace NWebp.Internal.dec
 			  if (io->fancy_upsampling) {
 				const int uv_width = (io->mb_w + 1) >> 1;
 				p->memory = malloc(io->mb_w + 2 * uv_width);
-				if (p->memory == NULL) {
+				if (p->memory == null) {
 				  return 0;   // memory error.
 				}
 				p->tmp_y = (byte*)p->memory;
@@ -685,7 +685,7 @@ namespace NWebp.Internal.dec
 		static void CustomTeardown(const VP8Io* io) {
 		  WebPDecParams* const p = (WebPDecParams*)io->opaque;
 		  free(p->memory);
-		  p->memory = NULL;
+		  p->memory = null;
 		}
 
 		//------------------------------------------------------------------------------

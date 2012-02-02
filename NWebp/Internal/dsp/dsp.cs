@@ -45,7 +45,7 @@ namespace NWebp.Internal.dsp
 		extern VP8WHT VP8ITransformWHT;
 		extern VP8WHT VP8FTransformWHT;
 		// Predictions
-		// *dst is the destination block. *top and *left can be NULL.
+		// *dst is the destination block. *top and *left can be null.
 		typedef void (*VP8IntraPreds)(byte *dst, const byte* left,
 									  const byte* top);
 		typedef void (*VP8Intra4Preds)(byte *dst, const byte* top);

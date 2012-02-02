@@ -60,22 +60,22 @@ namespace NWebp.Internal.dec
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 
-		  if (!buffer->is_external_memory && buffer->private_memory == NULL) {
+		  if (!buffer->is_external_memory && buffer->private_memory == null) {
 			byte* output;
 			int uv_stride = 0, a_stride = 0;
 			int uv_size = 0;
-			uint64_t a_size = 0, total_size;
+			ulong a_size = 0, total_size;
 			// We need memory and it hasn't been allocated yet.
 			// => initialize output buffer, now that dimensions are known.
 			const int stride = w * kModeBpp[mode];
-			const uint64_t size = (uint64_t)stride * h;
+			const ulong size = (ulong)stride * h;
 
 			if (mode >= MODE_YUV) {
 			  uv_stride = (w + 1) / 2;
-			  uv_size = (uint64_t)uv_stride * ((h + 1) / 2);
+			  uv_size = (ulong)uv_stride * ((h + 1) / 2);
 			  if (mode == MODE_YUVA) {
 				a_stride = w;
-				a_size = (uint64_t)a_stride * h;
+				a_size = (ulong)a_stride * h;
 			  }
 			}
 			total_size = size + 2 * uv_size + a_size;
@@ -86,7 +86,7 @@ namespace NWebp.Internal.dec
 			}
 
 			buffer->private_memory = output = (byte*)malloc((uint)total_size);
-			if (output == NULL) {
+			if (output == null) {
 			  return VP8_STATUS_OUT_OF_MEMORY;
 			}
 
@@ -119,10 +119,10 @@ namespace NWebp.Internal.dec
 		VP8StatusCode WebPAllocateDecBuffer(int w, int h,
 											const WebPDecoderOptions* const options,
 											WebPDecBuffer* const out) {
-		  if (out == NULL || w <= 0 || h <= 0) {
+		  if (out == null || w <= 0 || h <= 0) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
-		  if (options != NULL) {    // First, apply options if there is any.
+		  if (options != null) {    // First, apply options if there is any.
 			if (options->use_cropping) {
 			  const int cw = options->crop_width;
 			  const int ch = options->crop_height;
@@ -154,37 +154,37 @@ namespace NWebp.Internal.dec
 
 		int WebPInitDecBufferInternal(WebPDecBuffer* const buffer, int version) {
 		  if (version != WEBP_DECODER_ABI_VERSION) return 0;  // version mismatch
-		  if (buffer == NULL) return 0;
+		  if (buffer == null) return 0;
 		  memset(buffer, 0, sizeof(*buffer));
 		  return 1;
 		}
 
 		void WebPFreeDecBuffer(WebPDecBuffer* const buffer) {
-		  if (buffer != NULL) {
+		  if (buffer != null) {
 			if (!buffer->is_external_memory)
 			  free(buffer->private_memory);
-			buffer->private_memory = NULL;
+			buffer->private_memory = null;
 		  }
 		}
 
 		void WebPCopyDecBuffer(const WebPDecBuffer* const src,
 							   WebPDecBuffer* const dst) {
-		  if (src != NULL && dst != NULL) {
+		  if (src != null && dst != null) {
 			*dst = *src;
-			if (src->private_memory != NULL) {
+			if (src->private_memory != null) {
 			  dst->is_external_memory = 1;   // dst buffer doesn't own the memory.
-			  dst->private_memory = NULL;
+			  dst->private_memory = null;
 			}
 		  }
 		}
 
 		// Copy and transfer ownership from src to dst (beware of parameter order!)
 		void WebPGrabDecBuffer(WebPDecBuffer* const src, WebPDecBuffer* const dst) {
-		  if (src != NULL && dst != NULL) {
+		  if (src != null && dst != null) {
 			*dst = *src;
-			if (src->private_memory != NULL) {
+			if (src->private_memory != null) {
 			  src->is_external_memory = 1;   // src relinquishes ownership
-			  src->private_memory = NULL;
+			  src->private_memory = null;
 			}
 		  }
 		}

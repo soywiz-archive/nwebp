@@ -12,7 +12,7 @@ namespace NWebp.Internal.dsp
 			   YUV_RANGE_MAX = 256 + 226    // max value of r/g/b output
 		};
 		extern short VP8kVToR[256], VP8kUToB[256];
-		extern int32_t VP8kVToG[256], VP8kUToG[256];
+		extern int VP8kVToG[256], VP8kUToG[256];
 		extern byte VP8kClip[YUV_RANGE_MAX - YUV_RANGE_MIN];
 		extern byte VP8kClip4Bits[YUV_RANGE_MAX - YUV_RANGE_MIN];
 
@@ -92,7 +92,7 @@ namespace NWebp.Internal.dsp
 		enum { YUV_HALF = 1 << (YUV_FIX - 1) };
 
 		short VP8kVToR[256], VP8kUToB[256];
-		int32_t VP8kVToG[256], VP8kUToG[256];
+		int VP8kVToG[256], VP8kUToG[256];
 		byte VP8kClip[YUV_RANGE_MAX - YUV_RANGE_MIN];
 		byte VP8kClip4Bits[YUV_RANGE_MAX - YUV_RANGE_MIN];
 

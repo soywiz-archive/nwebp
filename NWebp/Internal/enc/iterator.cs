@@ -24,7 +24,7 @@ namespace NWebp.Internal.enc
 
 		static void InitTop(VP8EncIterator* const it) {
 		  const VP8Encoder* const enc = it->enc_;
-		  const size_t top_size = enc->mb_w_ * 16;
+		  const uint top_size = enc->mb_w_ * 16;
 		  memset(enc->y_top_, 127, 2 * top_size);
 		  memset(enc->nz_, 0, enc->mb_w_ * sizeof(*enc->nz_));
 		}

@@ -36,7 +36,7 @@ namespace NWebp.Internal.dec
 											 // or used for tmp rescaling
 
 		  int last_y;                 // coordinate of the line that was last output
-		  const WebPDecoderOptions* options;  // if not NULL, use alt decoding features
+		  const WebPDecoderOptions* options;  // if not null, use alt decoding features
 		  // rescalers
 		  WebPRescaler scaler_y, scaler_u, scaler_v, scaler_a;
 		  void* memory;               // overall scratch memory for the output work.

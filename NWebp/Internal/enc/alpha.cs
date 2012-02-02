@@ -12,8 +12,8 @@ namespace NWebp.Internal.enc
 
 		void VP8EncInitAlpha(VP8Encoder* enc)
 		{
-			enc->has_alpha_ = (enc->pic_->a != NULL);
-			enc->alpha_data_ = NULL;
+			enc->has_alpha_ = (enc->pic_->a != null);
+			enc->alpha_data_ = null;
 			enc->alpha_data_size_ = 0;
 		}
 
@@ -23,8 +23,8 @@ namespace NWebp.Internal.enc
 			{
 				const WebPConfig* config = enc->config_;
 				const WebPPicture* pic = enc->pic_;
-				byte* tmp_data = NULL;
-				size_t tmp_size = 0;
+				byte* tmp_data = null;
+				uint tmp_size = 0;
 				const WEBP_FILTER_TYPE filter =
 					(config->alpha_filtering == 0) ? WEBP_FILTER_NONE :
 					(config->alpha_filtering == 1) ? WEBP_FILTER_FAST :
@@ -51,7 +51,7 @@ namespace NWebp.Internal.enc
 		void VP8EncDeleteAlpha(VP8Encoder* enc)
 		{
 			free(enc->alpha_data_);
-			enc->alpha_data_ = NULL;
+			enc->alpha_data_ = null;
 			enc->alpha_data_size_ = 0;
 			enc->has_alpha_ = 0;
 		}

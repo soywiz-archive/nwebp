@@ -89,7 +89,7 @@ namespace NWebp.Internal.dec
 
 		  if (mem->end_ + data_size > mem->buf_size_) {  // Need some free memory
 			int p;
-			byte* new_buf = NULL;
+			byte* new_buf = null;
 			const uint num_chunks =
 				(MemDataSize(mem) + data_size + CHUNK_SIZE - 1) / CHUNK_SIZE;
 			const uint new_size = num_chunks * CHUNK_SIZE;
@@ -275,7 +275,7 @@ namespace NWebp.Internal.dec
 			// Not enough data bytes to extract VP8 Frame Header.
 			return VP8_STATUS_SUSPENDED;
 		  }
-		  if (!VP8GetInfo(data, curr_size, idec->vp8_size_, NULL, NULL)) {
+		  if (!VP8GetInfo(data, curr_size, idec->vp8_size_, null, null)) {
 			return IDecError(idec, VP8_STATUS_BITSTREAM_ERROR);
 		  }
 
@@ -434,14 +434,14 @@ namespace NWebp.Internal.dec
 
 		WebPIDecoder* WebPINewDecoder(WebPDecBuffer* const output_buffer) {
 		  WebPIDecoder* idec = (WebPIDecoder*)calloc(1, sizeof(WebPIDecoder));
-		  if (idec == NULL) {
-			return NULL;
+		  if (idec == null) {
+			return null;
 		  }
 
 		  idec->dec_ = VP8New();
-		  if (idec->dec_ == NULL) {
+		  if (idec->dec_ == null) {
 			free(idec);
-			return NULL;
+			return null;
 		  }
 
 		  idec->state_ = STATE_PRE_VP8;
@@ -470,18 +470,18 @@ namespace NWebp.Internal.dec
 		  WebPIDecoder* idec;
 
 		  // Parse the bitstream's features, if requested:
-		  if (data != NULL && data_size > 0 && config != NULL) {
+		  if (data != null && data_size > 0 && config != null) {
 			if (WebPGetFeatures(data, data_size, &config->input) != VP8_STATUS_OK) {
-			  return NULL;
+			  return null;
 			}
 		  }
 		  // Create an instance of the incremental decoder
-		  idec = WebPINewDecoder(config ? &config->output : NULL);
+		  idec = WebPINewDecoder(config ? &config->output : null);
 		  if (!idec) {
-			return NULL;
+			return null;
 		  }
 		  // Finish initialization
-		  if (config != NULL) {
+		  if (config != null) {
 			idec->params_.options = &config->options;
 		  }
 		  return idec;
@@ -499,8 +499,8 @@ namespace NWebp.Internal.dec
 		// Wrapper toward WebPINewDecoder
 
 		WebPIDecoder* WebPINew(WEBP_CSP_MODE mode) {
-		  WebPIDecoder* const idec = WebPINewDecoder(NULL);
-		  if (!idec) return NULL;
+		  WebPIDecoder* const idec = WebPINewDecoder(null);
+		  if (!idec) return null;
 		  idec->output_.colorspace = mode;
 		  return idec;
 		}
@@ -508,9 +508,9 @@ namespace NWebp.Internal.dec
 		WebPIDecoder* WebPINewRGB(WEBP_CSP_MODE mode, byte* output_buffer,
 								  int output_buffer_size, int output_stride) {
 		  WebPIDecoder* idec;
-		  if (mode >= MODE_YUV) return NULL;
-		  idec = WebPINewDecoder(NULL);
-		  if (!idec) return NULL;
+		  if (mode >= MODE_YUV) return null;
+		  idec = WebPINewDecoder(null);
+		  if (!idec) return null;
 		  idec->output_.colorspace = mode;
 		  idec->output_.is_external_memory = 1;
 		  idec->output_.u.RGBA.rgba = output_buffer;
@@ -522,8 +522,8 @@ namespace NWebp.Internal.dec
 		WebPIDecoder* WebPINewYUV(byte* luma, int luma_size, int luma_stride,
 								  byte* u, int u_size, int u_stride,
 								  byte* v, int v_size, int v_stride) {
-		  WebPIDecoder* const idec = WebPINewDecoder(NULL);
-		  if (!idec) return NULL;
+		  WebPIDecoder* const idec = WebPINewDecoder(null);
+		  if (!idec) return null;
 		  idec->output_.colorspace = MODE_YUV;
 		  idec->output_.is_external_memory = 1;
 		  idec->output_.u.YUVA.y = luma;
@@ -542,7 +542,7 @@ namespace NWebp.Internal.dec
 
 		static VP8StatusCode IDecCheckStatus(const WebPIDecoder* const idec) {
 		  assert(idec);
-		  if (idec->dec_ == NULL) {
+		  if (idec->dec_ == null) {
 			return VP8_STATUS_USER_ABORT;
 		  }
 		  if (idec->state_ == STATE_ERROR) {
@@ -557,7 +557,7 @@ namespace NWebp.Internal.dec
 		VP8StatusCode WebPIAppend(WebPIDecoder* const idec, const byte* data,
 								  uint data_size) {
 		  VP8StatusCode status;
-		  if (idec == NULL || data == NULL) {
+		  if (idec == null || data == null) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 		  status = IDecCheckStatus(idec);
@@ -578,7 +578,7 @@ namespace NWebp.Internal.dec
 		VP8StatusCode WebPIUpdate(WebPIDecoder* const idec, const byte* data,
 								  uint data_size) {
 		  VP8StatusCode status;
-		  if (idec == NULL || data == NULL) {
+		  if (idec == null || data == null) {
 			return VP8_STATUS_INVALID_PARAM;
 		  }
 		  status = IDecCheckStatus(idec);
@@ -600,7 +600,7 @@ namespace NWebp.Internal.dec
 
 		static const WebPDecBuffer* GetOutputBuffer(const WebPIDecoder* const idec) {
 		  if (!idec || !idec->dec_ || idec->state_ <= STATE_VP8_PARTS0) {
-			return NULL;
+			return null;
 		  }
 		  return idec->params_.output;
 		}
@@ -625,9 +625,9 @@ namespace NWebp.Internal.dec
 		byte* WebPIDecGetRGB(const WebPIDecoder* const idec, int* last_y,
 								int* width, int* height, int* stride) {
 		  const WebPDecBuffer* const src = GetOutputBuffer(idec);
-		  if (!src) return NULL;
+		  if (!src) return null;
 		  if (src->colorspace >= MODE_YUV) {
-			return NULL;
+			return null;
 		  }
 
 		  if (last_y) *last_y = idec->params_.last_y;
@@ -642,9 +642,9 @@ namespace NWebp.Internal.dec
 								byte** u, byte** v,
 								int* width, int* height, int *stride, int* uv_stride) {
 		  const WebPDecBuffer* const src = GetOutputBuffer(idec);
-		  if (!src) return NULL;
+		  if (!src) return null;
 		  if (src->colorspace < MODE_YUV) {
-			return NULL;
+			return null;
 		  }
 
 		  if (last_y) *last_y = idec->params_.last_y;

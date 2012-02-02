@@ -25,7 +25,7 @@ namespace NWebp.Internal.enc
 		  const int majority_cnt_3_x_3_grid = 5;
 		  byte* const tmp = (byte*)malloc(w * h * sizeof(byte));
 
-		  if (tmp == NULL) return;
+		  if (tmp == null) return;
 		  for (y = 1; y < h - 1; ++y) {
 			for (x = 1; x < w - 1; ++x) {
 			  int cnt[NUM_MB_SEGMENTS] = { 0 };

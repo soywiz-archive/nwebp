@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.utils
+namespace NWebp.Internal
 {
 	class thread
 	{
@@ -87,13 +87,13 @@ namespace NWebp.Internal.utils
 		static int pthread_create(pthread_t* const thread, const void* attr,
 								  unsigned int (__stdcall *start)(void*), void* arg) {
 		  (void)attr;
-		  *thread = (pthread_t)_beginthreadex(NULL,   /* void *security */
+		  *thread = (pthread_t)_beginthreadex(null,   /* void *security */
 											  0,      /* unsigned stack_size */
 											  start,
 											  arg,
 											  0,      /* unsigned initflag */
-											  NULL);  /* unsigned *thrdaddr */
-		  if (*thread == NULL) return 1;
+											  null);  /* unsigned *thrdaddr */
+		  if (*thread == null) return 1;
 		  SetThreadPriority(*thread, THREAD_PRIORITY_ABOVE_NORMAL);
 		  return 0;
 		}
@@ -137,12 +137,12 @@ namespace NWebp.Internal.utils
 
 		static int pthread_cond_init(pthread_cond_t* const condition, void* cond_attr) {
 		  (void)cond_attr;
-		  condition->waiting_sem_ = CreateSemaphore(NULL, 0, 1, NULL);
-		  condition->received_sem_ = CreateSemaphore(NULL, 0, 1, NULL);
-		  condition->signal_event_ = CreateEvent(NULL, FALSE, FALSE, NULL);
-		  if (condition->waiting_sem_ == NULL ||
-			  condition->received_sem_ == NULL ||
-			  condition->signal_event_ == NULL) {
+		  condition->waiting_sem_ = CreateSemaphore(null, 0, 1, null);
+		  condition->received_sem_ = CreateSemaphore(null, 0, 1, null);
+		  condition->signal_event_ = CreateEvent(null, FALSE, FALSE, null);
+		  if (condition->waiting_sem_ == null ||
+			  condition->received_sem_ == null ||
+			  condition->signal_event_ == null) {
 			pthread_cond_destroy(condition);
 			return 1;
 		  }
@@ -167,13 +167,13 @@ namespace NWebp.Internal.utils
 		  int ok;
 		  // note that there is a consumer available so the signal isn't dropped in
 		  // pthread_cond_signal
-		  if (!ReleaseSemaphore(condition->waiting_sem_, 1, NULL))
+		  if (!ReleaseSemaphore(condition->waiting_sem_, 1, null))
 			return 1;
 		  // now unlock the mutex so pthread_cond_signal may be issued
 		  pthread_mutex_unlock(mutex);
 		  ok = (WaitForSingleObject(condition->signal_event_, INFINITE) ==
 				WAIT_OBJECT_0);
-		  ok &= ReleaseSemaphore(condition->received_sem_, 1, NULL);
+		  ok &= ReleaseSemaphore(condition->received_sem_, 1, null);
 		  pthread_mutex_lock(mutex);
 		  return !ok;
 		}
@@ -205,7 +205,7 @@ namespace NWebp.Internal.utils
 			pthread_cond_signal(&worker->condition_);
 			pthread_mutex_unlock(&worker->mutex_);
 		  }
-		  return THREAD_RETURN(NULL);    // Thread is finished
+		  return THREAD_RETURN(null);    // Thread is finished
 		}
 
 		// main thread state control
@@ -249,12 +249,12 @@ namespace NWebp.Internal.utils
 		  worker->had_error = 0;
 		  if (worker->status_ < OK) {
 		#ifdef WEBP_USE_THREAD
-			if (pthread_mutex_init(&worker->mutex_, NULL) ||
-				pthread_cond_init(&worker->condition_, NULL)) {
+			if (pthread_mutex_init(&worker->mutex_, null) ||
+				pthread_cond_init(&worker->condition_, null)) {
 			  return 0;
 			}
 			pthread_mutex_lock(&worker->mutex_);
-			ok = !pthread_create(&worker->thread_, NULL, WebPWorkerThreadLoop, worker);
+			ok = !pthread_create(&worker->thread_, null, WebPWorkerThreadLoop, worker);
 			if (ok) worker->status_ = OK;
 			pthread_mutex_unlock(&worker->mutex_);
 		#else
@@ -280,7 +280,7 @@ namespace NWebp.Internal.utils
 		  if (worker->status_ >= OK) {
 		#ifdef WEBP_USE_THREAD
 			WebPWorkerChangeState(worker, NOT_OK);
-			pthread_join(worker->thread_, NULL);
+			pthread_join(worker->thread_, null);
 			pthread_mutex_destroy(&worker->mutex_);
 			pthread_cond_destroy(&worker->condition_);
 		#else

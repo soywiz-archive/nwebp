@@ -11,7 +11,7 @@ namespace NWebp.Internal.utils
 		#define BITS 32     // can be 32, 16 or 8
 		#define MASK ((((bit_t)1) << (BITS)) - 1)
 		#if (BITS == 32)
-		typedef uint64_t bit_t;   // natural register type
+		typedef ulong bit_t;   // natural register type
 		typedef uint lbit_t;  // natural type for memory I/O
 		#elif (BITS == 16)
 		typedef uint bit_t;
@@ -47,7 +47,7 @@ namespace NWebp.Internal.utils
 		}
 
 		// return the next value with sign-extension.
-		int32_t VP8GetSignedValue(VP8BitReader* const br, int num_bits);
+		int VP8GetSignedValue(VP8BitReader* const br, int num_bits);
 
 		// Read a bit with proba 'prob'. Speed-critical function!
 		extern const byte kVP8Log2Range[128];
@@ -203,7 +203,7 @@ namespace NWebp.Internal.utils
 		  return v;
 		}
 
-		int32_t VP8GetSignedValue(VP8BitReader* const br, int bits) {
+		int VP8GetSignedValue(VP8BitReader* const br, int bits) {
 		  const int value = VP8GetValue(br, bits);
 		  return VP8Get(br) ? -value : value;
 		}

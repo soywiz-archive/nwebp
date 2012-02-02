@@ -9,7 +9,12 @@ namespace NWebp.Internal.dec
 	{
 		//------------------------------------------------------------------------------
 
-		int WebPGetDecoderVersion(void) {
+		/// <summary>
+		/// Return the decoder's version number, packed in hexadecimal using 8bits for
+		/// each of major/minor/revision. E.g: v2.5.7 is 0x020507.
+		/// </summary>
+		/// <returns></returns>
+		int WebPGetDecoderVersion() {
 		  return (DEC_MAJ_VERSION << 16) | (DEC_MIN_VERSION << 8) | DEC_REV_VERSION;
 		}
 
@@ -240,11 +245,11 @@ namespace NWebp.Internal.dec
 		  VP8BitReader* br;
 		  VP8StatusCode status;
 
-		  if (dec == NULL) {
+		  if (dec == null) {
 			return 0;
 		  }
 		  SetOk(dec);
-		  if (io == NULL) {
+		  if (io == null) {
 			return VP8SetError(dec, VP8_STATUS_INVALID_PARAM,
 							   "null VP8Io passed to VP8GetHeaders()");
 		  }
@@ -258,10 +263,10 @@ namespace NWebp.Internal.dec
 		  if (status != VP8_STATUS_OK) {
 			return VP8SetError(dec, status, "Incorrect/incomplete header.");
 		  }
-		  if (dec->alpha_data_ == NULL) {
+		  if (dec->alpha_data_ == null) {
 			assert(dec->alpha_data_size_ == 0);
 			// We have NOT set alpha data yet. Set it now.
-			// (This is to ensure that dec->alpha_data_ is NOT reset to NULL if
+			// (This is to ensure that dec->alpha_data_ is NOT reset to null if
 			// WebPParseHeaders() is called more than once, as in incremental decoding
 			// case.)
 			dec->alpha_data_ = alpha_data_tmp;
@@ -365,7 +370,7 @@ namespace NWebp.Internal.dec
 		  // Frame buffer marking
 		  if (!frm_hdr->key_frame_) {
 			// Paragraph 9.7
-		#ifndef ONLY_KEYFRAME_CODE
+		#if !ONLY_KEYFRAME_CODE
 			dec->buffer_flags_ = VP8Get(br) << 0;   // update golden
 			dec->buffer_flags_ |= VP8Get(br) << 1;  // update alt ref
 			if (!(dec->buffer_flags_ & 1)) {
@@ -385,7 +390,7 @@ namespace NWebp.Internal.dec
 		  }
 
 		  // Paragraph 9.8
-		#ifndef ONLY_KEYFRAME_CODE
+		#if !ONLY_KEYFRAME_CODE
 		  dec->update_proba_ = VP8Get(br);
 		  if (!dec->update_proba_) {    // save for later restore
 			dec->proba_saved_ = dec->proba_;
@@ -399,7 +404,7 @@ namespace NWebp.Internal.dec
 
 		  VP8ParseProba(br, dec);
 
-		#ifdef WEBP_EXPERIMENTAL_FEATURES
+		#if WEBP_EXPERIMENTAL_FEATURES
 		  // Extensions
 		  if (dec->pic_hdr_.colorspace_) {
 			const uint kTrailerSize = 8;
@@ -416,7 +421,7 @@ namespace NWebp.Internal.dec
 			// Layer
 			size = (ext_buf[0] << 0) | (ext_buf[1] << 8) | (ext_buf[2] << 16);
 			dec->layer_data_size_ = size;
-			dec->layer_data_ = NULL;  // will be set later
+			dec->layer_data_ = null;  // will be set later
 			dec->layer_colorspace_ = ext_buf[3];
 		  }
 		#endif
@@ -696,12 +701,12 @@ namespace NWebp.Internal.dec
 		// Main entry point
 		int VP8Decode(VP8Decoder* const dec, VP8Io* const io) {
 		  int ok = 0;
-		  if (dec == NULL) {
+		  if (dec == null) {
 			return 0;
 		  }
-		  if (io == NULL) {
+		  if (io == null) {
 			return VP8SetError(dec, VP8_STATUS_INVALID_PARAM,
-							   "NULL VP8Io parameter in VP8Decode().");
+							   "null VP8Io parameter in VP8Decode().");
 		  }
 
 		  if (!dec->ready_) {
@@ -734,7 +739,7 @@ namespace NWebp.Internal.dec
 		}
 
 		void VP8Clear(VP8Decoder* const dec) {
-		  if (dec == NULL) {
+		  if (dec == null) {
 			return;
 		  }
 		  if (dec->use_threads_) {
@@ -743,7 +748,7 @@ namespace NWebp.Internal.dec
 		  if (dec->mem_) {
 			free(dec->mem_);
 		  }
-		  dec->mem_ = NULL;
+		  dec->mem_ = null;
 		  dec->mem_size_ = 0;
 		  memset(&dec->br_, 0, sizeof(dec->br_));
 		  dec->ready_ = 0;

@@ -12,7 +12,7 @@ namespace NWebp.Internal.mux
 		// Life of a mux object.
 
 		static int MuxInit(WebPMux* const mux) {
-		  if (mux == NULL) return 0;
+		  if (mux == null) return 0;
 		  memset(mux, 0, sizeof(*mux));
 		  mux->state_ = WEBP_MUX_STATE_PARTIAL;
 		  return 1;
@@ -31,7 +31,7 @@ namespace NWebp.Internal.mux
 		}
 
 		static int MuxRelease(WebPMux* const mux) {
-		  if (mux == NULL) return 0;
+		  if (mux == null) return 0;
 		  MuxImageDeleteAll(&mux->images_);
 		  DeleteAllChunks(&mux->vp8x_);
 		  DeleteAllChunks(&mux->iccp_);
@@ -63,12 +63,11 @@ namespace NWebp.Internal.mux
 			return err;                                                                \
 		  }
 
-		static WebPMuxError MuxSet(WebPMux* const mux, TAG_ID id, uint nth,
-								   const byte* data, uint size,
-								   WebPImageInfo* image_info, int copy_data) {
+		static WebPMuxError MuxSet(WebPMux* const mux, TAG_ID id, uint nth, const byte* data, uint size, WebPImageInfo* image_info, int copy_data)
+		{
 		  WebPChunk chunk;
 		  WebPMuxError err = WEBP_MUX_NOT_FOUND;
-		  if (mux == NULL) return WEBP_MUX_INVALID_ARGUMENT;
+		  if (mux == null) return WEBP_MUX_INVALID_ARGUMENT;
 		  assert(!IsWPI(id));
 
 		  ChunkInit(&chunk);
@@ -88,11 +87,10 @@ namespace NWebp.Internal.mux
 		}
 		#undef SWITCH_ID_LIST
 
-		static WebPMuxError MuxAddChunk(WebPMux* const mux, uint nth, uint tag,
-										const byte* data, uint size,
-										WebPImageInfo* image_info, int copy_data) {
+		static WebPMuxError MuxAddChunk(WebPMux* const mux, uint nth, uint tag, const byte* data, uint size, WebPImageInfo* image_info, int copy_data)
+		{
 		  TAG_ID id;
-		  assert(mux != NULL);
+		  assert(mux != null);
 		  assert(size <= MAX_CHUNK_PAYLOAD);
 
 		  id = ChunkGetIdFromTag(tag);
@@ -108,19 +106,18 @@ namespace NWebp.Internal.mux
 
 		// Creates WebPImageInfo object and sets offsets, dimensions and duration.
 		// Dimensions calculated from passed VP8 image data.
-		static WebPImageInfo* CreateImageInfo(uint x_offset, uint y_offset,
-											  uint duration,
-											  const byte* data, uint size) {
+		static WebPImageInfo* CreateImageInfo(uint x_offset, uint y_offset, uint duration, const byte* data, uint size)
+		{
 		  int width;
 		  int height;
-		  WebPImageInfo* image_info = NULL;
+		  WebPImageInfo* image_info = null;
 
 		  if (!VP8GetInfo(data, size, size, &width, &height)) {
-			return NULL;
+			return null;
 		  }
 
 		  image_info = (WebPImageInfo*)malloc(sizeof(WebPImageInfo));
-		  if (image_info != NULL) {
+		  if (image_info != null) {
 			InitImageInfo(image_info);
 			image_info->x_offset_ = x_offset;
 			image_info->y_offset_ = y_offset;
@@ -133,16 +130,15 @@ namespace NWebp.Internal.mux
 		}
 
 		// Create data for frame/tile given image_info.
-		static WebPMuxError CreateDataFromImageInfo(const WebPImageInfo* image_info,
-													int is_frame,
-													byte** data, uint* size) {
+		static WebPMuxError CreateDataFromImageInfo(const WebPImageInfo* image_info, int is_frame, byte** data, uint* size)
+		{
 		  assert(data);
 		  assert(size);
 		  assert(image_info);
 
 		  *size = kChunks[is_frame ? FRAME_ID : TILE_ID].chunkSize;
 		  *data = (byte*)malloc(*size);
-		  if (*data == NULL) return WEBP_MUX_MEMORY_ERROR;
+		  if (*data == null) return WEBP_MUX_MEMORY_ERROR;
 
 		  // Fill in data according to frame/tile chunk format.
 		  PutLE32(*data + 0, image_info->x_offset_);
@@ -157,8 +153,8 @@ namespace NWebp.Internal.mux
 		}
 
 		// Outputs image data given data from a webp file (including RIFF header).
-		static WebPMuxError GetImageData(const byte* data, uint size,
-										 WebPData* const image, WebPData* const alpha) {
+		static WebPMuxError GetImageData(const byte* data, uint size, WebPData* const image, WebPData* const alpha)
+		{
 		  if (size < TAG_SIZE || memcmp(data, "RIFF", TAG_SIZE)) {
 			// It is NOT webp file data. Return input data as is.
 			image->bytes_ = data;
@@ -169,7 +165,7 @@ namespace NWebp.Internal.mux
 			WebPMuxError err;
 			WebPMuxState mux_state;
 			WebPMux* const mux = WebPMuxCreate(data, size, 0, &mux_state);
-			if (mux == NULL || mux_state != WEBP_MUX_STATE_COMPLETE) {
+			if (mux == null || mux_state != WEBP_MUX_STATE_COMPLETE) {
 			  return WEBP_MUX_BAD_DATA;
 			}
 
@@ -194,18 +190,17 @@ namespace NWebp.Internal.mux
 		  return err;
 		}
 
-		static WebPMuxError MuxDeleteAllNamedData(WebPMux* const mux,
-												  const char* const tag) {
+		static WebPMuxError MuxDeleteAllNamedData(WebPMux* const mux, const char* const tag) {
 		  TAG_ID id;
 		  WebPChunk** chunk_list;
 
-		  if (mux == NULL || tag == NULL) return WEBP_MUX_INVALID_ARGUMENT;
+		  if (mux == null || tag == null) return WEBP_MUX_INVALID_ARGUMENT;
 
 		  id = ChunkGetIdFromName(tag);
 		  if (IsWPI(id)) return WEBP_MUX_INVALID_ARGUMENT;
 
 		  chunk_list = GetChunkListFromId(mux, id);
-		  if (chunk_list == NULL) return WEBP_MUX_INVALID_ARGUMENT;
+		  if (chunk_list == null) return WEBP_MUX_INVALID_ARGUMENT;
 
 		  return DeleteChunks(chunk_list, kChunks[id].chunkTag);
 		}
@@ -217,22 +212,20 @@ namespace NWebp.Internal.mux
 		//------------------------------------------------------------------------------
 		// Set API(s).
 
-		WebPMuxError WebPMuxSetImage(WebPMux* const mux,
-									 const byte* data, uint size,
-									 const byte* alpha_data, uint alpha_size,
-									 int copy_data) {
+		WebPMuxError WebPMuxSetImage(WebPMux* const mux, const byte* data, uint size, const byte* alpha_data, uint alpha_size, int copy_data)
+		{
 		  WebPMuxError err;
 		  WebPChunk chunk;
 		  WebPMuxImage wpi;
 		  WebPData image;
-		  const int has_alpha = (alpha_data != NULL && alpha_size != 0);
+		  const int has_alpha = (alpha_data != null && alpha_size != 0);
 
-		  if (mux == NULL || data == NULL || size > MAX_CHUNK_PAYLOAD) {
+		  if (mux == null || data == null || size > MAX_CHUNK_PAYLOAD) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
 
 		  // If given data is for a whole webp file, extract only the VP8 data from it.
-		  err = GetImageData(data, size, &image, NULL);
+		  err = GetImageData(data, size, &image, null);
 		  if (err != WEBP_MUX_OK) return err;
 
 		  // Delete the existing images.
@@ -242,7 +235,7 @@ namespace NWebp.Internal.mux
 
 		  if (has_alpha) {  // Add alpha chunk.
 			ChunkInit(&chunk);
-			err = ChunkAssignDataImageInfo(&chunk, alpha_data, alpha_size, NULL,
+			err = ChunkAssignDataImageInfo(&chunk, alpha_data, alpha_size, null,
 										   copy_data, kChunks[ALPHA_ID].chunkTag);
 			if (err != WEBP_MUX_OK) return err;
 			err = ChunkSetNth(&chunk, &wpi.alpha_, 1);
@@ -251,7 +244,7 @@ namespace NWebp.Internal.mux
 
 		  // Add image chunk.
 		  ChunkInit(&chunk);
-		  err = ChunkAssignDataImageInfo(&chunk, image.bytes_, image.size_, NULL,
+		  err = ChunkAssignDataImageInfo(&chunk, image.bytes_, image.size_, null,
 										 copy_data, kChunks[IMAGE_ID].chunkTag);
 		  if (err != WEBP_MUX_OK) return err;
 		  err = ChunkSetNth(&chunk, &wpi.vp8_, 1);
@@ -265,7 +258,7 @@ namespace NWebp.Internal.mux
 										uint size, int copy_data) {
 		  WebPMuxError err;
 
-		  if (mux == NULL || data == NULL || size > MAX_CHUNK_PAYLOAD) {
+		  if (mux == null || data == null || size > MAX_CHUNK_PAYLOAD) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
 
@@ -274,14 +267,14 @@ namespace NWebp.Internal.mux
 		  if (err != WEBP_MUX_OK && err != WEBP_MUX_NOT_FOUND) return err;
 
 		  // Add the given metadata chunk.
-		  return MuxSet(mux, META_ID, 1, data, size, NULL, copy_data);
+		  return MuxSet(mux, META_ID, 1, data, size, null, copy_data);
 		}
 
 		WebPMuxError WebPMuxSetColorProfile(WebPMux* const mux, const byte* data,
 											uint size, int copy_data) {
 		  WebPMuxError err;
 
-		  if (mux == NULL || data == NULL || size > MAX_CHUNK_PAYLOAD) {
+		  if (mux == null || data == null || size > MAX_CHUNK_PAYLOAD) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
 
@@ -290,14 +283,14 @@ namespace NWebp.Internal.mux
 		  if (err != WEBP_MUX_OK && err != WEBP_MUX_NOT_FOUND) return err;
 
 		  // Add the given ICCP chunk.
-		  return MuxSet(mux, ICCP_ID, 1, data, size, NULL, copy_data);
+		  return MuxSet(mux, ICCP_ID, 1, data, size, null, copy_data);
 		}
 
 		WebPMuxError WebPMuxSetLoopCount(WebPMux* const mux, uint loop_count) {
 		  WebPMuxError err;
-		  byte* data = NULL;
+		  byte* data = null;
 
-		  if (mux == NULL) return WEBP_MUX_INVALID_ARGUMENT;
+		  if (mux == null) return WEBP_MUX_INVALID_ARGUMENT;
 
 		  // Delete the existing LOOP chunk(s).
 		  err = DeleteLoopCount(mux);
@@ -305,11 +298,11 @@ namespace NWebp.Internal.mux
 
 		  // Add the given loop count.
 		  data = (byte*)malloc(kChunks[LOOP_ID].chunkSize);
-		  if (data == NULL) return WEBP_MUX_MEMORY_ERROR;
+		  if (data == null) return WEBP_MUX_MEMORY_ERROR;
 
 		  PutLE32(data, loop_count);
 		  err = MuxAddChunk(mux, 1, kChunks[LOOP_ID].chunkTag, data,
-							kChunks[LOOP_ID].chunkSize, NULL, 1);
+							kChunks[LOOP_ID].chunkSize, null, 1);
 		  free(data);
 		  return err;
 		}
@@ -326,18 +319,18 @@ namespace NWebp.Internal.mux
 		  WebPData image;
 		  WebPMuxImage wpi;
 		  WebPMuxError err;
-		  WebPImageInfo* image_info = NULL;
-		  byte* frame_tile_data = NULL;
+		  WebPImageInfo* image_info = null;
+		  byte* frame_tile_data = null;
 		  uint frame_tile_data_size = 0;
 		  const int is_frame = (tag == kChunks[FRAME_ID].chunkTag) ? 1 : 0;
-		  const int has_alpha = (alpha_data != NULL && alpha_size != 0);
+		  const int has_alpha = (alpha_data != null && alpha_size != 0);
 
-		  if (mux == NULL || data == NULL || size > MAX_CHUNK_PAYLOAD) {
+		  if (mux == null || data == null || size > MAX_CHUNK_PAYLOAD) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
 
 		  // If given data is for a whole webp file, extract only the VP8 data from it.
-		  err = GetImageData(data, size, &image, NULL);
+		  err = GetImageData(data, size, &image, null);
 		  if (err != WEBP_MUX_OK) return err;
 
 		  ChunkInit(&chunk);
@@ -345,7 +338,7 @@ namespace NWebp.Internal.mux
 
 		  if (has_alpha) {
 			// Add alpha chunk.
-			err = ChunkAssignDataImageInfo(&chunk, alpha_data, alpha_size, NULL,
+			err = ChunkAssignDataImageInfo(&chunk, alpha_data, alpha_size, null,
 										   copy_data, kChunks[ALPHA_ID].chunkTag);
 			if (err != WEBP_MUX_OK) return err;
 			err = ChunkSetNth(&chunk, &wpi.alpha_, 1);
@@ -356,7 +349,7 @@ namespace NWebp.Internal.mux
 		  // Create image_info object.
 		  image_info = CreateImageInfo(x_offset, y_offset, duration,
 									   image.bytes_, image.size_);
-		  if (image_info == NULL) {
+		  if (image_info == null) {
 			MuxImageRelease(&wpi);
 			return WEBP_MUX_MEMORY_ERROR;
 		  }
@@ -365,7 +358,7 @@ namespace NWebp.Internal.mux
 		  err = ChunkAssignDataImageInfo(&chunk, image.bytes_, image.size_, image_info,
 										 copy_data, kChunks[IMAGE_ID].chunkTag);
 		  if (err != WEBP_MUX_OK) goto Err;
-		  image_info = NULL;  // Owned by 'chunk' now.
+		  image_info = null;  // Owned by 'chunk' now.
 		  err = ChunkSetNth(&chunk, &wpi.vp8_, 1);
 		  if (err != WEBP_MUX_OK) goto Err;
 		  ChunkInit(&chunk);  // chunk owned by wpi.vp8_ now.
@@ -377,10 +370,10 @@ namespace NWebp.Internal.mux
 
 		  // Add frame/tile chunk (with copy_data = 1).
 		  err = ChunkAssignDataImageInfo(&chunk, frame_tile_data, frame_tile_data_size,
-										 NULL, 1, tag);
+										 null, 1, tag);
 		  if (err != WEBP_MUX_OK) goto Err;
 		  free(frame_tile_data);
-		  frame_tile_data = NULL;
+		  frame_tile_data = null;
 		  err = ChunkSetNth(&chunk, &wpi.header_, 1);
 		  if (err != WEBP_MUX_OK) goto Err;
 		  ChunkInit(&chunk);  // chunk owned by wpi.header_ now.
@@ -428,7 +421,7 @@ namespace NWebp.Internal.mux
 		WebPMuxError WebPMuxDeleteImage(WebPMux* const mux) {
 		  WebPMuxError err;
 
-		  if (mux == NULL) return WEBP_MUX_INVALID_ARGUMENT;
+		  if (mux == null) return WEBP_MUX_INVALID_ARGUMENT;
 
 		  err = ValidateForImage(mux);
 		  if (err != WEBP_MUX_OK) return err;
@@ -450,7 +443,7 @@ namespace NWebp.Internal.mux
 													uint nth,
 													const char* const tag) {
 		  TAG_ID id;
-		  if (mux == NULL) return WEBP_MUX_INVALID_ARGUMENT;
+		  if (mux == null) return WEBP_MUX_INVALID_ARGUMENT;
 
 		  id = ChunkGetIdFromName(tag);
 		  assert(id == FRAME_ID || id == TILE_ID);
@@ -474,22 +467,22 @@ namespace NWebp.Internal.mux
 													  uint* height) {
 		  uint max_x = 0;
 		  uint max_y = 0;
-		  uint64_t image_area = 0;
-		  WebPMuxImage* wpi = NULL;
+		  ulong image_area = 0;
+		  WebPMuxImage* wpi = null;
 
-		  assert(mux != NULL);
+		  assert(mux != null);
 		  assert(width && height);
 
 		  wpi = mux->images_;
-		  assert(wpi != NULL);
-		  assert(wpi->vp8_ != NULL);
+		  assert(wpi != null);
+		  assert(wpi->vp8_ != null);
 
 		  if (wpi->next_) {
 			// Aggregate the bounding box for animation frames & tiled images.
-			for (; wpi != NULL; wpi = wpi->next_) {
+			for (; wpi != null; wpi = wpi->next_) {
 			  const WebPImageInfo* image_info = wpi->vp8_->image_info_;
 
-			  if (image_info != NULL) {
+			  if (image_info != null) {
 				const uint max_x_pos = image_info->x_offset_ + image_info->width_;
 				const uint max_y_pos = image_info->y_offset_ + image_info->height_;
 				if (max_x_pos < image_info->x_offset_) {  // Overflow occurred.
@@ -518,7 +511,7 @@ namespace NWebp.Internal.mux
 			// For a single image, extract the width & height from VP8 image-data.
 			int w, h;
 			const WebPChunk* const image_chunk = wpi->vp8_;
-			assert(image_chunk != NULL);
+			assert(image_chunk != null);
 			if (VP8GetInfo(image_chunk->data_, image_chunk->payload_size_,
 						   image_chunk->payload_size_, &w, &h)) {
 			  *width = w;
@@ -539,13 +532,13 @@ namespace NWebp.Internal.mux
 		  uint width = 0;
 		  uint height = 0;
 		  byte data[VP8X_CHUNK_SIZE];
-		  const size_t data_size = VP8X_CHUNK_SIZE;
-		  const WebPMuxImage* images = NULL;
+		  const uint data_size = VP8X_CHUNK_SIZE;
+		  const WebPMuxImage* images = null;
 
 		  images = mux->images_;  // First image.
 
-		  assert(mux != NULL);
-		  if (images == NULL || images->vp8_ == NULL || images->vp8_->data_ == NULL) {
+		  assert(mux != null);
+		  if (images == null || images->vp8_ == null || images->vp8_->data_ == null) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
 
@@ -555,15 +548,15 @@ namespace NWebp.Internal.mux
 		  if (err != WEBP_MUX_OK && err != WEBP_MUX_NOT_FOUND) return err;
 
 		  // Set flags.
-		  if (mux->iccp_ != NULL && mux->iccp_->data_ != NULL) {
+		  if (mux->iccp_ != null && mux->iccp_->data_ != null) {
 			flags |= ICCP_FLAG;
 		  }
 
-		  if (mux->meta_ != NULL && mux->meta_->data_ != NULL) {
+		  if (mux->meta_ != null && mux->meta_->data_ != null) {
 			flags |= META_FLAG;
 		  }
 
-		  if (images->header_ != NULL) {
+		  if (images->header_ != null) {
 			if (images->header_->tag_ == kChunks[TILE_ID].chunkTag) {
 			  // This is a tiled image.
 			  flags |= TILE_FLAG;
@@ -573,7 +566,7 @@ namespace NWebp.Internal.mux
 			}
 		  }
 
-		  if (images->alpha_ != NULL && images->alpha_->data_ != NULL) {
+		  if (images->alpha_ != null && images->alpha_->data_ != null) {
 			// This is an image with alpha channel.
 			flags |= ALPHA_FLAG;
 		  }
@@ -591,24 +584,23 @@ namespace NWebp.Internal.mux
 		  PutLE32(data + 8, height);  // Put canvasHeight.
 
 		  err = MuxAddChunk(mux, 1, kChunks[VP8X_ID].chunkTag, data, data_size,
-							NULL, 1);
+							null, 1);
 		  return err;
 		}
 
-		WebPMuxError WebPMuxAssemble(WebPMux* const mux,
-									 byte** output_data, uint* output_size) {
+		WebPMuxError WebPMuxAssemble(WebPMux* const mux, byte** output_data, uint* output_size) {
 		  uint size = 0;
-		  byte* data = NULL;
-		  byte* dst = NULL;
+		  byte* data = null;
+		  byte* dst = null;
 		  int num_frames;
 		  int num_loop_chunks;
 		  WebPMuxError err;
 
-		  if (mux == NULL || output_data == NULL || output_size == NULL) {
+		  if (mux == null || output_data == null || output_size == null) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
 
-		  *output_data = NULL;
+		  *output_data = null;
 		  *output_size = 0;
 
 		  // Remove LOOP chunk if unnecessary.
@@ -639,7 +631,7 @@ namespace NWebp.Internal.mux
 			   + RIFF_HEADER_SIZE;
 
 		  data = (byte*)malloc(size);
-		  if (data == NULL) return WEBP_MUX_MEMORY_ERROR;
+		  if (data == null) return WEBP_MUX_MEMORY_ERROR;
 
 		  // Main RIFF header.
 		  PutLE32(data + 0, mktag('R', 'I', 'F', 'F'));
@@ -660,7 +652,7 @@ namespace NWebp.Internal.mux
 		  err = WebPMuxValidate(mux);
 		  if (err != WEBP_MUX_OK) {
 			free(data);
-			data = NULL;
+			data = null;
 			size = 0;
 		  }
 

@@ -17,7 +17,7 @@ namespace NWebp.Internal.enc
 		  if (version != WEBP_ENCODER_ABI_VERSION) {
 			return 0;   // caller/system version mismatch!
 		  }
-		  if (config == NULL) return 0;
+		  if (config == null) return 0;
 
 		  config->quality = quality;
 		  config->target_size = 0;
@@ -72,7 +72,7 @@ namespace NWebp.Internal.enc
 		}
 
 		int WebPValidateConfig(const WebPConfig* const config) {
-		  if (config == NULL) return 0;
+		  if (config == null) return 0;
 		  if (config->quality < 0 || config->quality > 100)
 			return 0;
 		  if (config->target_size < 0)

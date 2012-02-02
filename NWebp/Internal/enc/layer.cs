@@ -9,9 +9,9 @@ namespace NWebp.Internal.enc
 	{
 		void VP8EncInitLayer()
 		{
-		  this.use_layer_ = (this.pic_->u0 != NULL);
+		  this.use_layer_ = (this.pic_->u0 != null);
 		  this.layer_data_size_ = 0;
-		  this.layer_data_ = NULL;
+		  this.layer_data_ = null;
 		  if (this.use_layer_) {
 			VP8BitWriterInit(&this.layer_bw_, this.mb_w_ * this.mb_h_* 3);
 		  }

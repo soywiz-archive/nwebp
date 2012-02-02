@@ -11,7 +11,7 @@ namespace NWebp.Internal.dec
 		  const int stride = dec->pic_hdr_.width_;
 
 		  if (row < 0 || num_rows < 0 || row + num_rows > dec->pic_hdr_.height_) {
-			return NULL;    // sanity check.
+			return null;    // sanity check.
 		  }
 
 		  if (row == 0) {
@@ -19,7 +19,7 @@ namespace NWebp.Internal.dec
 			if (!DecodeAlpha(dec->alpha_data_, (uint)dec->alpha_data_size_,
 							 dec->pic_hdr_.width_, dec->pic_hdr_.height_, stride,
 							 dec->alpha_plane_)) {
-			  return NULL;  // Error.
+			  return null;  // Error.
 			}
 		  }
 

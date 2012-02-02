@@ -47,14 +47,14 @@ namespace NWebp.Internal.dsp
 		VP8CPUInfo VP8GetCPUInfo = x86CPUInfo;
 		#elif defined(__ARM_NEON__)
 		// define a dummy function to enable turning off NEON at runtime by setting
-		// VP8DecGetCPUInfo = NULL
+		// VP8DecGetCPUInfo = null
 		static int armCPUInfo(CPUFeature feature) {
 		  (void)feature;
 		  return 1;
 		}
 		VP8CPUInfo VP8GetCPUInfo = armCPUInfo;
 		#else
-		VP8CPUInfo VP8GetCPUInfo = NULL;
+		VP8CPUInfo VP8GetCPUInfo = null;
 		#endif
 
 	}

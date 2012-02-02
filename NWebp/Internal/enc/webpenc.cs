@@ -10,6 +10,11 @@ namespace NWebp.Internal.enc
 
 		//------------------------------------------------------------------------------
 
+		/// <summary>
+		/// Return the encoder's version number, packed in hexadecimal using 8bits for
+		/// each of major/minor/revision. E.g: v2.5.7 is 0x020507.
+		/// </summary>
+		/// <returns></returns>
 		int WebPGetEncoderVersion() {
 		  return (ENC_MAJ_VERSION << 16) | (ENC_MIN_VERSION << 8) | ENC_REV_VERSION;
 		}
@@ -18,7 +23,7 @@ namespace NWebp.Internal.enc
 		// WebPPicture
 		//------------------------------------------------------------------------------
 
-		static int DummyWriter(const byte* data, size_t data_size,
+		static int DummyWriter(const byte* data, uint data_size,
 							   const WebPPicture* const picture) {
 		  // The following are to prevent 'unused variable' error message.
 		  (void)data;
@@ -132,20 +137,20 @@ namespace NWebp.Internal.enc
 		  const int mb_h = (picture->height + 15) >> 4;
 		  const int preds_w = 4 * mb_w + 1;
 		  const int preds_h = 4 * mb_h + 1;
-		  const size_t preds_size = preds_w * preds_h * sizeof(byte);
+		  const uint preds_size = preds_w * preds_h * sizeof(byte);
 		  const int top_stride = mb_w * 16;
-		  const size_t nz_size = (mb_w + 1) * sizeof(uint);
-		  const size_t cache_size = (3 * YUV_SIZE + PRED_SIZE) * sizeof(byte);
-		  const size_t info_size = mb_w * mb_h * sizeof(VP8MBInfo);
-		  const size_t samples_size = (2 * top_stride +         // top-luma/u/v
+		  const uint nz_size = (mb_w + 1) * sizeof(uint);
+		  const uint cache_size = (3 * YUV_SIZE + PRED_SIZE) * sizeof(byte);
+		  const uint info_size = mb_w * mb_h * sizeof(VP8MBInfo);
+		  const uint samples_size = (2 * top_stride +         // top-luma/u/v
 									   16 + 16 + 16 + 8 + 1 +   // left y/u/v
 									   2 * ALIGN_CST)           // align all
 									   * sizeof(byte);
-		  const size_t lf_stats_size =
+		  const uint lf_stats_size =
 			  config->autofilter ? sizeof(LFStats) + ALIGN_CST : 0;
 		  VP8Encoder* enc;
 		  byte* mem;
-		  size_t size = sizeof(VP8Encoder) + ALIGN_CST  // main struct
+		  uint size = sizeof(VP8Encoder) + ALIGN_CST  // main struct
 					  + cache_size                      // working caches
 					  + info_size                       // modes info
 					  + preds_size                      // prediction modes
@@ -180,9 +185,9 @@ namespace NWebp.Internal.enc
 		  printf("===================================\n");
 		#endif
 		  mem = (byte*)malloc(size);
-		  if (mem == NULL) {
+		  if (mem == null) {
 			WebPEncodingSetError(picture, VP8_ENC_ERROR_OUT_OF_MEMORY);
-			return NULL;
+			return null;
 		  }
 		  enc = (VP8Encoder*)mem;
 		  mem = (byte*)DO_ALIGN(mem + sizeof(*enc));
@@ -205,7 +210,7 @@ namespace NWebp.Internal.enc
 		  mem += preds_w * preds_h * sizeof(byte);
 		  enc->nz_ = 1 + (uint*)mem;
 		  mem += nz_size;
-		  enc->lf_stats_ = lf_stats_size ? (LFStats*)DO_ALIGN(mem) : NULL;
+		  enc->lf_stats_ = lf_stats_size ? (LFStats*)DO_ALIGN(mem) : null;
 		  mem += lf_stats_size;
 
 		  // top samples (all 16-aligned)
@@ -253,14 +258,14 @@ namespace NWebp.Internal.enc
 
 		//------------------------------------------------------------------------------
 
-		static double GetPSNR(uint64_t err, uint64_t size) {
+		static double GetPSNR(ulong err, ulong size) {
 		  return err ? 10. * log10(255. * 255. * size / err) : 99.;
 		}
 
 		static void FinalizePSNR(const VP8Encoder* const enc) {
 		  WebPAuxStats* stats = enc->pic_->stats;
-		  const uint64_t size = enc->sse_count_;
-		  const uint64_t* const sse = enc->sse_;
+		  const ulong size = enc->sse_count_;
+		  const ulong* const sse = enc->sse_;
 		  stats->PSNR[0] = (float)GetPSNR(sse[0], size);
 		  stats->PSNR[1] = (float)GetPSNR(sse[1], size / 4);
 		  stats->PSNR[2] = (float)GetPSNR(sse[2], size / 4);
@@ -312,22 +317,22 @@ namespace NWebp.Internal.enc
 		  VP8Encoder* enc;
 		  int ok;
 
-		  if (pic == NULL)
+		  if (pic == null)
 			return 0;
 		  WebPEncodingSetError(pic, VP8_ENC_OK);  // all ok so far
-		  if (config == NULL)  // bad params
+		  if (config == null)  // bad params
 			return WebPEncodingSetError(pic, VP8_ENC_ERROR_NULL_PARAMETER);
 		  if (!WebPValidateConfig(config))
 			return WebPEncodingSetError(pic, VP8_ENC_ERROR_INVALID_CONFIGURATION);
 		  if (pic->width <= 0 || pic->height <= 0)
 			return WebPEncodingSetError(pic, VP8_ENC_ERROR_BAD_DIMENSION);
-		  if (pic->y == NULL || pic->u == NULL || pic->v == NULL)
+		  if (pic->y == null || pic->u == null || pic->v == null)
 			return WebPEncodingSetError(pic, VP8_ENC_ERROR_NULL_PARAMETER);
 		  if (pic->width > WEBP_MAX_DIMENSION || pic->height > WEBP_MAX_DIMENSION)
 			return WebPEncodingSetError(pic, VP8_ENC_ERROR_BAD_DIMENSION);
 
 		  enc = InitEncoder(config, pic);
-		  if (enc == NULL) return 0;  // pic->error is already set.
+		  if (enc == null) return 0;  // pic->error is already set.
 		  // Note: each of the tasks below account for 20% in the progress report.
 		  ok = VP8EncAnalyze(enc)
 			&& VP8StatLoop(enc)

@@ -11,20 +11,19 @@ namespace NWebp.Internal.utils
 		//------------------------------------------------------------------------------
 		// Bit-writing
 
-		typedef struct VP8BitWriter VP8BitWriter;
 		struct VP8BitWriter {
-		  int32_t  range_;      // range-1
-		  int32_t  value_;
+		  int  range_;      // range-1
+		  int  value_;
 		  int      run_;        // number of outstanding bits
 		  int      nb_bits_;    // number of pending bits
 		  byte* buf_;        // internal buffer. Re-allocated regularly. Not owned.
-		  size_t   pos_;
-		  size_t   max_pos_;
+		  uint   pos_;
+		  uint   max_pos_;
 		  int      error_;      // true in case of error
-		};
+		}
 
 		// Initialize the object. Allocates some initial memory based on expected_size.
-		int VP8BitWriterInit(VP8BitWriter* const bw, size_t expected_size);
+		int VP8BitWriterInit(VP8BitWriter* const bw, uint expected_size);
 		// Finalize the bitstream coding. Returns a pointer to the internal buffer.
 		byte* VP8BitWriterFinish(VP8BitWriter* const bw);
 		// Release any pending memory and zeroes the object. Not a mandatory call.
@@ -38,11 +37,11 @@ namespace NWebp.Internal.utils
 
 		// Appends some bytes to the internal buffer. Data is copied.
 		int VP8BitWriterAppend(VP8BitWriter* const bw,
-							   const byte* data, size_t size);
+							   const byte* data, uint size);
 
 		// return approximate write position (in bits)
-		static WEBP_INLINE uint64_t VP8BitWriterPos(const VP8BitWriter* const bw) {
-		  return (uint64_t)(bw->pos_ + bw->run_) * 8 + 8 + bw->nb_bits_;
+		static WEBP_INLINE ulong VP8BitWriterPos(const VP8BitWriter* const bw) {
+		  return (ulong)(bw->pos_ + bw->run_) * 8 + 8 + bw->nb_bits_;
 		}
 
 		// Returns a pointer to the internal buffer.
@@ -50,7 +49,7 @@ namespace NWebp.Internal.utils
 		  return bw->buf_;
 		}
 		// Returns the size of the internal buffer.
-		static WEBP_INLINE size_t VP8BitWriterSize(const VP8BitWriter* const bw) {
+		static WEBP_INLINE uint VP8BitWriterSize(const VP8BitWriter* const bw) {
 		  return bw->pos_;
 		}
 
@@ -60,17 +59,17 @@ namespace NWebp.Internal.utils
 		//------------------------------------------------------------------------------
 		// VP8BitWriter
 
-		static int BitWriterResize(VP8BitWriter* const bw, size_t extra_size) {
+		static int BitWriterResize(VP8BitWriter* const bw, uint extra_size) {
 		  byte* new_buf;
-		  size_t new_size;
-		  const size_t needed_size = bw->pos_ + extra_size;
+		  uint new_size;
+		  const uint needed_size = bw->pos_ + extra_size;
 		  if (needed_size <= bw->max_pos_) return 1;
 		  new_size = 2 * bw->max_pos_;
 		  if (new_size < needed_size)
 			new_size = needed_size;
 		  if (new_size < 1024) new_size = 1024;
 		  new_buf = (byte*)malloc(new_size);
-		  if (new_buf == NULL) {
+		  if (new_buf == null) {
 			bw->error_ = 1;
 			return 0;
 		  }
@@ -83,12 +82,12 @@ namespace NWebp.Internal.utils
 
 		static void kFlush(VP8BitWriter* const bw) {
 		  const int s = 8 + bw->nb_bits_;
-		  const int32_t bits = bw->value_ >> s;
+		  const int bits = bw->value_ >> s;
 		  assert(bw->nb_bits_ >= 0);
 		  bw->value_ -= bits << s;
 		  bw->nb_bits_ -= 8;
 		  if ((bits & 0xff) != 0xff) {
-			size_t pos = bw->pos_;
+			uint pos = bw->pos_;
 			if (pos + bw->run_ >= bw->max_pos_) {  // reallocate
 			  if (!BitWriterResize(bw,  bw->run_ + 1)) {
 				return;
@@ -189,7 +188,7 @@ namespace NWebp.Internal.utils
 
 		//------------------------------------------------------------------------------
 
-		int VP8BitWriterInit(VP8BitWriter* const bw, size_t expected_size) {
+		int VP8BitWriterInit(VP8BitWriter* const bw, uint expected_size) {
 		  bw->range_   = 255 - 1;
 		  bw->value_   = 0;
 		  bw->run_     = 0;
@@ -197,7 +196,7 @@ namespace NWebp.Internal.utils
 		  bw->pos_     = 0;
 		  bw->max_pos_ = 0;
 		  bw->error_   = 0;
-		  bw->buf_     = NULL;
+		  bw->buf_     = null;
 		  return (expected_size > 0) ? BitWriterResize(bw, expected_size) : 1;
 		}
 
@@ -209,7 +208,7 @@ namespace NWebp.Internal.utils
 		}
 
 		int VP8BitWriterAppend(VP8BitWriter* const bw,
-							   const byte* data, size_t size) {
+							   const byte* data, uint size) {
 		  assert(data);
 		  if (bw->nb_bits_ != -8) return 0;   // kFlush() must have been called
 		  if (!BitWriterResize(bw, size)) return 0;

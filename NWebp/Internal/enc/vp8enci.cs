@@ -137,7 +137,7 @@ namespace NWebp.Internal.enc
 		#define I4HU4 (6 * 16 * BPS + 8 * BPS +  4)
 		#define I4TMP (6 * 16 * BPS + 8 * BPS +  8)
 
-		typedef int64_t score_t;     // type used for scores, rate, distortion
+		typedef long score_t;     // type used for scores, rate, distortion
 		#define MAX_COST ((score_t)0x7fffffffffffffLL)
 
 		#define QFIX 17
@@ -255,9 +255,9 @@ namespace NWebp.Internal.enc
 		  int           i4_;               // current intra4x4 mode being tested
 		  int           top_nz_[9];        // top-non-zero context.
 		  int           left_nz_[9];       // left-non-zero. left_nz[8] is independent.
-		  uint64_t      bit_count_[4][3];  // bit counters for coded levels.
-		  uint64_t      luma_bits_;        // macroblock bit-cost for luma
-		  uint64_t      uv_bits_;          // macroblock bit-cost for chroma
+		  ulong      bit_count_[4][3];  // bit counters for coded levels.
+		  ulong      luma_bits_;        // macroblock bit-cost for luma
+		  ulong      uv_bits_;          // macroblock bit-cost for chroma
 		  LFStats*      lf_stats_;         // filter stats (borrowed from enc_)
 		  int           do_trellis_;       // if true, perform extra level optimisation
 		  int           done_;             // true when scan is finished
@@ -369,14 +369,14 @@ namespace NWebp.Internal.enc
 
 		  // transparency blob
 		  int has_alpha_;
-		  byte* alpha_data_;       // non-NULL if transparency is present
+		  byte* alpha_data_;       // non-null if transparency is present
 		  uint alpha_data_size_;
 
 		  // enhancement layer
 		  int use_layer_;
 		  VP8BitWriter layer_bw_;
 		  byte* layer_data_;
-		  size_t layer_data_size_;
+		  uint layer_data_size_;
 
 		  // quantization info (one set of DC/AC dequant factor per segment)
 		  VP8SegmentInfo dqm_[NUM_MB_SEGMENTS];
@@ -390,8 +390,8 @@ namespace NWebp.Internal.enc
 
 		  // probabilities and statistics
 		  VP8Proba proba_;
-		  uint64_t sse_[3];        // sum of Y/U/V squared errors for all macroblocks
-		  uint64_t sse_count_;     // pixel count for the sse_[] stats
+		  ulong sse_[3];        // sum of Y/U/V squared errors for all macroblocks
+		  ulong sse_count_;     // pixel count for the sse_[] stats
 		  int      coded_size_;
 		  int      residual_bytes_[3][4];
 		  int      block_count_[3];
@@ -416,7 +416,7 @@ namespace NWebp.Internal.enc
 		  byte   *u_left_;    // left u samples (adressable from index -1 to 7)
 		  byte   *v_left_;    // left v samples (adressable from index -1 to 7)
 
-		  LFStats   *lf_stats_;  // autofilter stats (if NULL, autofilter is off)
+		  LFStats   *lf_stats_;  // autofilter stats (if null, autofilter is off)
 		};
 
 		//------------------------------------------------------------------------------
