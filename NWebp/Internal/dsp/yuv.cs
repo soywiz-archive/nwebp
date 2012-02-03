@@ -7,9 +7,22 @@ namespace NWebp.Internal
 {
 	class yuv
 	{
-		enum { YUV_FIX = 16,                // fixed-point precision
-			   YUV_RANGE_MIN = -227,        // min value of r/g/b output
-			   YUV_RANGE_MAX = 256 + 226    // max value of r/g/b output
+		enum YUV_ENUM
+		{
+			/// <summary>
+			/// fixed-point precision
+			/// </summary>
+			YUV_FIX = 16,               
+
+			/// <summary>
+			/// min value of r/g/b output
+			/// </summary>
+			YUV_RANGE_MIN = -227,       
+
+			/// <summary>
+			/// max value of r/g/b output
+			/// </summary>
+			YUV_RANGE_MAX = 256 + 226   
 		};
 		extern short VP8kVToR[256], VP8kUToB[256];
 		extern int VP8kVToG[256], VP8kUToG[256];
@@ -102,7 +115,7 @@ namespace NWebp.Internal
 		  return v < 0 ? 0 : v > max_value ? max_value : v;
 		}
 
-		void VP8YUVInit(void) {
+		void VP8YUVInit() {
 		  int i;
 		  if (done) {
 			return;

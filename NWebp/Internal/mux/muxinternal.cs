@@ -25,10 +25,11 @@ namespace NWebp.Internal
 		  {"list",    mktag('L', 'I', 'S', 'T'),  LIST_ID,    UNDEFINED_CHUNK_SIZE}
 		};
 
-		//------------------------------------------------------------------------------
-		// Life of a chunk object.
 		partial class WebPChunk
 		{
+			/// <summary>
+			/// Life of a chunk object.
+			/// </summary>
 			void ChunkInit() {
 			  this.tag_ = NIL_TAG;
 			  this.data_ = null;
@@ -37,24 +38,31 @@ namespace NWebp.Internal
 			  this.image_info_ = null;
 			  this.next_ = null;
 			}
+
+			/// <summary>
+			/// Life of a chunk object.
+			/// </summary>
+			static WebPChunk ChunkRelease(WebPChunk chunk)
+			{
+				WebPChunk next;
+				if (chunk == null) return null;
+				free(chunk.image_info_);
+				if (chunk.owner_)
+				{
+					free((void*)chunk.data_);
+				}
+				next = chunk.next_;
+				ChunkInit(chunk);
+				return next;
+			}
 		}
 
-		WebPChunk* ChunkRelease(WebPChunk* chunk) {
-		  WebPChunk* next;
-		  if (chunk == null) return null;
-		  free(chunk.image_info_);
-		  if (chunk.owner_) {
-			free((void*)chunk.data_);
-		  }
-		  next = chunk.next_;
-		  ChunkInit(chunk);
-		  return next;
-		}
+
 
 		//------------------------------------------------------------------------------
 		// Chunk misc methods.
 
-		TAG_ID ChunkGetIdFromName(char* what) {
+		static TAG_ID ChunkGetIdFromName(string what) {
 		  int i;
 		  if (what == null) return -1;
 		  for (i = 0; kChunks[i].chunkName != null; ++i) {
@@ -63,7 +71,8 @@ namespace NWebp.Internal
 		  return NIL_ID;
 		}
 
-		TAG_ID ChunkGetIdFromTag(uint tag) {
+		static TAG_ID ChunkGetIdFromTag(uint tag)
+		{
 		  int i;
 		  for (i = 0; kChunks[i].chunkTag != NIL_TAG; ++i) {
 			if (tag == kChunks[i].chunkTag) return i;
@@ -75,20 +84,20 @@ namespace NWebp.Internal
 		// Chunk search methods.
 
 		// Returns next chunk in the chunk list with the given tag.
-		static WebPChunk* ChunkSearchNextInList(WebPChunk* chunk, uint tag) {
+		static WebPChunk ChunkSearchNextInList(WebPChunk chunk, uint tag) {
 		  while (chunk && chunk.tag_ != tag) {
 			chunk = chunk.next_;
 		  }
 		  return chunk;
 		}
 
-		WebPChunk* ChunkSearchList(WebPChunk* first, uint nth, uint tag) {
+		WebPChunk ChunkSearchList(WebPChunk first, uint nth, uint tag) {
 		  uint iter = nth;
 		  first = ChunkSearchNextInList(first, tag);
 		  if (!first) return null;
 
 		  while (--iter != 0) {
-			WebPChunk* next_chunk = ChunkSearchNextInList(first.next_, tag);
+			WebPChunk next_chunk = ChunkSearchNextInList(first.next_, tag);
 			if (next_chunk == null) break;
 			first = next_chunk;
 		  }
@@ -119,10 +128,8 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Chunk writer methods.
 
-		WebPMuxError ChunkAssignDataImageInfo(WebPChunk* chunk,
-											  byte* data, uint data_size,
-											  WebPImageInfo* image_info,
-											  int copy_data, uint tag) {
+		WebPMuxError ChunkAssignDataImageInfo(WebPChunk* chunk, byte* data, uint data_size, WebPImageInfo* image_info, int copy_data, uint tag)
+		{
 		  // For internally allocated chunks, always copy data & make it owner of data.
 		  if ((tag == kChunks[VP8X_ID].chunkTag) ||
 			  (tag == kChunks[LOOP_ID].chunkTag)) {
@@ -162,8 +169,8 @@ namespace NWebp.Internal
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError ChunkSetNth(WebPChunk* chunk, WebPChunk** chunk_list,
-								 uint nth) {
+		WebPMuxError ChunkSetNth(WebPChunk* chunk, WebPChunk** chunk_list, uint nth)
+		{
 		  WebPChunk* new_chunk;
 
 		  if (!ChunkSearchListToSet(chunk_list, nth, &chunk_list)) {
@@ -181,7 +188,8 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Chunk deletion method(s).
 
-		WebPChunk* ChunkDelete(WebPChunk* chunk) {
+		WebPChunk* ChunkDelete(WebPChunk* chunk)
+		{
 		  WebPChunk* next = ChunkRelease(chunk);
 		  free(chunk);
 		  return next;
@@ -190,7 +198,8 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Chunk serialization methods.
 
-		uint ChunksListDiskSize(WebPChunk* chunk_list) {
+		uint ChunksListDiskSize(WebPChunk* chunk_list)
+		{
 		  uint size = 0;
 		  while (chunk_list) {
 			size += ChunkDiskSize(chunk_list);
@@ -199,7 +208,8 @@ namespace NWebp.Internal
 		  return size;
 		}
 
-		static byte* ChunkEmit(WebPChunk* chunk, byte* dst) {
+		static byte* ChunkEmit(WebPChunk* chunk, byte* dst)
+		{
 		  assert(chunk);
 		  assert(chunk.tag_ != NIL_TAG);
 		  PutLE32(dst + 0, chunk.tag_);
@@ -210,7 +220,8 @@ namespace NWebp.Internal
 		  return dst + ChunkDiskSize(chunk);
 		}
 
-		byte* ChunkListEmit(WebPChunk* chunk_list, byte* dst) {
+		byte* ChunkListEmit(WebPChunk* chunk_list, byte* dst)
+		{
 		  while (chunk_list) {
 			dst = ChunkEmit(chunk_list, dst);
 			chunk_list = chunk_list.next_;
@@ -221,12 +232,14 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Life of a MuxImage object.
 
-		void MuxImageInit(WebPMuxImage* wpi) {
+		void MuxImageInit(WebPMuxImage wpi)
+		{
 		  assert(wpi);
 		  memset(wpi, 0, sizeof(*wpi));
 		}
 
-		WebPMuxImage* MuxImageRelease(WebPMuxImage* wpi) {
+		WebPMuxImage* MuxImageRelease(WebPMuxImage wpi)
+		{
 		  WebPMuxImage* next;
 		  if (wpi == null) return null;
 		  ChunkDelete(wpi.header_);

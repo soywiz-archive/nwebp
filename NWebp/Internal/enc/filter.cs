@@ -5,35 +5,37 @@ using System.Text;
 
 namespace NWebp.Internal
 {
-	class filter
+	unsafe class filter
 	{
-
 		// NOTE: clip1, tables and InitTables are repeated entries of dsp.c
-		static byte abs0[255 + 255 + 1];     // abs(i)
-		static byte abs1[255 + 255 + 1];     // abs(i)>>1
-		static int8_t sclip1[1020 + 1020 + 1];  // clips [-1020, 1020] to [-128, 127]
-		static int8_t sclip2[112 + 112 + 1];    // clips [-112, 112] to [-16, 15]
-		static byte clip1[255 + 510 + 1];    // clips [-255,510] to [0,255]
+		static byte[] abs0 = new byte[255 + 255 + 1];     // abs(i)
+		static byte[] abs1 = new byte[255 + 255 + 1];     // abs(i)>>1
+		static sbyte[] sclip1 = new sbyte[1020 + 1020 + 1];  // clips [-1020, 1020] to [-128, 127]
+		static sbyte[] sclip2 = new sbyte[112 + 112 + 1];    // clips [-112, 112] to [-16, 15]
+		static byte[] clip1 = new byte[255 + 510 + 1];    // clips [-255,510] to [0,255]
 
-		static int tables_ok = 0;
+		// We declare this variable 'volatile' to prevent instruction reordering
+		// and make sure it's set to true _last_ (so as to be thread-safe)
+		// @CHECK!
+		static volatile bool tables_ok = false;
 
-		static void InitTables(void) {
+		static void InitTables() {
 		  if (!tables_ok) {
 			int i;
 			for (i = -255; i <= 255; ++i) {
-			  abs0[255 + i] = (i < 0) ? -i : i;
-			  abs1[255 + i] = abs0[255 + i] >> 1;
+			  abs0[255 + i] = (byte)((i < 0) ? -i : i);
+			  abs1[255 + i] = (byte)(abs0[255 + i] >> 1);
 			}
 			for (i = -1020; i <= 1020; ++i) {
-			  sclip1[1020 + i] = (i < -128) ? -128 : (i > 127) ? 127 : i;
+			  sclip1[1020 + i] = (sbyte)((i < -128) ? -128 : (i > 127) ? 127 : i);
 			}
 			for (i = -112; i <= 112; ++i) {
-			  sclip2[112 + i] = (i < -16) ? -16 : (i > 15) ? 15 : i;
+			  sclip2[112 + i] = (sbyte)((i < -16) ? -16 : (i > 15) ? 15 : i);
 			}
 			for (i = -255; i <= 255 + 255; ++i) {
-			  clip1[255 + i] = (i < 0) ? 0 : (i > 255) ? 255 : i;
+			  clip1[255 + i] = (byte)((i < 0) ? 0 : (i > 255) ? 255 : i);
 			}
-			tables_ok = 1;
+			tables_ok = true;
 		  }
 		}
 

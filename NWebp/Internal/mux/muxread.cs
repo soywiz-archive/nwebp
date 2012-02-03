@@ -64,7 +64,18 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Create a mux object from WebP-RIFF data.
 
-		WebPMux* WebPMuxCreate(byte* data, uint size, int copy_data,
+		// Creates a mux object from raw data given in WebP RIFF format.
+		// Parameters:
+		//   data - (in) the raw data in WebP RIFF format
+		//   size - (in) size of raw data
+		//   copy_data - (in) value 1 indicates given data WILL copied to the mux, and
+		//               value 0 indicates data will NOT be copied.
+		//   mux_state - (out) indicates the state of the mux returned. Can be passed
+		//               null if not required.
+		// Returns:
+		//   A pointer to the mux object created from given data - on success.
+		//   null - In case of invalid data or memory error.
+		public WebPMux* WebPMuxCreate(byte* data, uint size, int copy_data,
 							   WebPMuxState* mux_state) {
 		  uint riff_size;
 		  uint tag;
@@ -184,7 +195,18 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Get API(s).
 
-		WebPMuxError WebPMuxGetFeatures(WebPMux* mux, uint* flags) {
+		// Gets the feature flags from the mux object.
+		// Parameters:
+		//   mux - (in) object from which the features are to be fetched
+		//   flags - (out) the flags specifying which features are present in the
+		//           mux object. This will be an OR of various flag values.
+		//           Enum 'FeatureFlags' can be used to test for individual flag values.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or flags is null
+		//   WEBP_MUX_NOT_FOUND - if VP8X chunk is not present in mux object.
+		//   WEBP_MUX_BAD_DATA - if VP8X chunk in mux is invalid.
+		//   WEBP_MUX_OK - on success.
+		public WebPMuxError WebPMuxGetFeatures(WebPMux* mux, uint* flags) {
 		  WebPData data;
 		  WebPMuxError err;
 
@@ -215,8 +237,18 @@ namespace NWebp.Internal
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError WebPMuxGetImage(WebPMux* mux,
-									 WebPData* image, WebPData* alpha) {
+		// Gets a reference to the image in the mux object.
+		// The caller should NOT free the returned data.
+		// Parameters:
+		//   mux - (in) object from which the image is to be fetched
+		//   image - (out) the image data
+		//   alpha - (out) the alpha data of the image (if present)
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux or image is null
+		//                               OR if mux contains animation/tiling.
+		//   WEBP_MUX_NOT_FOUND - if image is not present in mux object.
+		//   WEBP_MUX_OK - on success.
+		public WebPMuxError WebPMuxGetImage(WebPMux* mux, WebPData* image, WebPData* alpha) {
 		  WebPMuxError err;
 		  WebPMuxImage* wpi = null;
 
@@ -250,8 +282,16 @@ namespace NWebp.Internal
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError WebPMuxGetMetadata(WebPMux* mux,
-										WebPData* metadata) {
+		// Gets a reference to the XMP metadata in the mux object.
+		// The caller should NOT free the returned data.
+		// Parameters:
+		//   mux - (in) object from which the XMP metadata is to be fetched
+		//   metadata - (out) XMP metadata
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux or metadata is null.
+		//   WEBP_MUX_NOT_FOUND - if metadata is not present in mux object.
+		//   WEBP_MUX_OK - on success.
+		public WebPMuxError WebPMuxGetMetadata(WebPMux* mux, WebPData* metadata) {
 		  if (mux == null || metadata == null) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
@@ -259,6 +299,15 @@ namespace NWebp.Internal
 		  return MuxGet(mux, META_ID, 1, metadata);
 		}
 
+		// Gets a reference to the color profile in the mux object.
+		// The caller should NOT free the returned data.
+		// Parameters:
+		//   mux - (in) object from which the color profile data is to be fetched
+		//   color_profile - (out) color profile data
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux or color_profile is null.
+		//   WEBP_MUX_NOT_FOUND - if color profile is not present in mux object.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxGetColorProfile(WebPMux* mux,
 											WebPData* color_profile) {
 		  if (mux == null || color_profile == null) {
@@ -268,8 +317,15 @@ namespace NWebp.Internal
 		  return MuxGet(mux, ICCP_ID, 1, color_profile);
 		}
 
-		WebPMuxError WebPMuxGetLoopCount(WebPMux* mux,
-										 uint* loop_count) {
+		// Gets the animation loop count from the mux object.
+		// Parameters:
+		//   mux - (in) object from which the loop count is to be fetched
+		//   loop_count - (out) the loop_count value present in the LOOP chunk
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either of mux or loop_count is null
+		//   WEBP_MUX_NOT_FOUND - if loop chunk is not present in mux object.
+		//   WEBP_MUX_OK - on success.
+		WebPMuxError WebPMuxGetLoopCount(WebPMux* mux, uint* loop_count) {
 		  WebPData image;
 		  WebPMuxError err;
 
@@ -336,18 +392,46 @@ namespace NWebp.Internal
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError WebPMuxGetFrame(WebPMux* mux, uint nth,
-									 WebPData* image, WebPData* alpha,
-									 uint* x_offset, uint* y_offset,
-									 uint* duration) {
+		// Gets a reference to the nth animation frame from the mux object.
+		// The caller should NOT free the returned data.
+		// nth=0 has a special meaning - last position.
+		// Parameters:
+		//   mux - (in) object from which the info is to be fetched
+		//   nth - (in) index of the frame in the mux object
+		//   image - (out) the image data
+		//   alpha - (out) the alpha data corresponding to frame image (if present)
+		//   x_offset - (out) x-offset of the returned frame
+		//   y_offset - (out) y-offset of the returned frame
+		//   duration - (out) duration of the returned frame (in milliseconds)
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux, image, x_offset,
+		//                               y_offset, or duration is null
+		//   WEBP_MUX_NOT_FOUND - if there are less than nth frames in the mux object.
+		//   WEBP_MUX_BAD_DATA - if nth frame chunk in mux is invalid.
+		//   WEBP_MUX_OK - on success.
+		WebPMuxError WebPMuxGetFrame(WebPMux* mux, uint nth, WebPData* image, WebPData* alpha, uint* x_offset, uint* y_offset, uint* duration) {
 		  return MuxGetFrameTileInternal(mux, nth, image, alpha,
 										 x_offset, y_offset, duration,
 										 kChunks[FRAME_ID].chunkTag);
 		}
 
-		WebPMuxError WebPMuxGetTile(WebPMux* mux, uint nth,
-									WebPData* image, WebPData* alpha,
-									uint* x_offset, uint* y_offset) {
+		// Gets a reference to the nth tile from the mux object.
+		// The caller should NOT free the returned data.
+		// nth=0 has a special meaning - last position.
+		// Parameters:
+		//   mux - (in) object from which the info is to be fetched
+		//   nth - (in) index of the tile in the mux object
+		//   image - (out) the image data
+		//   alpha - (out) the alpha data corresponding to tile image (if present)
+		//   x_offset - (out) x-offset of the returned tile
+		//   y_offset - (out) y-offset of the returned tile
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux, image, x_offset or
+		//                               y_offset is null
+		//   WEBP_MUX_NOT_FOUND - if there are less than nth tiles in the mux object.
+		//   WEBP_MUX_BAD_DATA - if nth tile chunk in mux is invalid.
+		//   WEBP_MUX_OK - on success.
+		WebPMuxError WebPMuxGetTile(WebPMux* mux, uint nth, WebPData* image, WebPData* alpha, uint* x_offset, uint* y_offset) {
 		  return MuxGetFrameTileInternal(mux, nth, image, alpha,
 										 x_offset, y_offset, null,
 										 kChunks[TILE_ID].chunkTag);
@@ -366,7 +450,15 @@ namespace NWebp.Internal
 		  return count;
 		}
 
-		WebPMuxError WebPMuxNumNamedElements(WebPMux* mux, char* tag,
+		// Gets number of chunks having tag value tag in the mux object.
+		// Parameters:
+		//   mux - (in) object from which the info is to be fetched
+		//   tag - (in) tag name specifying the type of chunk
+		//   num_elements - (out) number of chunks corresponding to the specified tag
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux, tag or num_elements is null
+		//   WEBP_MUX_OK - on success.
+		public WebPMuxError WebPMuxNumNamedElements(WebPMux* mux, char* tag,
 											 int* num_elements) {
 		  TAG_ID id;
 		  WebPChunk** chunk_list;

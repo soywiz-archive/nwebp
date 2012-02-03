@@ -7,50 +7,12 @@ namespace NWebp.Internal
 {
 	unsafe class alpha
 	{
-		// Encodes the given alpha data 'data' of size 'stride'x'height' via specified
-		// compression method 'method'. The pre-processing (Quantization) is
-		// performed if 'quality' is less than 100. For such cases, the encoding is
-		// lossy. Valid ranges for 'quality' is [0, 100] and 'method' is [0, 1]:
-		//   'method = 0' - No compression;
-		//   'method = 1' - Backward reference counts encoded with arithmetic encoder;
-		// 'filter' values [0, 4] correspond to prediction modes none, horizontal,
-		// vertical & gradient filters. The prediction mode 4 will try all the
-		// prediction modes (0 to 3) and pick the best prediction mode.
+		const int MAX_SYMBOLS      = 255;
+		const int ALPHA_HEADER_LEN = 2;
 
-		// 'output' corresponds to the buffer containing compressed alpha data.
-		//          This buffer is allocated by this method and caller should call
-		//          free(*output) when done.
-		// 'output_size' corresponds to size of this compressed alpha buffer.
-		//
-		// Returns 1 on successfully encoding the alpha and
-		//         0 if either:
-		//           invalid quality or method, or
-		//           memory allocation for the compressed data fails.
-		int EncodeAlpha(byte* data, int width, int height, int stride, int quality, int method, int filter, byte** output, uint* output_size);
-
-		// Decodes the compressed data 'data' of size 'data_size' into the 'output'.
-		// The 'output' buffer should be pre-allocated and must be of the same
-		// dimension 'height'x'stride', as that of the image.
-		//
-		// Returns 1 on successfully decoding the compressed alpha and
-		//         0 if either:
-		//           error in bit-stream header (invalid compression mode or filter), or
-		//           error returned by appropriate compression method.
-		int DecodeAlpha(byte* data, uint data_size, int width, int height, int stride, byte* output);
-
-		// Replace the input 'data' of size 'width'x'height' with 'num-levels'
-		// quantized values. If not null, 'mse' will contain the mean-squared error.
-		// Valid range for 'num_levels' is [2, 256].
-		// Returns false in case of error (data is null, or parameters are invalid).
-		int QuantizeLevels(byte* data, int width, int height, int num_levels, float* mse);
-
-
-		int MAX_SYMBOLS      = 255;
-		int ALPHA_HEADER_LEN = 2;
-
-		// -----------------------------------------------------------------------------
-		// Zlib-like encoding using TCoder
-
+		/// <summary>
+		/// Zlib-like encoding using TCoder
+		/// </summary>
 		struct Token
 		{
 			/// <summary>
@@ -69,6 +31,9 @@ namespace NWebp.Internal
 			uint len;     
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		int MIN_LEN = 2;
 		
 		/// <summary>
@@ -98,11 +63,11 @@ namespace NWebp.Internal
 		  return n;
 		}
 
-		static int EncodeZlibTCoder(byte* data, int width, int height, ref VP8BitWriter bw) {
+		static int EncodeZlibTCoder(byte* data, int width, int height, VP8BitWriter bw) {
 		  int ok = 0;
-		  uint data_size = width * height;
-		  uint MAX_DIST = 3 * width;
-		  uint MAX_LEN = 2 * width;
+		  uint data_size = (uint)(width * height);
+		  uint MAX_DIST = (uint)(3 * width);
+		  uint MAX_LEN = (uint)(2 * width);
 		  Token* msg = (Token*)malloc(data_size * sizeof(*msg));
 		  int num_tokens;
 		  TCoder* coder = TCoderNew(MAX_SYMBOLS);
@@ -147,8 +112,7 @@ namespace NWebp.Internal
 				len = GetLongestMatch(data + pos, data + n, max_len);
 				if (len >= MIN_LEN && len >= best.len) {
 				  // This is the cost of the coding proposal
-				  double cost = TCoderSymbolCost(coderl, len - MIN_LEN)
-									+ TCoderSymbolCost(coderd, dist);
+				  double cost = TCoderSymbolCost(coderl, len - MIN_LEN) + TCoderSymbolCost(coderd, dist);
 				  // We're gaining an extra len-best.len coded message over the last
 				  // known best. Compute how this would have cost if coded all literal.
 				  // (TODO: we should fully re-evaluate at position best.len and not
@@ -289,9 +253,27 @@ namespace NWebp.Internal
 		  }
 		}
 
-		int EncodeAlpha(byte* data, int width, int height, int stride,
-						int quality, int method, int filter,
-						byte** output, uint* output_size) {
+		// Encodes the given alpha data 'data' of size 'stride'x'height' via specified
+		// compression method 'method'. The pre-processing (Quantization) is
+		// performed if 'quality' is less than 100. For such cases, the encoding is
+		// lossy. Valid ranges for 'quality' is [0, 100] and 'method' is [0, 1]:
+		//   'method = 0' - No compression;
+		//   'method = 1' - Backward reference counts encoded with arithmetic encoder;
+		// 'filter' values [0, 4] correspond to prediction modes none, horizontal,
+		// vertical & gradient filters. The prediction mode 4 will try all the
+		// prediction modes (0 to 3) and pick the best prediction mode.
+
+		// 'output' corresponds to the buffer containing compressed alpha data.
+		//          This buffer is allocated by this method and caller should call
+		//          free(*output) when done.
+		// 'output_size' corresponds to size of this compressed alpha buffer.
+		//
+		// Returns 1 on successfully encoding the alpha and
+		//         0 if either:
+		//           invalid quality or method, or
+		//           memory allocation for the compressed data fails.
+		int EncodeAlpha(byte* data, int width, int height, int stride, int quality, int method, int filter, byte** output, uint* output_size)
+		{
 		  byte* quant_alpha = null;
 		  uint data_size = height * width;
 		  int ok = 1;
@@ -396,8 +378,8 @@ namespace NWebp.Internal
 		// -----------------------------------------------------------------------------
 		// Alpha Decode.
 
-		static int DecompressZlibTCoder(VP8BitReader* br, int width,
-										byte* output, uint output_size) {
+		static int DecompressZlibTCoder(VP8BitReader* br, int width, byte* output, uint output_size)
+		{
 		  int ok = 1;
 		  uint MAX_DIST = 3 * width;
 		  uint MAX_LEN = 2 * width;
@@ -439,9 +421,17 @@ namespace NWebp.Internal
 
 		// -----------------------------------------------------------------------------
 
-		int DecodeAlpha(byte* data, uint data_size,
-						int width, int height, int stride,
-						byte* output) {
+
+		// Decodes the compressed data 'data' of size 'data_size' into the 'output'.
+		// The 'output' buffer should be pre-allocated and must be of the same
+		// dimension 'height'x'stride', as that of the image.
+		//
+		// Returns 1 on successfully decoding the compressed alpha and
+		//         0 if either:
+		//           error in bit-stream header (invalid compression mode or filter), or
+		//           error returned by appropriate compression method.
+		int DecodeAlpha(byte* data, uint data_size, int width, int height, int stride, byte* output)
+		{
 		  byte* decoded_data = null;
 		  uint decoded_size = height * width;
 		  byte* unfiltered_data = null;

@@ -7,7 +7,7 @@ namespace NWebp.Internal
 {
 	partial class Global
 	{
-		int WEBP_ENCODER_ABI_VERSION = 0x0003;
+		public const int WEBP_ENCODER_ABI_VERSION = 0x0003;
 	}
 
 	/*

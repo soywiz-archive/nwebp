@@ -5,24 +5,21 @@ using System.Text;
 
 namespace NWebp.Internal
 {
-	class alpha
+	public partial class VP8Encoder
 	{
-
-		//------------------------------------------------------------------------------
-
-		void VP8EncInitAlpha(VP8Encoder* enc)
+		void VP8EncInitAlpha()
 		{
-			enc.has_alpha_ = (enc.pic_.a != null);
-			enc.alpha_data_ = null;
-			enc.alpha_data_size_ = 0;
+			this.has_alpha_ = (this.pic_.a != null);
+			this.alpha_data_ = null;
+			this.alpha_data_size_ = 0;
 		}
 
-		int VP8EncFinishAlpha(VP8Encoder* enc)
+		int VP8EncFinishAlpha()
 		{
-			if (enc.has_alpha_)
+			if (this.has_alpha_)
 			{
-				WebPConfig* config = enc.config_;
-				WebPPicture* pic = enc.pic_;
+				WebPConfig* config = this.config_;
+				WebPPicture* pic = this.pic_;
 				byte* tmp_data = null;
 				uint tmp_size = 0;
 				WEBP_FILTER_TYPE filter =
@@ -42,20 +39,18 @@ namespace NWebp.Internal
 					free(tmp_data);
 					return 0;
 				}
-				enc.alpha_data_size_ = (uint)tmp_size;
-				enc.alpha_data_ = tmp_data;
+				this.alpha_data_size_ = (uint)tmp_size;
+				this.alpha_data_ = tmp_data;
 			}
-			return WebPReportProgress(enc, enc.percent_ + 20);
+			return this.WebPReportProgress(this.percent_ + 20);
 		}
 
-		void VP8EncDeleteAlpha(VP8Encoder* enc)
+		void VP8EncDeleteAlpha()
 		{
-			free(enc.alpha_data_);
-			enc.alpha_data_ = null;
-			enc.alpha_data_size_ = 0;
-			enc.has_alpha_ = 0;
+			free(this.alpha_data_);
+			this.alpha_data_ = null;
+			this.alpha_data_size_ = 0;
+			this.has_alpha_ = 0;
 		}
-
-
 	}
 }

@@ -20,6 +20,10 @@ namespace NWebp.Internal
 		/// </summary>
 		double ERROR_THRESHOLD = 1e-4;
 
+		// Replace the input 'data' of size 'width'x'height' with 'num-levels'
+		// quantized values. If not null, 'mse' will contain the mean-squared error.
+		// Valid range for 'num_levels' is [2, 256].
+		// Returns false in case of error (data is null, or parameters are invalid).
 		/// <summary>
 		/// Quantize levels.
 		/// </summary>

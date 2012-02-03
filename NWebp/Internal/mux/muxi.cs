@@ -18,28 +18,61 @@ namespace NWebp.Internal
 		uint    height_;
 	}
 
-	// Chunk object.
+	/// <summary>
+	/// Chunk object.
+	/// </summary>
 	partial class WebPChunk
 	{
-		uint        tag_;
-		uint        payload_size_;
-		WebPImageInfo  image_info_;
-		int             owner_;  // True if *data_ memory is owned internally.
-								// VP8X, Loop, and other internally created chunks
-								// like frame/tile are always owned.
-		byte* data_;
-		WebPChunk      next_;
+		/// <summary>
+		/// 
+		/// </summary>
+		public uint        tag_;
 
-		static public uint mktag(byte c1, byte c2, byte c3, byte c4) {
+		/// <summary>
+		/// 
+		/// </summary>
+		public uint        payload_size_;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public WebPImageInfo  image_info_;
+
+		/// <summary>
+		/// True if *data_ memory is owned internally.
+		/// VP8X, Loop, and other internally created chunks
+		/// like frame/tile are always owned.
+		/// </summary>
+		public int             owner_;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public byte* data_;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public WebPChunk      next_;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="c1"></param>
+		/// <param name="c2"></param>
+		/// <param name="c3"></param>
+		/// <param name="c4"></param>
+		/// <returns></returns>
+		static public uint mktag(byte c1, byte c2, byte c3, byte c4)
+		{
 			return ((uint)c1 | (uint)(c2 << 8) | (uint)(c3 << 16) | (uint)(c4 << 24));
 		}
-
 	}
 
-	// MuxImage object. Store a full webp image (including frame/tile chunk, alpha
-	// chunk and VP8 chunk),
-	//typedef struct WebPMuxImage WebPMuxImage;
-
+	/// <summary>
+	/// MuxImage object. Store a full webp image (including frame/tile chunk, alpha
+	/// chunk and VP8 chunk),
+	/// </summary>
 	partial class WebPMuxImage
 	{
 		/// <summary>
@@ -88,14 +121,19 @@ namespace NWebp.Internal
 		int CHUNKS_PER_FRAME  = 2;
 		int CHUNKS_PER_TILE   = 2;
 
-		// Maximum chunk payload (data) size such that adding the header and padding
-		// won't overflow an uint32.
+		/// <summary>
+		/// Maximum chunk payload (data) size such that adding the header and padding
+		/// won't overflow an uint32.
+		/// </summary>
 		uint MAX_CHUNK_PAYLOAD = (~0U - CHUNK_HEADER_SIZE - 1);
 
 		uint NIL_TAG = 0x00000000u;  // To signal void chunk.
 
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public enum TAG_ID
 	{
 		VP8X_ID = 0,
@@ -112,19 +150,37 @@ namespace NWebp.Internal
 		LIST_ID
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public partial class ChunkInfo
 	{
-		//char*   chunkName;
+		/// <summary>
+		/// char*   chunkName;
+		/// </summary>
 		string chunkName;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		uint      chunkTag;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		TAG_ID        chunkId;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		uint      chunkSize;
 	}
 
-	extern ChunkInfo kChunks[LIST_ID + 1];
+	//extern ChunkInfo kChunks[LIST_ID + 1];
 
-	//------------------------------------------------------------------------------
-	// Helper functions.
+	/// <summary>
+	/// Helper functions.
+	/// </summary>
 	unsafe partial class Helper
 	{
 		static uint GetLE32(byte* data) {
@@ -214,16 +270,18 @@ namespace NWebp.Internal
 	int MuxImageCount(WebPMuxImage* wpi_list, TAG_ID id);
 	*/
 
-	// Check if given ID corresponds to an image related chunk.
+	/// <summary>
+	/// Check if given ID corresponds to an image related chunk.
+	/// </summary>
 	unsafe partial class Global
 	{
 		static int IsWPI(TAG_ID id) {
 			switch (id) {
-			case TAG_ID.FRAME_ID:
-			case TAG_ID.TILE_ID:
-			case TAG_ID.ALPHA_ID:
-			case TAG_ID.IMAGE_ID:  return 1;
-			default:        return 0;
+				case TAG_ID.FRAME_ID:
+				case TAG_ID.TILE_ID:
+				case TAG_ID.ALPHA_ID:
+				case TAG_ID.IMAGE_ID:  return 1;
+				default:        return 0;
 			}
 		}
 	}

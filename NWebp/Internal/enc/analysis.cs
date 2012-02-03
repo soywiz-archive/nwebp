@@ -5,10 +5,14 @@ using System.Text;
 
 namespace NWebp.Internal
 {
+	public partial class VP8Encoder
+	{
+	}
+
 	class analysis
 	{
 
-		#define MAX_ITERS_K_MEANS  6
+		const int MAX_ITERS_K_MEANS  = 6;
 
 		static int ClipAlpha(int alpha) {
 		  return alpha < 0 ? 0 : alpha > 255 ? 255 : alpha;
@@ -215,9 +219,9 @@ namespace NWebp.Internal
 
 		// Number of modes to inspect for alpha_ evaluation. For high-quality settings,
 		// we don't need to test all the possible modes during the analysis phase.
-		#define MAX_INTRA16_MODE 2
-		#define MAX_INTRA4_MODE  2
-		#define MAX_UV_MODE      2
+		const int MAX_INTRA16_MODE = 2;
+		const int MAX_INTRA4_MODE  = 2;
+		const int MAX_UV_MODE      = 2;
 
 		static int MBAnalyzeBestIntra16Mode(VP8EncIterator* it) {
 		  int max_mode = (it.enc_.method_ >= 3) ? MAX_INTRA16_MODE : 4;

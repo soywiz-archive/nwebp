@@ -7,6 +7,7 @@ namespace NWebp.Internal
 {
 	class cpu
 	{
+		/*
 		//------------------------------------------------------------------------------
 		// SSE2 detection.
 		//
@@ -56,6 +57,7 @@ namespace NWebp.Internal
 		#else
 		VP8CPUInfo VP8GetCPUInfo = null;
 		#endif
+		*/
 
 	}
 }

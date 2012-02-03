@@ -5,49 +5,53 @@ using System.Text;
 
 namespace NWebp.Internal
 {
-	class muxedit
+	//------------------------------------------------------------------------------
+	// Life of a mux object.
+	public partial class WebPMux
 	{
-
-		//------------------------------------------------------------------------------
-		// Life of a mux object.
-
-		static int MuxInit(WebPMux* mux) {
-		  if (mux == null) return 0;
-		  memset(mux, 0, sizeof(*mux));
-		  mux.state_ = WEBP_MUX_STATE_PARTIAL;
-		  return 1;
+		private WebPMux()
+		{
+			MuxInit();
 		}
 
-		WebPMux* WebPMuxNew(void) {
-		  WebPMux* mux = (WebPMux*)malloc(sizeof(WebPMux));
-		  if (mux) MuxInit(mux);
-		  return mux;
+		// Creates an empty mux object.
+		// Returns:
+		//   A pointer to the newly created empty mux object.
+		static public WebPMux WebPMuxNew() {
+		  return new WebPMux();
 		}
 
-		static void DeleteAllChunks(WebPChunk** chunk_list) {
+		public void MuxInit() {
+		  Global.memset(mux, 0, sizeof(*mux));
+		  this.state_ = WEBP_MUX_STATE_PARTIAL;
+		}
+
+		static void DeleteAllChunks(WebPChunk* chunk_list) {
 		  while (*chunk_list) {
 			*chunk_list = ChunkDelete(*chunk_list);
 		  }
 		}
 
-		static int MuxRelease(WebPMux* mux) {
-		  if (mux == null) return 0;
-		  MuxImageDeleteAll(&mux.images_);
-		  DeleteAllChunks(&mux.vp8x_);
-		  DeleteAllChunks(&mux.iccp_);
-		  DeleteAllChunks(&mux.loop_);
-		  DeleteAllChunks(&mux.meta_);
-		  DeleteAllChunks(&mux.unknown_);
-		  return 1;
+		void MuxRelease() {
+		  MuxImageDeleteAll(&this.images_);
+		  DeleteAllChunks(&this.vp8x_);
+		  DeleteAllChunks(&this.iccp_);
+		  DeleteAllChunks(&this.loop_);
+		  DeleteAllChunks(&this.meta_);
+		  DeleteAllChunks(&this.unknown_);
 		}
 
-		void WebPMuxDelete(WebPMux* mux) {
-		  if (mux) {
-			MuxRelease(mux);
-			free(mux);
-		  }
+		// Deletes the mux object.
+		// Parameters:
+		//   mux - (in/out) object to be deleted
+		void WebPMuxDelete() {
+			this.MuxRelease();
+			//free(this);
 		}
+	}
 
+	class muxedit
+	{
 		//------------------------------------------------------------------------------
 		// Helper method(s).
 
@@ -212,7 +216,22 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Set API(s).
 
-		WebPMuxError WebPMuxSetImage(WebPMux* mux, byte* data, uint size, byte* alpha_data, uint alpha_size, int copy_data)
+		// Sets the image in the mux object. Any existing images (including frame/tile)
+		// will be removed.
+		// Parameters:
+		//   mux - (in/out) object in which the image is to be set
+		//   data - (in) the image data to be set. The data can be either a VP8
+		//          bitstream or a single-image WebP file (non-animated & non-tiled)
+		//   size - (in) size of the image data
+		//   alpha_data - (in) the alpha data corresponding to the image (if present)
+		//   alpha_size - (in) size of alpha chunk data
+		//   copy_data - (in) value 1 indicates given data WILL copied to the mux, and
+		//               value 0 indicates data will NOT be copied.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null.
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
+		//   WEBP_MUX_OK - on success.
+		public WebPMuxError WebPMuxSetImage(WebPMux* mux, byte* data, uint size, byte* alpha_data, uint alpha_size, int copy_data)
 		{
 		  WebPMuxError err;
 		  WebPChunk chunk;
@@ -254,8 +273,19 @@ namespace NWebp.Internal
 		  return MuxImageSetNth(&wpi, &mux.images_, 1);
 		}
 
-		WebPMuxError WebPMuxSetMetadata(WebPMux* mux, byte* data,
-										uint size, int copy_data) {
+		// Sets the XMP metadata in the mux object. Any existing metadata chunk(s) will
+		// be removed.
+		// Parameters:
+		//   mux - (in/out) object to which the XMP metadata is to be added
+		//   data - (in) the XMP metadata data to be added
+		//   size - (in) size of the XMP metadata data
+		//   copy_data - (in) value 1 indicates given data WILL copied to the mux, and
+		//               value 0 indicates data will NOT be copied.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null.
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
+		//   WEBP_MUX_OK - on success.
+		public WebPMuxError WebPMuxSetMetadata(WebPMux* mux, byte* data, uint size, int copy_data) {
 		  WebPMuxError err;
 
 		  if (mux == null || data == null || size > MAX_CHUNK_PAYLOAD) {
@@ -270,8 +300,19 @@ namespace NWebp.Internal
 		  return MuxSet(mux, META_ID, 1, data, size, null, copy_data);
 		}
 
-		WebPMuxError WebPMuxSetColorProfile(WebPMux* mux, byte* data,
-											uint size, int copy_data) {
+		// Sets the color profile in the mux object. Any existing color profile chunk(s)
+		// will be removed.
+		// Parameters:
+		//   mux - (in/out) object to which the color profile is to be added
+		//   data - (in) the color profile data to be added
+		//   size - (in) size of the color profile data
+		//   copy_data - (in) value 1 indicates given data WILL copied to the mux, and
+		//               value 0 indicates data will NOT be copied.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error
+		//   WEBP_MUX_OK - on success
+		WebPMuxError WebPMuxSetColorProfile(WebPMux* mux, byte* data, uint size, int copy_data) {
 		  WebPMuxError err;
 
 		  if (mux == null || data == null || size > MAX_CHUNK_PAYLOAD) {
@@ -286,6 +327,16 @@ namespace NWebp.Internal
 		  return MuxSet(mux, ICCP_ID, 1, data, size, null, copy_data);
 		}
 
+		// Sets the animation loop count in the mux object. Any existing loop count
+		// value(s) will be removed.
+		// Parameters:
+		//   mux - (in/out) object in which loop chunk is to be set/added
+		//   loop_count - (in) animation loop count value.
+		//                Note that loop_count of zero denotes infinite loop.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxSetLoopCount(WebPMux* mux, uint loop_count) {
 		  WebPMuxError err;
 		  byte* data = null;
@@ -306,6 +357,7 @@ namespace NWebp.Internal
 		  free(data);
 		  return err;
 		}
+
 
 		static WebPMuxError MuxAddFrameTileInternal(WebPMux* mux, uint nth,
 													byte* data, uint size,
@@ -395,21 +447,54 @@ namespace NWebp.Internal
 
 		// TODO(urvang): Think about whether we need 'nth' while adding a frame or tile.
 
-		WebPMuxError WebPMuxAddFrame(WebPMux* mux, uint nth,
-									 byte* data, uint size,
-									 byte* alpha_data, uint alpha_size,
-									 uint x_offset, uint y_offset,
-									 uint duration, int copy_data) {
+		// Adds an animation frame to the mux object.
+		// nth=0 has a special meaning - last position.
+		// Parameters:
+		//   mux - (in/out) object to which an animation frame is to be added
+		//   nth - (in) The position at which the frame is to be added.
+		//   data - (in) the raw VP8 image data corresponding to frame image. The data
+		//          can be either a VP8 bitstream or a single-image WebP file
+		//          (non-animated & non-tiled)
+		//   size - (in) size of frame chunk data
+		//   alpha_data - (in) the alpha data corresponding to frame image (if present)
+		//   alpha_size - (in) size of alpha chunk data
+		//   x_offset - (in) x-offset of the frame to be added
+		//   y_offset - (in) y-offset of the frame to be added
+		//   duration - (in) duration of the frame to be added (in milliseconds)
+		//   copy_data - (in) value 1 indicates given data WILL copied to the mux, and
+		//               value 0 indicates data will NOT be copied.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null
+		//   WEBP_MUX_NOT_FOUND - If we have less than (nth-1) frames before adding.
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
+		//   WEBP_MUX_OK - on success.
+		WebPMuxError WebPMuxAddFrame(WebPMux* mux, uint nth, byte* data, uint size, byte* alpha_data, uint alpha_size, uint x_offset, uint y_offset, uint duration, int copy_data) {
 		  return MuxAddFrameTileInternal(mux, nth, data, size, alpha_data, alpha_size,
 										 x_offset, y_offset, duration,
 										 copy_data, kChunks[FRAME_ID].chunkTag);
 		}
 
-		WebPMuxError WebPMuxAddTile(WebPMux* mux, uint nth,
-									byte* data, uint size,
-									byte* alpha_data, uint alpha_size,
-									uint x_offset, uint y_offset,
-									int copy_data) {
+		// Adds a tile to the mux object.
+		// nth=0 has a special meaning - last position.
+		// Parameters:
+		//   mux - (in/out) object to which a tile is to be added
+		//   nth - (in) The position at which the tile is to be added.
+		//   data - (in) the raw VP8 image data corresponding to tile image.  The data
+		//          can be either a VP8 bitstream or a single-image WebP file
+		//          (non-animated & non-tiled)
+		//   size - (in) size of tile chunk data
+		//   alpha_data - (in) the alpha data corresponding to tile image (if present)
+		//   alpha_size - (in) size of alpha chunk data
+		//   x_offset - (in) x-offset of the tile to be added
+		//   y_offset - (in) y-offset of the tile to be added
+		//   copy_data - (in) value 1 indicates given data WILL copied to the mux, and
+		//               value 0 indicates data will NOT be copied.
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null
+		//   WEBP_MUX_NOT_FOUND - If we have less than (nth-1) tiles before adding.
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
+		//   WEBP_MUX_OK - on success.
+		WebPMuxError WebPMuxAddTile(WebPMux* mux, uint nth, byte* data, uint size, byte* alpha_data, uint alpha_size, uint x_offset, uint y_offset, int copy_data) {
 		  return MuxAddFrameTileInternal(mux, nth, data, size, alpha_data, alpha_size,
 										 x_offset, y_offset, 1,
 										 copy_data, kChunks[TILE_ID].chunkTag);
@@ -418,6 +503,14 @@ namespace NWebp.Internal
 		//------------------------------------------------------------------------------
 		// Delete API(s).
 
+		// Deletes the image in the mux object.
+		// Parameters:
+		//   mux - (in/out) object from which the image is to be deleted
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
+		//                               OR if mux contains animation/tiling.
+		//   WEBP_MUX_NOT_FOUND - if image is not present in mux object.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxDeleteImage(WebPMux* mux) {
 		  WebPMuxError err;
 
@@ -431,10 +524,24 @@ namespace NWebp.Internal
 		  return WEBP_MUX_OK;
 		}
 
+		// Deletes the XMP metadata in the mux object.
+		// Parameters:
+		//   mux - (in/out) object from which XMP metadata is to be deleted
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
+		//   WEBP_MUX_NOT_FOUND - If mux does not contain metadata.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxDeleteMetadata(WebPMux* mux) {
 		  return MuxDeleteAllNamedData(mux, kChunks[META_ID].chunkName);
 		}
 
+		// Deletes the color profile in the mux object.
+		// Parameters:
+		//   mux - (in/out) object from which color profile is to be deleted
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
+		//   WEBP_MUX_NOT_FOUND - If mux does not contain color profile.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxDeleteColorProfile(WebPMux* mux) {
 		  return MuxDeleteAllNamedData(mux, kChunks[ICCP_ID].chunkName);
 		}
@@ -450,10 +557,30 @@ namespace NWebp.Internal
 		  return MuxImageDeleteNth(&mux.images_, nth, id);
 		}
 
+		// Deletes an animation frame from the mux object.
+		// nth=0 has a special meaning - last position.
+		// Parameters:
+		//   mux - (in/out) object from which a frame is to be deleted
+		//   nth - (in) The position from which the frame is to be deleted
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
+		//   WEBP_MUX_NOT_FOUND - If there are less than nth frames in the mux object
+		//                        before deletion.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxDeleteFrame(WebPMux* mux, uint nth) {
 		  return DeleteFrameTileInternal(mux, nth, kChunks[FRAME_ID].chunkName);
 		}
 
+		// Deletes a tile from the mux object.
+		// nth=0 has a special meaning - last position
+		// Parameters:
+		//   mux - (in/out) object from which a tile is to be deleted
+		//   nth - (in) The position from which the tile is to be deleted
+		// Returns:
+		//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
+		//   WEBP_MUX_NOT_FOUND - If there are less than nth tiles in the mux object
+		//                        before deletion.
+		//   WEBP_MUX_OK - on success.
 		WebPMuxError WebPMuxDeleteTile(WebPMux* mux, uint nth) {
 		  return DeleteFrameTileInternal(mux, nth, kChunks[TILE_ID].chunkName);
 		}
@@ -588,7 +715,22 @@ namespace NWebp.Internal
 		  return err;
 		}
 
-		WebPMuxError WebPMuxAssemble(WebPMux* mux, byte** output_data, uint* output_size) {
+		// Assembles all chunks in WebP RIFF format and returns in output_data.
+		// This function also validates the mux object.
+		// The content of '*output_data' is allocated using malloc(), and NOT
+		// owned by the 'mux' object.
+		// It MUST be deallocated by the caller by calling free().
+		// Parameters:
+		//   mux - (in/out) object whose chunks are to be assembled
+		//   output_data - (out) byte array where assembled WebP data is returned
+		//   output_size - (out) size of returned data
+		// Returns:
+		//   WEBP_MUX_BAD_DATA - if mux object is invalid.
+		//   WEBP_MUX_INVALID_ARGUMENT - if either mux, output_data or output_size is
+		//                               null.
+		//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
+		//   WEBP_MUX_OK - on success
+		public WebPMuxError WebPMuxAssemble(WebPMux* mux, byte** output_data, uint* output_size) {
 		  uint size = 0;
 		  byte* data = null;
 		  byte* dst = null;

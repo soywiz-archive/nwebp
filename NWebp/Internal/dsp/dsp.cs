@@ -5,6 +5,7 @@ using System.Text;
 
 namespace NWebp.Internal
 {
+	/*
 	class dsp
 	{
 
@@ -19,11 +20,12 @@ namespace NWebp.Internal
 		#define WEBP_USE_SSE2
 		#endif
 
-		typedef enum {
+		enum CPUFeature
+		{
 		  kSSE2,
 		  kSSE3,
 		  kNEON
-		} CPUFeature;
+		} ;
 		// returns true if the CPU supports the feature.
 		typedef int (*VP8CPUInfo)(CPUFeature feature);
 		extern VP8CPUInfo VP8GetCPUInfo;
@@ -91,9 +93,9 @@ namespace NWebp.Internal
 		// *dst is the destination block, with stride BPS. Boundary samples are
 		// assumed accessible when needed.
 		typedef void (*VP8PredFunc)(byte* dst);
-		extern VP8PredFunc VP8PredLuma16[/* NUM_B_DC_MODES */];
-		extern VP8PredFunc VP8PredChroma8[/* NUM_B_DC_MODES */];
-		extern VP8PredFunc VP8PredLuma4[/* NUM_BMODES */];
+		extern VP8PredFunc VP8PredLuma16[// NUM_B_DC_MODES ];
+		extern VP8PredFunc VP8PredChroma8[// NUM_B_DC_MODES ];
+		extern VP8PredFunc VP8PredLuma4[// NUM_BMODES ];
 
 		// simple filter (only for luma)
 		typedef void (*VP8SimpleFilterFunc)(byte* p, int stride, int thresh);
@@ -136,8 +138,8 @@ namespace NWebp.Internal
 
 
 		// Fancy upsampling functions to convert YUV to RGB(A) modes
-		extern WebPUpsampleLinePairFunc WebPUpsamplers[/* MODE_LAST */];
-		extern WebPUpsampleLinePairFunc WebPUpsamplersKeepAlpha[/* MODE_LAST */];
+		extern WebPUpsampleLinePairFunc WebPUpsamplers[// MODE_LAST //];
+		extern WebPUpsampleLinePairFunc WebPUpsamplersKeepAlpha[// MODE_LAST //];
 
 		// Initializes SSE2 version of the fancy upsamplers.
 		void WebPInitUpsamplersSSE2(void);
@@ -150,15 +152,15 @@ namespace NWebp.Internal
 			byte* u, byte* v,
 			byte* top_dst, byte* bottom_dst, int len);
 
-		extern WebPSampleLinePairFunc WebPSamplers[/* MODE_LAST */];
-		extern WebPSampleLinePairFunc WebPSamplersKeepAlpha[/* MODE_LAST */];
+		extern WebPSampleLinePairFunc WebPSamplers[// MODE_LAST //];
+		extern WebPSampleLinePairFunc WebPSamplersKeepAlpha[// MODE_LAST //];
 
 		// YUV444.RGB converters
 		typedef void (*WebPYUV444Converter)(byte* y,
 											byte* u, byte* v,
 											byte* dst, int len);
 
-		extern WebPYUV444Converter WebPYUV444Converters[/* MODE_LAST */];
+		extern WebPYUV444Converter WebPYUV444Converters[// MODE_LAST //];
 
 		// Main function to be called
 		void WebPInitUpsamplers(void);
@@ -167,4 +169,5 @@ namespace NWebp.Internal
 
 
 	}
+	*/
 }
