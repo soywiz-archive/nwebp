@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.enc
+namespace NWebp.Internal
 {
 	class vp8enci
 	{
@@ -52,7 +52,7 @@ namespace NWebp.Internal.enc
 		// The predicted blocks can be accessed using offsets to yuv_p_ and
 		// the arrays VP8*ModeOffsets[];
 		//         +----+      YUV Samples area. See VP8Scan[] for accessing the blocks.
-		//  Y_OFF  |YYYY| <- original samples  (enc->yuv_in_)
+		//  Y_OFF  |YYYY| <- original samples  (enc.yuv_in_)
 		//         |YYYY|
 		//         |YYYY|
 		//         |YYYY|
@@ -108,10 +108,10 @@ namespace NWebp.Internal.enc
 		#define ALIGN_CST 15
 		#define DO_ALIGN(PTR) ((uintptr_t)((PTR) + ALIGN_CST) & ~ALIGN_CST)
 
-		extern const int VP8Scan[16 + 4 + 4];           // in quant.c
-		extern const int VP8UVModeOffsets[4];           // in analyze.c
-		extern const int VP8I16ModeOffsets[4];
-		extern const int VP8I4ModeOffsets[NUM_BMODES];
+		extern int VP8Scan[16 + 4 + 4];           // in quant.c
+		extern int VP8UVModeOffsets[4];           // in analyze.c
+		extern int VP8I16ModeOffsets[4];
+		extern int VP8I4ModeOffsets[NUM_BMODES];
 
 		// Layout of prediction blocks
 		// intra 16x16
@@ -147,7 +147,7 @@ namespace NWebp.Internal.enc
 		static int QUANTDIV(int n, int iQ, int B) {
 		  return (n * iQ + B) >> QFIX;
 		}
-		extern const byte VP8Zigzag[16];
+		extern byte VP8Zigzag[16];
 
 		//------------------------------------------------------------------------------
 		// Headers
@@ -266,38 +266,38 @@ namespace NWebp.Internal.enc
 
 		  // in iterator.c
 		// must be called first.
-		void VP8IteratorInit(VP8Encoder* const enc, VP8EncIterator* const it);
+		void VP8IteratorInit(VP8Encoder* enc, VP8EncIterator* it);
 		// restart a scan.
-		void VP8IteratorReset(VP8EncIterator* const it);
+		void VP8IteratorReset(VP8EncIterator* it);
 		// import samples from source
-		void VP8IteratorImport(const VP8EncIterator* const it);
+		void VP8IteratorImport(VP8EncIterator* it);
 		// export decimated samples
-		void VP8IteratorExport(const VP8EncIterator* const it);
+		void VP8IteratorExport(VP8EncIterator* it);
 		// go to next macroblock. Returns !done_. If *block_to_save is non-null, will
 		// save the boundary values to top_/left_ arrays. block_to_save can be
-		// it->yuv_out_ or it->yuv_in_.
-		int VP8IteratorNext(VP8EncIterator* const it,
-							const byte* const block_to_save);
+		// it.yuv_out_ or it.yuv_in_.
+		int VP8IteratorNext(VP8EncIterator* it,
+							byte* block_to_save);
 		// Report progression based on macroblock rows. Return 0 for user-abort request.
-		int VP8IteratorProgress(const VP8EncIterator* const it,
+		int VP8IteratorProgress(VP8EncIterator* it,
 								int final_delta_percent);
 		// Intra4x4 iterations
-		void VP8IteratorStartI4(VP8EncIterator* const it);
+		void VP8IteratorStartI4(VP8EncIterator* it);
 		// returns true if not done.
-		int VP8IteratorRotateI4(VP8EncIterator* const it,
-								const byte* const yuv_out);
+		int VP8IteratorRotateI4(VP8EncIterator* it,
+								byte* yuv_out);
 
 		// Non-zero context setup/teardown
-		void VP8IteratorNzToBytes(VP8EncIterator* const it);
-		void VP8IteratorBytesToNz(VP8EncIterator* const it);
+		void VP8IteratorNzToBytes(VP8EncIterator* it);
+		void VP8IteratorBytesToNz(VP8EncIterator* it);
 
 		// Helper functions to set mode properties
-		void VP8SetIntra16Mode(const VP8EncIterator* const it, int mode);
-		void VP8SetIntra4Mode(const VP8EncIterator* const it, const byte* modes);
-		void VP8SetIntraUVMode(const VP8EncIterator* const it, int mode);
-		void VP8SetSkip(const VP8EncIterator* const it, int skip);
-		void VP8SetSegment(const VP8EncIterator* const it, int segment);
-		void VP8IteratorResetCosts(VP8EncIterator* const it);
+		void VP8SetIntra16Mode(VP8EncIterator* it, int mode);
+		void VP8SetIntra4Mode(VP8EncIterator* it, byte* modes);
+		void VP8SetIntraUVMode(VP8EncIterator* it, int mode);
+		void VP8SetSkip(VP8EncIterator* it, int skip);
+		void VP8SetSegment(VP8EncIterator* it, int segment);
+		void VP8IteratorResetCosts(VP8EncIterator* it);
 
 		//------------------------------------------------------------------------------
 		// Paginated token buffer
@@ -317,24 +317,24 @@ namespace NWebp.Internal.enc
 
 		typedef struct {
 		  VP8Tokens* rows_;
-		  ushort* tokens_;    // set to (*last_)->tokens_
+		  ushort* tokens_;    // set to (*last_).tokens_
 		  VP8Tokens** last_;
 		  int left_;
 		  int error_;  // true in case of malloc error
 		} VP8TBuffer;
 
-		void VP8TBufferInit(VP8TBuffer* const b);    // initialize an empty buffer
-		int VP8TBufferNewPage(VP8TBuffer* const b);  // allocate a new page
-		void VP8TBufferClear(VP8TBuffer* const b);   // de-allocate memory
+		void VP8TBufferInit(VP8TBuffer* b);    // initialize an empty buffer
+		int VP8TBufferNewPage(VP8TBuffer* b);  // allocate a new page
+		void VP8TBufferClear(VP8TBuffer* b);   // de-allocate memory
 
-		int VP8EmitTokens(const VP8TBuffer* const b, VP8BitWriter* const bw,
-						  const byte* const probas);
+		int VP8EmitTokens(VP8TBuffer* b, VP8BitWriter* bw,
+						  byte* probas);
 
-		static int VP8AddToken(VP8TBuffer* const b,
+		static int VP8AddToken(VP8TBuffer* b,
 										   int bit, int proba_idx) {
-		  if (b->left_ > 0 || VP8TBufferNewPage(b)) {
-			const int slot = --b->left_;
-			b->tokens_[slot] = (bit << 15) | proba_idx;
+		  if (b.left_ > 0 || VP8TBufferNewPage(b)) {
+			int slot = --b.left_;
+			b.tokens_[slot] = (bit << 15) | proba_idx;
 		  }
 		  return bit;
 		}
@@ -345,7 +345,7 @@ namespace NWebp.Internal.enc
 		// VP8Encoder
 
 		struct VP8Encoder {
-		  const WebPConfig* config_;    // user configuration and parameters
+		  WebPConfig* config_;    // user configuration and parameters
 		  WebPPicture* pic_;            // input / output picture
 
 		  // headers
@@ -423,56 +423,56 @@ namespace NWebp.Internal.enc
 		// internal functions. Not public.
 
 		  // in tree.c
-		extern const byte VP8CoeffsProba0[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS];
-		extern const byte
+		extern byte VP8CoeffsProba0[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS];
+		extern byte
 			VP8CoeffsUpdateProba[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS];
 		// Reset the token probabilities to their initial (default) values
-		void VP8DefaultProbas(VP8Encoder* const enc);
+		void VP8DefaultProbas(VP8Encoder* enc);
 		// Write the token probabilities
-		void VP8WriteProbas(VP8BitWriter* const bw, const VP8Proba* const probas);
+		void VP8WriteProbas(VP8BitWriter* bw, VP8Proba* probas);
 		// Writes the partition #0 modes (that is: all intra modes)
-		void VP8CodeIntraModes(VP8Encoder* const enc);
+		void VP8CodeIntraModes(VP8Encoder* enc);
 
 		  // in syntax.c
 		// Generates the final bitstream by coding the partition0 and headers,
 		// and appending an assembly of all the pre-coded token partitions.
 		// Return true if everything is ok.
-		int VP8EncWrite(VP8Encoder* const enc);
+		int VP8EncWrite(VP8Encoder* enc);
 		// Release memory allocated for bit-writing in VP8EncLoop & seq.
-		void VP8EncFreeBitWriters(VP8Encoder* const enc);
+		void VP8EncFreeBitWriters(VP8Encoder* enc);
 
 		  // in frame.c
-		extern const byte VP8EncBands[16 + 1];
+		extern byte VP8EncBands[16 + 1];
 		// Form all the four Intra16x16 predictions in the yuv_p_ cache
-		void VP8MakeLuma16Preds(const VP8EncIterator* const it);
+		void VP8MakeLuma16Preds(VP8EncIterator* it);
 		// Form all the four Chroma8x8 predictions in the yuv_p_ cache
-		void VP8MakeChroma8Preds(const VP8EncIterator* const it);
+		void VP8MakeChroma8Preds(VP8EncIterator* it);
 		// Form all the ten Intra4x4 predictions in the yuv_p_ cache
-		// for the 4x4 block it->i4_
-		void VP8MakeIntra4Preds(const VP8EncIterator* const it);
+		// for the 4x4 block it.i4_
+		void VP8MakeIntra4Preds(VP8EncIterator* it);
 		// Rate calculation
-		int VP8GetCostLuma16(VP8EncIterator* const it, const VP8ModeScore* const rd);
-		int VP8GetCostLuma4(VP8EncIterator* const it, const short levels[16]);
-		int VP8GetCostUV(VP8EncIterator* const it, const VP8ModeScore* const rd);
+		int VP8GetCostLuma16(VP8EncIterator* it, VP8ModeScore* rd);
+		int VP8GetCostLuma4(VP8EncIterator* it, short levels[16]);
+		int VP8GetCostUV(VP8EncIterator* it, VP8ModeScore* rd);
 		// Main stat / coding passes
-		int VP8EncLoop(VP8Encoder* const enc);
-		int VP8StatLoop(VP8Encoder* const enc);
+		int VP8EncLoop(VP8Encoder* enc);
+		int VP8StatLoop(VP8Encoder* enc);
 
 		  // in webpenc.c
 		// Assign an error code to a picture. Return false for convenience.
-		int WebPEncodingSetError(WebPPicture* const pic, WebPEncodingError error);
-		int WebPReportProgress(VP8Encoder* const enc, int percent);
+		int WebPEncodingSetError(WebPPicture* pic, WebPEncodingError error);
+		int WebPReportProgress(VP8Encoder* enc, int percent);
 
 		  // in analysis.c
 		// Main analysis loop. Decides the segmentations and complexity.
 		// Assigns a first guess for Intra16 and uvmode_ prediction modes.
-		int VP8EncAnalyze(VP8Encoder* const enc);
+		int VP8EncAnalyze(VP8Encoder* enc);
 
 		  // in quant.c
 		// Sets up segment's quantization values, base_quant_ and filter strengths.
-		void VP8SetSegmentParams(VP8Encoder* const enc, float quality);
+		void VP8SetSegmentParams(VP8Encoder* enc, float quality);
 		// Pick best modes and fills the levels. Returns true if skipped.
-		int VP8Decimate(VP8EncIterator* const it, VP8ModeScore* const rd, int rd_opt);
+		int VP8Decimate(VP8EncIterator* it, VP8ModeScore* rd, int rd_opt);
 
 		  // in alpha.c
 		void VP8EncInitAlpha(VP8Encoder* enc);           // initialize alpha compression
@@ -480,9 +480,9 @@ namespace NWebp.Internal.enc
 		void VP8EncDeleteAlpha(VP8Encoder* enc);         // delete compressed data
 
 		  // in layer.c
-		void VP8EncInitLayer(VP8Encoder* const enc);     // init everything
+		void VP8EncInitLayer(VP8Encoder* enc);     // init everything
 		void VP8EncCodeLayerBlock(VP8EncIterator* it);   // code one more macroblock
-		int VP8EncFinishLayer(VP8Encoder* const enc);    // finalize coding
+		int VP8EncFinishLayer(VP8Encoder* enc);    // finalize coding
 		void VP8EncDeleteLayer(VP8Encoder* enc);         // reclaim memory
 
 		  // in filter.c
@@ -491,17 +491,17 @@ namespace NWebp.Internal.enc
 		typedef struct {
 		  double w, xm, ym, xxm, xym, yym;
 		} DistoStats;
-		void VP8SSIMAddStats(const DistoStats* const src, DistoStats* const dst);
-		void VP8SSIMAccumulatePlane(const byte* src1, int stride1,
-									const byte* src2, int stride2,
-									int W, int H, DistoStats* const stats);
-		double VP8SSIMGet(const DistoStats* const stats);
-		double VP8SSIMGetSquaredError(const DistoStats* const stats);
+		void VP8SSIMAddStats(DistoStats* src, DistoStats* dst);
+		void VP8SSIMAccumulatePlane(byte* src1, int stride1,
+									byte* src2, int stride2,
+									int W, int H, DistoStats* stats);
+		double VP8SSIMGet(DistoStats* stats);
+		double VP8SSIMGetSquaredError(DistoStats* stats);
 
 		// autofilter
-		void VP8InitFilter(VP8EncIterator* const it);
-		void VP8StoreFilterStats(VP8EncIterator* const it);
-		void VP8AdjustFilterStrength(VP8EncIterator* const it);
+		void VP8InitFilter(VP8EncIterator* it);
+		void VP8StoreFilterStats(VP8EncIterator* it);
+		void VP8AdjustFilterStrength(VP8EncIterator* it);
 
 		//------------------------------------------------------------------------------
 

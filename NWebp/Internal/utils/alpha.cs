@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.utils
+namespace NWebp.Internal
 {
 	unsafe class alpha
 	{
@@ -45,8 +45,8 @@ namespace NWebp.Internal.utils
 		int QuantizeLevels(byte* data, int width, int height, int num_levels, float* mse);
 
 
-		const int MAX_SYMBOLS      = 255;
-		const int ALPHA_HEADER_LEN = 2;
+		int MAX_SYMBOLS      = 255;
+		int ALPHA_HEADER_LEN = 2;
 
 		// -----------------------------------------------------------------------------
 		// Zlib-like encoding using TCoder
@@ -69,12 +69,12 @@ namespace NWebp.Internal.utils
 			uint len;     
 		}
 
-		const int MIN_LEN = 2;
+		int MIN_LEN = 2;
 		
 		/// <summary>
 		/// for deferred evaluation (0 = off)
 		/// </summary>
-		const int DEFER_SKIP = 1;
+		int DEFER_SKIP = 1;
 
 		/*
 		#define CACHED_COST(coder, c) ((cost_cache[(c)] == 0.) ?             \
@@ -83,11 +83,11 @@ namespace NWebp.Internal.utils
 
 		// Record symbol
 		#define RECORD(TOKEN) {                                       \
-		  TCoderEncode(coderd, (TOKEN)->dist, null);                  \
-		  if ((TOKEN)->dist == 0) {                                   \
-			TCoderEncode(coder, (TOKEN)->literal, null);              \
+		  TCoderEncode(coderd, (TOKEN).dist, null);                  \
+		  if ((TOKEN).dist == 0) {                                   \
+			TCoderEncode(coder, (TOKEN).literal, null);              \
 		  } else {                                                    \
-			TCoderEncode(coderl, (TOKEN)->len - MIN_LEN, null);       \
+			TCoderEncode(coderl, (TOKEN).len - MIN_LEN, null);       \
 		  }                                                           \
 		}
 */
@@ -100,9 +100,9 @@ namespace NWebp.Internal.utils
 
 		static int EncodeZlibTCoder(byte* data, int width, int height, ref VP8BitWriter bw) {
 		  int ok = 0;
-		  const uint data_size = width * height;
-		  const uint MAX_DIST = 3 * width;
-		  const uint MAX_LEN = 2 * width;
+		  uint data_size = width * height;
+		  uint MAX_DIST = 3 * width;
+		  uint MAX_LEN = 2 * width;
 		  Token* msg = (Token*)malloc(data_size * sizeof(*msg));
 		  int num_tokens;
 		  TCoder* coder = TCoderNew(MAX_SYMBOLS);
@@ -121,7 +121,7 @@ namespace NWebp.Internal.utils
 			uint n = 0;
 			num_tokens = 0;
 			while (n < data_size) {
-			  const double lit_mode_cost = TCoderSymbolCost(coderd, 0);
+			  double lit_mode_cost = TCoderSymbolCost(coderd, 0);
 			  double cost_cache[MAX_SYMBOLS + 1] = { 0. };
 			  Token best;
 			  uint dist = 0;
@@ -134,8 +134,8 @@ namespace NWebp.Internal.utils
 			  best.literal = data[n];
 			  best.len = 1;
 			  for (dist = 1; dist <= MAX_DIST && dist <= n; ++dist) {
-				const uint pos = n - dist;
-				const uint min_len = best.len - 1;
+				uint pos = n - dist;
+				uint min_len = best.len - 1;
 				uint len;
 
 				// Early out: we probe at two locations for a quick match check
@@ -147,7 +147,7 @@ namespace NWebp.Internal.utils
 				len = GetLongestMatch(data + pos, data + n, max_len);
 				if (len >= MIN_LEN && len >= best.len) {
 				  // This is the cost of the coding proposal
-				  const double cost = TCoderSymbolCost(coderl, len - MIN_LEN)
+				  double cost = TCoderSymbolCost(coderl, len - MIN_LEN)
 									+ TCoderSymbolCost(coderd, dist);
 				  // We're gaining an extra len-best.len coded message over the last
 				  // known best. Compute how this would have cost if coded all literal.
@@ -181,15 +181,15 @@ namespace NWebp.Internal.utils
 				if (deferred_eval) {
 				  --cur;
 				  // If the next match isn't longer, keep previous match
-				  if (best.len <= cur->len) {
+				  if (best.len <= cur.len) {
 					deferred_eval = 0;
-					n += cur->len - DEFER_SKIP;
+					n += cur.len - DEFER_SKIP;
 					forget = 1;   // forget the new match
 					RECORD(cur)
 				  } else {   // else transform previous match into a shorter one
-					cur->len = DEFER_SKIP;
+					cur.len = DEFER_SKIP;
 					if (DEFER_SKIP == 1) {
-					  cur->dist = 0;    // literal
+					  cur.dist = 0;    // literal
 					}
 					// TODO(later): RECORD() macro should be changed to take an extra
 					// "is_final" param, so that we could write the bitstream at once.
@@ -201,14 +201,14 @@ namespace NWebp.Internal.utils
 				  *cur = best;
 				  ++num_tokens;
 				  if (DEFER_SKIP > 0) {
-					deferred_eval = (cur->len > 2) && (cur->len < MAX_LEN / 2);
+					deferred_eval = (cur.len > 2) && (cur.len < MAX_LEN / 2);
 				  }
 				  if (deferred_eval) {
 					// will probe at a later position before finalizing.
 					n += DEFER_SKIP;
 				  } else {
 					// Keep the current choice.
-					n += cur->len;
+					n += cur.len;
 					RECORD(cur)
 				  }
 				}
@@ -223,13 +223,13 @@ namespace NWebp.Internal.utils
 			TCoderInit(coderd);
 			TCoderInit(coderl);
 			for (n = 0; n < num_tokens; ++n) {
-			  const Token* const t = &msg[n];
-			  const int is_literal = (t->dist == 0);
-			  TCoderEncode(coderd, t->dist, bw);
+			  Token* t = &msg[n];
+			  int is_literal = (t.dist == 0);
+			  TCoderEncode(coderd, t.dist, bw);
 			  if (is_literal) {  // literal
-				TCoderEncode(coder, t->literal, bw);
+				TCoderEncode(coder, t.literal, bw);
 			  } else {
-				TCoderEncode(coderl, t->len - MIN_LEN, bw);
+				TCoderEncode(coderl, t.len - MIN_LEN, bw);
 			  }
 			}
 			ok = 1;
@@ -240,19 +240,19 @@ namespace NWebp.Internal.utils
 		  if (coderl) TCoderDelete(coderl);
 		  if (coderd) TCoderDelete(coderd);
 		  free(msg);
-		  return ok && !bw->error_;
+		  return ok && !bw.error_;
 		}
 
 		// -----------------------------------------------------------------------------
 
-		static int EncodeAlphaInternal(const byte* data, int width, int height,
+		static int EncodeAlphaInternal(byte* data, int width, int height,
 									   int method, int filter, uint data_size,
-									   byte* tmp_alpha, VP8BitWriter* const bw) {
+									   byte* tmp_alpha, VP8BitWriter* bw) {
 		  int ok = 0;
-		  const byte* alpha_src;
+		  byte* alpha_src;
 		  WebPFilterFunc filter_func;
 		  byte header[ALPHA_HEADER_LEN];
-		  const uint expected_size = (method == 0) ?
+		  uint expected_size = (method == 0) ?
 				  (ALPHA_HEADER_LEN + data_size) : (data_size >> 5);
 		  header[0] = (filter << 4) | method;
 		  header[1] = 0;                // reserved byte for later use
@@ -269,7 +269,7 @@ namespace NWebp.Internal.utils
 
 		  if (method == 0) {
 			ok = VP8BitWriterAppend(bw, alpha_src, width * height);
-			ok = ok && !bw->error_;
+			ok = ok && !bw.error_;
 		  } else {
 			ok = EncodeZlibTCoder(alpha_src, width, height, bw);
 			VP8BitWriterFinish(bw);
@@ -280,7 +280,7 @@ namespace NWebp.Internal.utils
 		// -----------------------------------------------------------------------------
 
 		// TODO(skal): move to dsp/ ?
-		static void CopyPlane(const byte* src, int src_stride,
+		static void CopyPlane(byte* src, int src_stride,
 							  byte* dst, int dst_stride, int width, int height) {
 		  while (height-- > 0) {
 			memcpy(dst, src, width);
@@ -289,11 +289,11 @@ namespace NWebp.Internal.utils
 		  }
 		}
 
-		int EncodeAlpha(const byte* data, int width, int height, int stride,
+		int EncodeAlpha(byte* data, int width, int height, int stride,
 						int quality, int method, int filter,
 						byte** output, uint* output_size) {
 		  byte* quant_alpha = null;
-		  const uint data_size = height * width;
+		  uint data_size = height * width;
 		  int ok = 1;
 
 		  // quick sanity checks
@@ -320,9 +320,9 @@ namespace NWebp.Internal.utils
 
 		  if (quality < 100) {  // No Quantization required for 'quality = 100'.
 			// 16 alpha levels gives quite a low MSE w.r.t original alpha plane hence
-			// mapped to moderate quality 70. Hence Quality:[0, 70] -> Levels:[2, 16]
-			// and Quality:]70, 100] -> Levels:]16, 256].
-			const int alpha_levels = (quality <= 70) ? (2 + quality / 5)
+			// mapped to moderate quality 70. Hence Quality:[0, 70] . Levels:[2, 16]
+			// and Quality:]70, 100] . Levels:]16, 256].
+			int alpha_levels = (quality <= 70) ? (2 + quality / 5)
 													 : (16 + (quality - 70) * 8);
 			ok = QuantizeLevels(quant_alpha, width, height, alpha_levels, null);
 		  }
@@ -368,7 +368,7 @@ namespace NWebp.Internal.utils
 			  ok = EncodeAlphaInternal(quant_alpha, width, height, method, test_filter,
 									   data_size, filtered_alpha, &tmp_bw);
 			  if (ok) {
-				const uint score = VP8BitWriterSize(&tmp_bw);
+				uint score = VP8BitWriterSize(&tmp_bw);
 				if (score < best_score) {
 				  // swap bitwriter objects.
 				  VP8BitWriter tmp = tmp_bw;
@@ -396,14 +396,14 @@ namespace NWebp.Internal.utils
 		// -----------------------------------------------------------------------------
 		// Alpha Decode.
 
-		static int DecompressZlibTCoder(VP8BitReader* const br, int width,
+		static int DecompressZlibTCoder(VP8BitReader* br, int width,
 										byte* output, uint output_size) {
 		  int ok = 1;
-		  const uint MAX_DIST = 3 * width;
-		  const uint MAX_LEN = 2 * width;
-		  TCoder* const coder = TCoderNew(MAX_SYMBOLS);
-		  TCoder* const coderd = TCoderNew(MAX_DIST);
-		  TCoder* const coderl = TCoderNew(MAX_LEN - MIN_LEN);
+		  uint MAX_DIST = 3 * width;
+		  uint MAX_LEN = 2 * width;
+		  TCoder* coder = TCoderNew(MAX_SYMBOLS);
+		  TCoder* coderd = TCoderNew(MAX_DIST);
+		  TCoder* coderl = TCoderNew(MAX_LEN - MIN_LEN);
 
 		  if (coder == null || coderd == null || coderl == null) {
 			goto End;
@@ -412,13 +412,13 @@ namespace NWebp.Internal.utils
 		  {
 			uint pos = 0;
 			assert(br != null);
-			while (pos < output_size && !br->eof_) {
-			  const uint dist = TCoderDecode(coderd, br);
+			while (pos < output_size && !br.eof_) {
+			  uint dist = TCoderDecode(coderd, br);
 			  if (dist == 0) {
 				output[pos] = TCoderDecode(coder, br);
 				++pos;
 			  } else {
-				const uint len = MIN_LEN + TCoderDecode(coderl, br);
+				uint len = MIN_LEN + TCoderDecode(coderl, br);
 				uint k;
 				if (pos + len > output_size || pos < dist) goto End;
 				for (k = 0; k < len; ++k) {
@@ -427,7 +427,7 @@ namespace NWebp.Internal.utils
 				pos += len;
 			  }
 			}
-			ok = !br->eof_;
+			ok = !br.eof_;
 		  }
 
 		 End:
@@ -439,11 +439,11 @@ namespace NWebp.Internal.utils
 
 		// -----------------------------------------------------------------------------
 
-		int DecodeAlpha(const byte* data, uint data_size,
+		int DecodeAlpha(byte* data, uint data_size,
 						int width, int height, int stride,
 						byte* output) {
 		  byte* decoded_data = null;
-		  const uint decoded_size = height * width;
+		  uint decoded_size = height * width;
 		  byte* unfiltered_data = null;
 		  WEBP_FILTER_TYPE filter;
 		  int ok = 0;

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.enc
+namespace NWebp.Internal
 {
 	class cost
 	{
 
-		extern const ushort VP8LevelFixedCosts[2048];   // approximate cost per level
-		extern const ushort VP8EntropyCost[256];        // 8bit fixed-point log(p)
+		extern ushort VP8LevelFixedCosts[2048];   // approximate cost per level
+		extern ushort VP8EntropyCost[256];        // 8bit fixed-point log(p)
 
 		// Cost of coding one event with probability 'proba'.
 		static int VP8BitCost(int bit, byte proba) {
@@ -17,24 +17,24 @@ namespace NWebp.Internal.enc
 		}
 
 		// Level cost calculations
-		extern const ushort VP8LevelCodes[MAX_VARIABLE_LEVEL][2];
-		void VP8CalculateLevelCosts(VP8Proba* const proba);
-		static int VP8LevelCost(const ushort* const table, int level) {
+		extern ushort VP8LevelCodes[MAX_VARIABLE_LEVEL][2];
+		void VP8CalculateLevelCosts(VP8Proba* proba);
+		static int VP8LevelCost(ushort* table, int level) {
 		  return VP8LevelFixedCosts[level]
 			   + table[(level > MAX_VARIABLE_LEVEL) ? MAX_VARIABLE_LEVEL : level];
 		}
 
 		// Mode costs
-		extern const ushort VP8FixedCostsUV[4];
-		extern const ushort VP8FixedCostsI16[4];
-		extern const ushort VP8FixedCostsI4[NUM_BMODES][NUM_BMODES][NUM_BMODES];
+		extern ushort VP8FixedCostsUV[4];
+		extern ushort VP8FixedCostsI16[4];
+		extern ushort VP8FixedCostsI4[NUM_BMODES][NUM_BMODES][NUM_BMODES];
 
 		//------------------------------------------------------------------------------
 
 		//------------------------------------------------------------------------------
 		// Boolean-cost cost table
 
-		const ushort VP8EntropyCost[256] = {
+		ushort VP8EntropyCost[256] = {
 		  1792, 1792, 1792, 1536, 1536, 1408, 1366, 1280, 1280, 1216,
 		  1178, 1152, 1110, 1076, 1061, 1024, 1024,  992,  968,  951,
 		   939,  911,  896,  878,  871,  854,  838,  820,  811,  794,
@@ -69,7 +69,7 @@ namespace NWebp.Internal.enc
 		// For each given level, the following table gives the pattern of contexts to
 		// use for coding it (in [][0]) as well as the bit value to use for each
 		// context (in [][1]).
-		const ushort VP8LevelCodes[MAX_VARIABLE_LEVEL][2] = {
+		ushort VP8LevelCodes[MAX_VARIABLE_LEVEL][2] = {
 						  {0x001, 0x000}, {0x007, 0x001}, {0x00f, 0x005},
 		  {0x00f, 0x00d}, {0x033, 0x003}, {0x033, 0x003}, {0x033, 0x023},
 		  {0x033, 0x023}, {0x033, 0x023}, {0x033, 0x023}, {0x0d3, 0x013},
@@ -91,7 +91,7 @@ namespace NWebp.Internal.enc
 
 		// fixed costs for coding levels, deduce from the coding tree.
 		// This is only the part that doesn't depend on the probability state.
-		const ushort VP8LevelFixedCosts[2048] = {
+		ushort VP8LevelFixedCosts[2048] = {
 			 0,  256,  256,  256,  256,  432,  618,  630,
 		   731,  640,  640,  828,  901,  948, 1021, 1101,
 		  1174, 1221, 1294, 1042, 1085, 1115, 1158, 1202,
@@ -350,7 +350,7 @@ namespace NWebp.Internal.enc
 		  7694, 7703, 7709, 7729, 7735, 7744, 7750, 7761
 		};
 
-		static int VariableLevelCost(int level, const byte probas[NUM_PROBAS]) {
+		static int VariableLevelCost(int level, byte probas[NUM_PROBAS]) {
 		  int pattern = VP8LevelCodes[level - 1][0];
 		  int bits = VP8LevelCodes[level - 1][1];
 		  int cost = 0;
@@ -368,17 +368,17 @@ namespace NWebp.Internal.enc
 		//------------------------------------------------------------------------------
 		// Pre-calc level costs once for all
 
-		void VP8CalculateLevelCosts(VP8Proba* const proba) {
+		void VP8CalculateLevelCosts(VP8Proba* proba) {
 		  int ctype, band, ctx;
 
-		  if (!proba->dirty_) return;  // nothing to do.
+		  if (!proba.dirty_) return;  // nothing to do.
 
 		  for (ctype = 0; ctype < NUM_TYPES; ++ctype) {
 			for (band = 0; band < NUM_BANDS; ++band) {
 			  for(ctx = 0; ctx < NUM_CTX; ++ctx) {
-				const byte* const p = proba->coeffs_[ctype][band][ctx];
-				ushort* const table = proba->level_cost_[ctype][band][ctx];
-				const int cost_base = VP8BitCost(1, p[1]);
+				byte* p = proba.coeffs_[ctype][band][ctx];
+				ushort* table = proba.level_cost_[ctype][band][ctx];
+				int cost_base = VP8BitCost(1, p[1]);
 				int v;
 				table[0] = VP8BitCost(0, p[1]);
 				for (v = 1; v <= MAX_VARIABLE_LEVEL; ++v) {
@@ -389,7 +389,7 @@ namespace NWebp.Internal.enc
 			  }
 			}
 		  }
-		  proba->dirty_ = 0;
+		  proba.dirty_ = 0;
 		}
 
 		//------------------------------------------------------------------------------
@@ -397,10 +397,10 @@ namespace NWebp.Internal.enc
 
 		// These are the fixed probabilities (in the coding trees) turned into bit-cost
 		// by calling VP8BitCost().
-		const ushort VP8FixedCostsUV[4] = { 302, 984, 439, 642 };
+		ushort VP8FixedCostsUV[4] = { 302, 984, 439, 642 };
 		// note: these values include the fixed VP8BitCost(1, 145) mode selection cost.
-		const ushort VP8FixedCostsI16[4] = { 663, 919, 872, 919 };
-		const ushort VP8FixedCostsI4[NUM_BMODES][NUM_BMODES][NUM_BMODES] = {
+		ushort VP8FixedCostsI16[4] = { 663, 919, 872, 919 };
+		ushort VP8FixedCostsI4[NUM_BMODES][NUM_BMODES][NUM_BMODES] = {
 		  { {  251, 1362, 1934, 2085, 2314, 2230, 1839, 1988, 2437, 2348 },
 			{  403,  680, 1507, 1519, 2060, 2005, 1992, 1914, 1924, 1733 },
 			{  353, 1121,  973, 1895, 2060, 1787, 1671, 1516, 2012, 1868 },

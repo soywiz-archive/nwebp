@@ -37,5 +37,10 @@ namespace NWebp.Internal
 			a = b;
 			b = tmp;
 		}
+
+		static internal void* malloc(uint p)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

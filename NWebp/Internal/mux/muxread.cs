@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.mux
+namespace NWebp.Internal
 {
 	class muxread
 	{
@@ -13,35 +13,35 @@ namespace NWebp.Internal.mux
 		// Handy MACRO.
 		#define SWITCH_ID_LIST(ID, LIST)                                              \
 		  if (id == (ID)) {                                                           \
-			const WebPChunk* const chunk = ChunkSearchList((LIST), nth,               \
+			WebPChunk* chunk = ChunkSearchList((LIST), nth,               \
 														   kChunks[(ID)].chunkTag);   \
 			if (chunk) {                                                              \
-			  data->bytes_ = chunk->data_;                                            \
-			  data->size_ = chunk->payload_size_;                                     \
+			  data.bytes_ = chunk.data_;                                            \
+			  data.size_ = chunk.payload_size_;                                     \
 			  return WEBP_MUX_OK;                                                     \
 			} else {                                                                  \
 			  return WEBP_MUX_NOT_FOUND;                                              \
 			}                                                                         \
 		  }
 
-		static WebPMuxError MuxGet(const WebPMux* const mux, TAG_ID id, uint nth,
-								   WebPData* const data) {
+		static WebPMuxError MuxGet(WebPMux* mux, TAG_ID id, uint nth,
+								   WebPData* data) {
 		  assert(mux != null);
 		  memset(data, 0, sizeof(*data));
 		  assert(!IsWPI(id));
 
-		  SWITCH_ID_LIST(VP8X_ID, mux->vp8x_);
-		  SWITCH_ID_LIST(ICCP_ID, mux->iccp_);
-		  SWITCH_ID_LIST(LOOP_ID, mux->loop_);
-		  SWITCH_ID_LIST(META_ID, mux->meta_);
-		  SWITCH_ID_LIST(UNKNOWN_ID, mux->unknown_);
+		  SWITCH_ID_LIST(VP8X_ID, mux.vp8x_);
+		  SWITCH_ID_LIST(ICCP_ID, mux.iccp_);
+		  SWITCH_ID_LIST(LOOP_ID, mux.loop_);
+		  SWITCH_ID_LIST(META_ID, mux.meta_);
+		  SWITCH_ID_LIST(UNKNOWN_ID, mux.unknown_);
 		  return WEBP_MUX_NOT_FOUND;
 		}
 		#undef SWITCH_ID_LIST
 
 		// Fill the chunk with the given data, after verifying that the data size
 		// doesn't exceed 'max_size'.
-		static WebPMuxError ChunkAssignData(WebPChunk* chunk, const byte* data,
+		static WebPMuxError ChunkAssignData(WebPChunk* chunk, byte* data,
 											uint data_size, uint riff_size,
 											int copy_data) {
 		  uint chunk_size;
@@ -51,7 +51,7 @@ namespace NWebp.Internal.mux
 		  chunk_size = GetLE32(data + TAG_SIZE);
 
 		  {
-			const uint chunk_disk_size = SizeWithPadding(chunk_size);
+			uint chunk_disk_size = SizeWithPadding(chunk_size);
 			if (chunk_disk_size > riff_size) return WEBP_MUX_BAD_DATA;
 			if (chunk_disk_size > data_size) return WEBP_MUX_NOT_ENOUGH_DATA;
 		  }
@@ -64,11 +64,11 @@ namespace NWebp.Internal.mux
 		//------------------------------------------------------------------------------
 		// Create a mux object from WebP-RIFF data.
 
-		WebPMux* WebPMuxCreate(const byte* data, uint size, int copy_data,
-							   WebPMuxState* const mux_state) {
+		WebPMux* WebPMuxCreate(byte* data, uint size, int copy_data,
+							   WebPMuxState* mux_state) {
 		  uint riff_size;
 		  uint tag;
-		  const byte* end;
+		  byte* end;
 		  TAG_ID id;
 		  WebPMux* mux = null;
 		  WebPMuxImage* wpi = null;
@@ -87,7 +87,7 @@ namespace NWebp.Internal.mux
 		  if (mux == null) goto Err;
 
 		  if (size < RIFF_HEADER_SIZE + TAG_SIZE) {
-			mux->state_ = WEBP_MUX_STATE_PARTIAL;
+			mux.state_ = WEBP_MUX_STATE_PARTIAL;
 			goto Ok;
 		  }
 
@@ -101,9 +101,9 @@ namespace NWebp.Internal.mux
 		  if (riff_size > MAX_CHUNK_PAYLOAD) {
 			goto Err;
 		  } else if (riff_size > size) {
-			mux->state_ = WEBP_MUX_STATE_PARTIAL;
+			mux.state_ = WEBP_MUX_STATE_PARTIAL;
 		  } else {
-			mux->state_ = WEBP_MUX_STATE_COMPLETE;
+			mux.state_ = WEBP_MUX_STATE_COMPLETE;
 			if (riff_size < size) {  // Redundant data after last chunk.
 			  size = riff_size;  // To make sure we don't read any data beyond mux_size.
 			}
@@ -126,7 +126,7 @@ namespace NWebp.Internal.mux
 			err = ChunkAssignData(&chunk, data, size, riff_size, copy_data);
 			if (err != WEBP_MUX_OK) {
 			  if (err == WEBP_MUX_NOT_ENOUGH_DATA &&
-				  mux->state_ == WEBP_MUX_STATE_PARTIAL) {
+				  mux.state_ == WEBP_MUX_STATE_PARTIAL) {
 				goto Ok;
 			  } else {
 				goto Err;
@@ -143,24 +143,24 @@ namespace NWebp.Internal.mux
 													 // consecutive frame/tile chunks.
 			  if (ChunkSetNth(&chunk, wpi_chunk_ptr, 1) != WEBP_MUX_OK) goto Err;
 			  if (id == IMAGE_ID) {
-				wpi->is_partial_ = 0;  // wpi is completely filled.
-				// Add this to mux->images_ list.
-				if (MuxImageSetNth(wpi, &mux->images_, 0) != WEBP_MUX_OK) goto Err;
+				wpi.is_partial_ = 0;  // wpi is completely filled.
+				// Add this to mux.images_ list.
+				if (MuxImageSetNth(wpi, &mux.images_, 0) != WEBP_MUX_OK) goto Err;
 				MuxImageInit(wpi);  // Reset for reading next image.
 			  } else {
-				wpi->is_partial_ = 1;  // wpi is only partially filled.
+				wpi.is_partial_ = 1;  // wpi is only partially filled.
 			  }
 			} else {  // A non-image chunk.
 			  WebPChunk** chunk_list;
-			  if (wpi->is_partial_) goto Err;  // Encountered a non-image chunk before
+			  if (wpi.is_partial_) goto Err;  // Encountered a non-image chunk before
 											   // getting all chunks of an image.
 			  chunk_list = GetChunkListFromId(mux, id);  // List for adding this chunk.
-			  if (chunk_list == null) chunk_list = (WebPChunk**)&mux->unknown_;
+			  if (chunk_list == null) chunk_list = (WebPChunk**)&mux.unknown_;
 			  if (ChunkSetNth(&chunk, chunk_list, 0) != WEBP_MUX_OK) goto Err;
 			}
 
 			{
-			  const uint data_size = ChunkDiskSize(&chunk);
+			  uint data_size = ChunkDiskSize(&chunk);
 			  data += data_size;
 			  size -= data_size;
 			}
@@ -171,7 +171,7 @@ namespace NWebp.Internal.mux
 
 		 Ok:
 		  MuxImageDelete(wpi);
-		  if (mux_state) *mux_state = mux->state_;
+		  if (mux_state) *mux_state = mux.state_;
 		  return mux;  // All OK;
 
 		 Err:  // Something bad happened.
@@ -184,7 +184,7 @@ namespace NWebp.Internal.mux
 		//------------------------------------------------------------------------------
 		// Get API(s).
 
-		WebPMuxError WebPMuxGetFeatures(const WebPMux* const mux, uint* flags) {
+		WebPMuxError WebPMuxGetFeatures(WebPMux* mux, uint* flags) {
 		  WebPData data;
 		  WebPMuxError err;
 
@@ -197,7 +197,7 @@ namespace NWebp.Internal.mux
 			// Check if VP8 chunk is present.
 			err = WebPMuxGetImage(mux, &data, null);
 			if (err == WEBP_MUX_NOT_FOUND &&              // Data not available (yet).
-				mux->state_ == WEBP_MUX_STATE_PARTIAL) {  // Incremental case.
+				mux.state_ == WEBP_MUX_STATE_PARTIAL) {  // Incremental case.
 			  return WEBP_MUX_NOT_ENOUGH_DATA;
 			} else {
 			  return err;
@@ -215,8 +215,8 @@ namespace NWebp.Internal.mux
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError WebPMuxGetImage(const WebPMux* const mux,
-									 WebPData* const image, WebPData* const alpha) {
+		WebPMuxError WebPMuxGetImage(WebPMux* mux,
+									 WebPData* image, WebPData* alpha) {
 		  WebPMuxError err;
 		  WebPMuxImage* wpi = null;
 
@@ -230,28 +230,28 @@ namespace NWebp.Internal.mux
 		  if (err != WEBP_MUX_OK) return err;
 
 		  // All well. Get the image.
-		  err = MuxImageGetNth((const WebPMuxImage**)&mux->images_, 1, IMAGE_ID, &wpi);
+		  err = MuxImageGetNth((WebPMuxImage**)&mux.images_, 1, IMAGE_ID, &wpi);
 		  assert(err == WEBP_MUX_OK);  // Already tested above.
 
 		  // Get alpha chunk (if present & requested).
 		  if (alpha != null) {
 			memset(alpha, 0, sizeof(*alpha));
-			if (wpi->alpha_ != null) {
-			  alpha->bytes_ = wpi->alpha_->data_;
-			  alpha->size_ = wpi->alpha_->payload_size_;
+			if (wpi.alpha_ != null) {
+			  alpha.bytes_ = wpi.alpha_.data_;
+			  alpha.size_ = wpi.alpha_.payload_size_;
 			}
 		  }
 
 		  // Get image chunk.
-		  if (wpi->vp8_ != null) {
-			image->bytes_ = wpi->vp8_->data_;
-			image->size_ = wpi->vp8_->payload_size_;
+		  if (wpi.vp8_ != null) {
+			image.bytes_ = wpi.vp8_.data_;
+			image.size_ = wpi.vp8_.payload_size_;
 		  }
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError WebPMuxGetMetadata(const WebPMux* const mux,
-										WebPData* const metadata) {
+		WebPMuxError WebPMuxGetMetadata(WebPMux* mux,
+										WebPData* metadata) {
 		  if (mux == null || metadata == null) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
@@ -259,8 +259,8 @@ namespace NWebp.Internal.mux
 		  return MuxGet(mux, META_ID, 1, metadata);
 		}
 
-		WebPMuxError WebPMuxGetColorProfile(const WebPMux* const mux,
-											WebPData* const color_profile) {
+		WebPMuxError WebPMuxGetColorProfile(WebPMux* mux,
+											WebPData* color_profile) {
 		  if (mux == null || color_profile == null) {
 			return WEBP_MUX_INVALID_ARGUMENT;
 		  }
@@ -268,7 +268,7 @@ namespace NWebp.Internal.mux
 		  return MuxGet(mux, ICCP_ID, 1, color_profile);
 		}
 
-		WebPMuxError WebPMuxGetLoopCount(const WebPMux* const mux,
+		WebPMuxError WebPMuxGetLoopCount(WebPMux* mux,
 										 uint* loop_count) {
 		  WebPData image;
 		  WebPMuxError err;
@@ -283,20 +283,20 @@ namespace NWebp.Internal.mux
 		  return WEBP_MUX_OK;
 		}
 
-		static WebPMuxError MuxGetFrameTileInternal(const WebPMux* const mux,
+		static WebPMuxError MuxGetFrameTileInternal(WebPMux* mux,
 													uint nth,
-													WebPData* const image,
-													WebPData* const alpha,
+													WebPData* image,
+													WebPData* alpha,
 													uint* x_offset,
 													uint* y_offset,
 													uint* duration, uint tag) {
-		  const byte* frame_tile_data;
+		  byte* frame_tile_data;
 		  uint frame_tile_size;
 		  WebPMuxError err;
 		  WebPMuxImage* wpi;
 
-		  const int is_frame = (tag == kChunks[FRAME_ID].chunkTag) ? 1 : 0;
-		  const TAG_ID id = is_frame ? FRAME_ID : TILE_ID;
+		  int is_frame = (tag == kChunks[FRAME_ID].chunkTag) ? 1 : 0;
+		  TAG_ID id = is_frame ? FRAME_ID : TILE_ID;
 
 		  if (mux == null || image == null ||
 			  x_offset == null || y_offset == null || (is_frame && duration == null)) {
@@ -304,13 +304,13 @@ namespace NWebp.Internal.mux
 		  }
 
 		  // Get the nth WebPMuxImage.
-		  err = MuxImageGetNth((const WebPMuxImage**)&mux->images_, nth, id, &wpi);
+		  err = MuxImageGetNth((WebPMuxImage**)&mux.images_, nth, id, &wpi);
 		  if (err != WEBP_MUX_OK) return err;
 
 		  // Get frame chunk.
-		  assert(wpi->header_ != null);  // As GetNthImage() already checked header_.
-		  frame_tile_data = wpi->header_->data_;
-		  frame_tile_size = wpi->header_->payload_size_;
+		  assert(wpi.header_ != null);  // As GetNthImage() already checked header_.
+		  frame_tile_data = wpi.header_.data_;
+		  frame_tile_size = wpi.header_.payload_size_;
 
 		  if (frame_tile_size < kChunks[id].chunkSize) return WEBP_MUX_BAD_DATA;
 		  *x_offset = GetLE32(frame_tile_data + 0);
@@ -320,24 +320,24 @@ namespace NWebp.Internal.mux
 		  // Get alpha chunk (if present & requested).
 		  if (alpha != null) {
 			memset(alpha, 0, sizeof(*alpha));
-			if (wpi->alpha_ != null) {
-			  alpha->bytes_ = wpi->alpha_->data_;
-			  alpha->size_ = wpi->alpha_->payload_size_;
+			if (wpi.alpha_ != null) {
+			  alpha.bytes_ = wpi.alpha_.data_;
+			  alpha.size_ = wpi.alpha_.payload_size_;
 			}
 		  }
 
 		  // Get image chunk.
 		  memset(image, 0, sizeof(*image));
-		  if (wpi->vp8_ != null) {
-			image->bytes_ = wpi->vp8_->data_;
-			image->size_ = wpi->vp8_->payload_size_;
+		  if (wpi.vp8_ != null) {
+			image.bytes_ = wpi.vp8_.data_;
+			image.size_ = wpi.vp8_.payload_size_;
 		  }
 
 		  return WEBP_MUX_OK;
 		}
 
-		WebPMuxError WebPMuxGetFrame(const WebPMux* const mux, uint nth,
-									 WebPData* const image, WebPData* const alpha,
+		WebPMuxError WebPMuxGetFrame(WebPMux* mux, uint nth,
+									 WebPData* image, WebPData* alpha,
 									 uint* x_offset, uint* y_offset,
 									 uint* duration) {
 		  return MuxGetFrameTileInternal(mux, nth, image, alpha,
@@ -345,8 +345,8 @@ namespace NWebp.Internal.mux
 										 kChunks[FRAME_ID].chunkTag);
 		}
 
-		WebPMuxError WebPMuxGetTile(const WebPMux* const mux, uint nth,
-									WebPData* const image, WebPData* const alpha,
+		WebPMuxError WebPMuxGetTile(WebPMux* mux, uint nth,
+									WebPData* image, WebPData* alpha,
 									uint* x_offset, uint* y_offset) {
 		  return MuxGetFrameTileInternal(mux, nth, image, alpha,
 										 x_offset, y_offset, null,
@@ -355,18 +355,18 @@ namespace NWebp.Internal.mux
 
 		// Count number of chunks matching 'tag' in the 'chunk_list'.
 		// If tag == NIL_TAG, any tag will be matched.
-		static int CountChunks(WebPChunk* const chunk_list, uint tag) {
+		static int CountChunks(WebPChunk* chunk_list, uint tag) {
 		  int count = 0;
 		  WebPChunk* current;
-		  for (current = chunk_list; current != null; current = current->next_) {
-			if (tag == NIL_TAG || current->tag_ == tag) {
+		  for (current = chunk_list; current != null; current = current.next_) {
+			if (tag == NIL_TAG || current.tag_ == tag) {
 			  count++;  // Count chunks whose tags match.
 			}
 		  }
 		  return count;
 		}
 
-		WebPMuxError WebPMuxNumNamedElements(const WebPMux* const mux, const char* tag,
+		WebPMuxError WebPMuxNumNamedElements(WebPMux* mux, char* tag,
 											 int* num_elements) {
 		  TAG_ID id;
 		  WebPChunk** chunk_list;
@@ -377,7 +377,7 @@ namespace NWebp.Internal.mux
 
 		  id = ChunkGetIdFromName(tag);
 		  if (IsWPI(id)) {
-			*num_elements = MuxImageCount(mux->images_, id);
+			*num_elements = MuxImageCount(mux.images_, id);
 		  } else {
 			chunk_list = GetChunkListFromId(mux, id);
 			if (chunk_list == null) {

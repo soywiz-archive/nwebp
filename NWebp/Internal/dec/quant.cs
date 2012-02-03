@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.dec
+namespace NWebp.Internal
 {
 	public partial class Internal
 	{
@@ -55,45 +55,45 @@ namespace NWebp.Internal.dec
 		//------------------------------------------------------------------------------
 		// Paragraph 9.6
 
-		void VP8ParseQuant(VP8Decoder* const dec) {
-		  VP8BitReader* const br = &dec->br_;
-		  const int base_q0 = VP8GetValue(br, 7);
-		  const int dqy1_dc = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
-		  const int dqy2_dc = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
-		  const int dqy2_ac = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
-		  const int dquv_dc = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
-		  const int dquv_ac = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
+		void VP8ParseQuant(VP8Decoder* dec) {
+		  VP8BitReader* br = &dec.br_;
+		  int base_q0 = VP8GetValue(br, 7);
+		  int dqy1_dc = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
+		  int dqy2_dc = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
+		  int dqy2_ac = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
+		  int dquv_dc = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
+		  int dquv_ac = VP8Get(br) ? VP8GetSignedValue(br, 4) : 0;
 
-		  const VP8SegmentHeader* const hdr = &dec->segment_hdr_;
+		  VP8SegmentHeader* hdr = &dec.segment_hdr_;
 		  int i;
 
 		  for (i = 0; i < NUM_MB_SEGMENTS; ++i) {
 			int q;
-			if (hdr->use_segment_) {
-			  q = hdr->quantizer_[i];
-			  if (!hdr->absolute_delta_) {
+			if (hdr.use_segment_) {
+			  q = hdr.quantizer_[i];
+			  if (!hdr.absolute_delta_) {
 				q += base_q0;
 			  }
 			} else {
 			  if (i > 0) {
-				dec->dqm_[i] = dec->dqm_[0];
+				dec.dqm_[i] = dec.dqm_[0];
 				continue;
 			  } else {
 				q = base_q0;
 			  }
 			}
 			{
-			  VP8QuantMatrix* const m = &dec->dqm_[i];
-			  m->y1_mat_[0] = kDcTable[clip(q + dqy1_dc, 127)];
-			  m->y1_mat_[1] = kAcTable[clip(q + 0,       127)];
+			  VP8QuantMatrix* m = &dec.dqm_[i];
+			  m.y1_mat_[0] = kDcTable[clip(q + dqy1_dc, 127)];
+			  m.y1_mat_[1] = kAcTable[clip(q + 0,       127)];
 
-			  m->y2_mat_[0] = kDcTable[clip(q + dqy2_dc, 127)] * 2;
+			  m.y2_mat_[0] = kDcTable[clip(q + dqy2_dc, 127)] * 2;
 			  // TODO(skal): make it another table?
-			  m->y2_mat_[1] = kAcTable[clip(q + dqy2_ac, 127)] * 155 / 100;
-			  if (m->y2_mat_[1] < 8) m->y2_mat_[1] = 8;
+			  m.y2_mat_[1] = kAcTable[clip(q + dqy2_ac, 127)] * 155 / 100;
+			  if (m.y2_mat_[1] < 8) m.y2_mat_[1] = 8;
 
-			  m->uv_mat_[0] = kDcTable[clip(q + dquv_dc, 117)];
-			  m->uv_mat_[1] = kAcTable[clip(q + dquv_ac, 127)];
+			  m.uv_mat_[0] = kDcTable[clip(q + dquv_dc, 117)];
+			  m.uv_mat_[1] = kAcTable[clip(q + dquv_ac, 127)];
 			}
 		  }
 		}

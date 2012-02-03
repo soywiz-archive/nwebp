@@ -7,7 +7,7 @@ namespace NWebp.Internal
 {
 	partial class Global
 	{
-		const int WEBP_ENCODER_ABI_VERSION = 0x0003;
+		int WEBP_ENCODER_ABI_VERSION = 0x0003;
 	}
 
 	/*
@@ -168,7 +168,7 @@ namespace NWebp.Internal
 
 	/*
 	// Returns 1 if all parameters are in valid range and the configuration is OK.
-	WEBP_EXTERN(int) WebPValidateConfig(const WebPConfig* const config);
+	WEBP_EXTERN(int) WebPValidateConfig(WebPConfig* config);
 	*/
 
 	//------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ namespace NWebp.Internal
 
 	// Signature for output function. Should return 1 if writing was successful.
 	// data/data_size is the segment of data to write, and 'picture' is for
-	// reference (and so one can make use of picture->custom_ptr).
+	// reference (and so one can make use of picture.custom_ptr).
 	delegate int WebPWriterFunction(byte* data, uint data_size, ref WebPPicture picture);
 
 	// Progress hook, called from time to time to report progress. It can return 0
@@ -337,7 +337,7 @@ namespace NWebp.Internal
 		/// <summary>
 		/// maximum width/height allowed (inclusive), in pixels
 		/// </summary>
-		const int WEBP_MAX_DIMENSION = 16383;
+		int WEBP_MAX_DIMENSION = 16383;
 	}
 
 	struct WebPPicture
@@ -444,53 +444,53 @@ namespace NWebp.Internal
 	//------------------------------------------------------------------------------
 	// WebPPicture utils
 
-	// Convenience allocation / deallocation based on picture->width/height:
+	// Convenience allocation / deallocation based on picture.width/height:
 	// Allocate y/u/v buffers as per colorspace/width/height specification.
 	// Note! This function will free the previous buffer if needed.
 	// Returns 0 in case of memory error.
-	WEBP_EXTERN(int) WebPPictureAlloc(WebPPicture* const picture);
+	WEBP_EXTERN(int) WebPPictureAlloc(WebPPicture* picture);
 
 	// Release memory allocated by WebPPictureAlloc() or WebPPictureImport*()
 	// Note that this function does _not_ free the memory pointed to by 'picture'.
-	WEBP_EXTERN(void) WebPPictureFree(WebPPicture* const picture);
+	WEBP_EXTERN(void) WebPPictureFree(WebPPicture* picture);
 
 	// Copy the pixels of *src into *dst, using WebPPictureAlloc.
 	// Returns 0 in case of memory allocation error.
-	WEBP_EXTERN(int) WebPPictureCopy(const WebPPicture* const src, WebPPicture* const dst);
+	WEBP_EXTERN(int) WebPPictureCopy(WebPPicture* src, WebPPicture* dst);
 
 	// Compute PSNR or SSIM distortion between two pictures.
 	// Result is in dB, stores in result[] in the Y/U/V/Alpha/All order.
 	// Returns 0 in case of error (pic1 and pic2 don't have same dimension, ...)
 	// Warning: this function is rather CPU-intensive.
 	// int metric_type: 0 = PSNR, 1 = SSIM
-	WEBP_EXTERN(int) WebPPictureDistortion(const WebPPicture* const pic1, const WebPPicture* const pic2, int metric_type, float result[5]);
+	WEBP_EXTERN(int) WebPPictureDistortion(WebPPicture* pic1, WebPPicture* pic2, int metric_type, float result[5]);
 
 	// self-crops a picture to the rectangle defined by top/left/width/height.
 	// Returns 0 in case of memory allocation error, or if the rectangle is
 	// outside of the source picture.
-	WEBP_EXTERN(int) WebPPictureCrop(WebPPicture* const picture, int left, int top, int width, int height);
+	WEBP_EXTERN(int) WebPPictureCrop(WebPPicture* picture, int left, int top, int width, int height);
 
 	// Rescale a picture to new dimension width x height.
 	// Now gamma correction is applied.
 	// Returns false in case of error (invalid parameter or insufficient memory).
-	WEBP_EXTERN(int) WebPPictureRescale(WebPPicture* const pic, int width, int height);
+	WEBP_EXTERN(int) WebPPictureRescale(WebPPicture* pic, int width, int height);
 
 	// Colorspace conversion function to import RGB samples.
 	// Previous buffer will be free'd, if any.
 	// *rgb buffer should have a size of at least height * rgb_stride.
 	// Returns 0 in case of memory error.
-	WEBP_EXTERN(int) WebPPictureImportRGB(WebPPicture* const picture, const byte* const rgb, int rgb_stride);
+	WEBP_EXTERN(int) WebPPictureImportRGB(WebPPicture* picture, byte* rgb, int rgb_stride);
 	// Same, but for RGBA buffer
-	WEBP_EXTERN(int) WebPPictureImportRGBA(WebPPicture* const picture, const byte* const rgba, int rgba_stride);
+	WEBP_EXTERN(int) WebPPictureImportRGBA(WebPPicture* picture, byte* rgba, int rgba_stride);
 
 	// Variant of the above, but taking BGR(A) input:
-	WEBP_EXTERN(int) WebPPictureImportBGR(WebPPicture* const picture, const byte* const bgr, int bgr_stride);
-	WEBP_EXTERN(int) WebPPictureImportBGRA(WebPPicture* const picture, const byte* const bgra, int bgra_stride);
+	WEBP_EXTERN(int) WebPPictureImportBGR(WebPPicture* picture, byte* bgr, int bgr_stride);
+	WEBP_EXTERN(int) WebPPictureImportBGRA(WebPPicture* picture, byte* bgra, int bgra_stride);
 
 	// Helper function: given a width x height plane of YUV(A) samples
 	// (with stride 'stride'), clean-up the YUV samples under fully transparent
 	// area, to help compressibility (no guarantee, though).
-	WEBP_EXTERN(void) WebPCleanupTransparentArea(WebPPicture* const picture);
+	WEBP_EXTERN(void) WebPCleanupTransparentArea(WebPPicture* picture);
 
 	//------------------------------------------------------------------------------
 	// Main call
@@ -499,8 +499,8 @@ namespace NWebp.Internal
 	// 'picture' must be less than 16384x16384 in dimension (cf WEBP_MAX_DIMENSION),
 	// and the 'config' object must be a valid one.
 	// Returns false in case of error, true otherwise.
-	// In case of error, picture->error_code is updated accordingly.
-	WEBP_EXTERN(int) WebPEncode(const WebPConfig* const config, WebPPicture* const picture);
+	// In case of error, picture.error_code is updated accordingly.
+	WEBP_EXTERN(int) WebPEncode(WebPConfig* config, WebPPicture* picture);
 
 	//------------------------------------------------------------------------------
 	*/

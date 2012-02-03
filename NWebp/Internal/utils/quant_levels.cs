@@ -8,17 +8,17 @@ namespace NWebp.Internal
 	unsafe class quant_levels
 	{
 
-		const int NUM_SYMBOLS = 256;
+		int NUM_SYMBOLS = 256;
 
 		/// <summary>
 		/// Maximum number of convergence steps.
 		/// </summary>
-		const int MAX_ITER = 6;
+		int MAX_ITER = 6;
 
 		/// <summary>
 		/// MSE stopping criterion.
 		/// </summary>
-		const double ERROR_THRESHOLD = 1e-4;
+		double ERROR_THRESHOLD = 1e-4;
 
 		/// <summary>
 		/// Quantize levels.
@@ -29,7 +29,7 @@ namespace NWebp.Internal
 		/// <param name="num_levels"></param>
 		/// <param name="mse"></param>
 		/// <returns></returns>
-		int QuantizeLevels(byte* data, int width, int height, int num_levels, float* mse)
+		static int QuantizeLevels(byte* data, int width, int height, int num_levels, float* mse)
 		{
 			var freq = new int[NUM_SYMBOLS];
 			var q_level = new int[NUM_SYMBOLS];
@@ -138,8 +138,8 @@ namespace NWebp.Internal
 
 			// Remap the alpha plane to quantized values.
 			{
-				// double->int rounding operation can be costly, so we do it
-				// once for all before remapping. We also perform the data[] -> slot
+				// double.int rounding operation can be costly, so we do it
+				// once for all before remapping. We also perform the data[] . slot
 				// mapping, while at it (avoid one indirection in the final loop).
 				var map = new byte[NUM_SYMBOLS];
 				int s2;

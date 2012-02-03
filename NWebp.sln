@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebp", "NWebp\NWebp.csproj", "{92AF41B7-7624-4BCF-A86D-AB48B8F1B890}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B2994B8C-5B65-4119-BCC7-4C31254F2356}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		NWebp.vsmdi = NWebp.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebp.Test", "NWebp.Test\NWebp.Test.csproj", "{B6809D09-F9D9-44A3-95A4-FA2C294C1D56}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = NWebp.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -13,6 +25,10 @@ Global
 		{92AF41B7-7624-4BCF-A86D-AB48B8F1B890}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92AF41B7-7624-4BCF-A86D-AB48B8F1B890}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92AF41B7-7624-4BCF-A86D-AB48B8F1B890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6809D09-F9D9-44A3-95A4-FA2C294C1D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6809D09-F9D9-44A3-95A4-FA2C294C1D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6809D09-F9D9-44A3-95A4-FA2C294C1D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6809D09-F9D9-44A3-95A4-FA2C294C1D56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -17,17 +17,17 @@ namespace NWebp.Internal
 		/*
 				#define INVALID_SYMBOL ((Symbol_t)(-1))
 		*/
-		const int INVALID_POS = 0;
+		int INVALID_POS = 0;
 
-		const int MAX_PROBA = 255;
-		const int HALF_PROBA = 128;
+		int MAX_PROBA = 255;
+		int HALF_PROBA = 128;
 
 		/// <summary>
 		/// Limit the number of tree updates above which we freeze the probabilities.
 		/// Mainly for speed reason.
 		/// TODO(skal): could be a bitstream parameter?
 		/// </summary>
-		const int COUNTER_CUT_OFF = 16383;
+		int COUNTER_CUT_OFF = 16383;
 
 		/// <summary>
 		/// ternary node.

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.dec
+namespace NWebp.Internal
 {
 	public partial class Internal
 	{
 		//------------------------------------------------------------------------------
 		// WebPDecParams: Decoding output parameters. Transient internal object.
 
-		//typedef int (*OutputFunc)(const VP8Io* const io, WebPDecParams* const p);
+		//typedef int (*OutputFunc)(VP8Io* io, WebPDecParams* p);
 
 		// Structure use for on-the-fly rescaling
 		struct WebPRescaler
@@ -36,7 +36,7 @@ namespace NWebp.Internal.dec
 											 // or used for tmp rescaling
 
 		  int last_y;                 // coordinate of the line that was last output
-		  const WebPDecoderOptions* options;  // if not null, use alt decoding features
+		  WebPDecoderOptions* options;  // if not null, use alt decoding features
 		  // rescalers
 		  WebPRescaler scaler_y, scaler_u, scaler_v, scaler_a;
 		  void* memory;               // overall scratch memory for the output work.
@@ -45,19 +45,19 @@ namespace NWebp.Internal.dec
 		};
 
 		// Should be called first, before any use of the WebPDecParams object.
-		void WebPResetDecParams(WebPDecParams* const params);
+		void WebPResetDecParams(WebPDecParams* params);
 
 		//------------------------------------------------------------------------------
 		// Header parsing helpers
 
-		const int TAG_SIZE = 4;
-		const int CHUNK_HEADER_SIZE = 8;
-		const int RIFF_HEADER_SIZE = 12;
-		const int FRAME_CHUNK_SIZE = 20;
-		const int LOOP_CHUNK_SIZE = 4;
-		const int TILE_CHUNK_SIZE = 8;
-		const int VP8X_CHUNK_SIZE = 12;
-		const int VP8_FRAME_HEADER_SIZE = 10;  // Size of the frame header within VP8 data.
+		int TAG_SIZE = 4;
+		int CHUNK_HEADER_SIZE = 8;
+		int RIFF_HEADER_SIZE = 12;
+		int FRAME_CHUNK_SIZE = 20;
+		int LOOP_CHUNK_SIZE = 4;
+		int TILE_CHUNK_SIZE = 8;
+		int VP8X_CHUNK_SIZE = 12;
+		int VP8_FRAME_HEADER_SIZE = 10;  // Size of the frame header within VP8 data.
 
 		//------------------------------------------------------------------------------
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.dsp
+namespace NWebp.Internal
 {
 	class dec
 	{
@@ -50,19 +50,19 @@ namespace NWebp.Internal.dsp
 		#define STORE(x, y, v) \
 		  dst[x + y * BPS] = clip_8b(dst[x + y * BPS] + ((v) >> 3))
 
-		static const int kC1 = 20091 + (1 << 16);
-		static const int kC2 = 35468;
+		static int kC1 = 20091 + (1 << 16);
+		static int kC2 = 35468;
 		#define MUL(a, b) (((a) * (b)) >> 16)
 
-		static void TransformOne(const short* in, byte* dst) {
+		static void TransformOne(short* in, byte* dst) {
 		  int C[4 * 4], *tmp;
 		  int i;
 		  tmp = C;
 		  for (i = 0; i < 4; ++i) {    // vertical pass
-			const int a = in[0] + in[8];    // [-4096, 4094]
-			const int b = in[0] - in[8];    // [-4095, 4095]
-			const int c = MUL(in[4], kC2) - MUL(in[12], kC1);   // [-3783, 3783]
-			const int d = MUL(in[4], kC1) + MUL(in[12], kC2);   // [-3785, 3781]
+			int a = in[0] + in[8];    // [-4096, 4094]
+			int b = in[0] - in[8];    // [-4095, 4095]
+			int c = MUL(in[4], kC2) - MUL(in[12], kC1);   // [-3783, 3783]
+			int d = MUL(in[4], kC1) + MUL(in[12], kC2);   // [-3785, 3781]
 			tmp[0] = a + d;   // [-7881, 7875]
 			tmp[1] = b + c;   // [-7878, 7878]
 			tmp[2] = b - c;   // [-7878, 7878]
@@ -79,11 +79,11 @@ namespace NWebp.Internal.dsp
 		  // [-60713, 60968].
 		  tmp = C;
 		  for (i = 0; i < 4; ++i) {    // horizontal pass
-			const int dc = tmp[0] + 4;
-			const int a =  dc +  tmp[8];
-			const int b =  dc -  tmp[8];
-			const int c = MUL(tmp[4], kC2) - MUL(tmp[12], kC1);
-			const int d = MUL(tmp[4], kC1) + MUL(tmp[12], kC2);
+			int dc = tmp[0] + 4;
+			int a =  dc +  tmp[8];
+			int b =  dc -  tmp[8];
+			int c = MUL(tmp[4], kC2) - MUL(tmp[12], kC1);
+			int d = MUL(tmp[4], kC1) + MUL(tmp[12], kC2);
 			STORE(0, 0, a + d);
 			STORE(1, 0, b + c);
 			STORE(2, 0, b - c);
@@ -94,20 +94,20 @@ namespace NWebp.Internal.dsp
 		}
 		#undef MUL
 
-		static void TransformTwo(const short* in, byte* dst, int do_two) {
+		static void TransformTwo(short* in, byte* dst, int do_two) {
 		  TransformOne(in, dst);
 		  if (do_two) {
 			TransformOne(in + 16, dst + 4);
 		  }
 		}
 
-		static void TransformUV(const short* in, byte* dst) {
+		static void TransformUV(short* in, byte* dst) {
 		  VP8Transform(in + 0 * 16, dst, 1);
 		  VP8Transform(in + 2 * 16, dst + 4 * BPS, 1);
 		}
 
-		static void TransformDC(const short *in, byte* dst) {
-		  const int DC = in[0] + 4;
+		static void TransformDC(short *in, byte* dst) {
+		  int DC = in[0] + 4;
 		  int i, j;
 		  for (j = 0; j < 4; ++j) {
 			for (i = 0; i < 4; ++i) {
@@ -116,7 +116,7 @@ namespace NWebp.Internal.dsp
 		  }
 		}
 
-		static void TransformDCUV(const short* in, byte* dst) {
+		static void TransformDCUV(short* in, byte* dst) {
 		  if (in[0 * 16]) TransformDC(in + 0 * 16, dst);
 		  if (in[1 * 16]) TransformDC(in + 1 * 16, dst + 4);
 		  if (in[2 * 16]) TransformDC(in + 2 * 16, dst + 4 * BPS);
@@ -128,25 +128,25 @@ namespace NWebp.Internal.dsp
 		//------------------------------------------------------------------------------
 		// Paragraph 14.3
 
-		static void TransformWHT(const short* in, short* out) {
+		static void TransformWHT(short* in, short* out) {
 		  int tmp[16];
 		  int i;
 		  for (i = 0; i < 4; ++i) {
-			const int a0 = in[0 + i] + in[12 + i];
-			const int a1 = in[4 + i] + in[ 8 + i];
-			const int a2 = in[4 + i] - in[ 8 + i];
-			const int a3 = in[0 + i] - in[12 + i];
+			int a0 = in[0 + i] + in[12 + i];
+			int a1 = in[4 + i] + in[ 8 + i];
+			int a2 = in[4 + i] - in[ 8 + i];
+			int a3 = in[0 + i] - in[12 + i];
 			tmp[0  + i] = a0 + a1;
 			tmp[8  + i] = a0 - a1;
 			tmp[4  + i] = a3 + a2;
 			tmp[12 + i] = a3 - a2;
 		  }
 		  for (i = 0; i < 4; ++i) {
-			const int dc = tmp[0 + i * 4] + 3;    // w/ rounder
-			const int a0 = dc             + tmp[3 + i * 4];
-			const int a1 = tmp[1 + i * 4] + tmp[2 + i * 4];
-			const int a2 = tmp[1 + i * 4] - tmp[2 + i * 4];
-			const int a3 = dc             - tmp[3 + i * 4];
+			int dc = tmp[0 + i * 4] + 3;    // w/ rounder
+			int a0 = dc             + tmp[3 + i * 4];
+			int a1 = tmp[1 + i * 4] + tmp[2 + i * 4];
+			int a2 = tmp[1 + i * 4] - tmp[2 + i * 4];
+			int a3 = dc             - tmp[3 + i * 4];
 			out[ 0] = (a0 + a1) >> 3;
 			out[16] = (a3 + a2) >> 3;
 			out[32] = (a0 - a1) >> 3;
@@ -155,7 +155,7 @@ namespace NWebp.Internal.dsp
 		  }
 		}
 
-		void (*VP8TransformWHT)(const short* in, short* out) = TransformWHT;
+		void (*VP8TransformWHT)(short* in, short* out) = TransformWHT;
 
 		//------------------------------------------------------------------------------
 		// Intra predictions
@@ -163,11 +163,11 @@ namespace NWebp.Internal.dsp
 		#define DST(x, y) dst[(x) + (y) * BPS]
 
 		static void TrueMotion(byte *dst, int size) {
-		  const byte* top = dst - BPS;
-		  const byte* const clip0 = clip1 + 255 - top[-1];
+		  byte* top = dst - BPS;
+		  byte* clip0 = clip1 + 255 - top[-1];
 		  int y;
 		  for (y = 0; y < size; ++y) {
-			const byte* const clip = clip0 + dst[-1];
+			byte* clip = clip0 + dst[-1];
 			int x;
 			for (x = 0; x < size; ++x) {
 			  dst[x] = clip[top[x]];
@@ -242,8 +242,8 @@ namespace NWebp.Internal.dsp
 		#define AVG2(a, b) (((a) + (b) + 1) >> 1)
 
 		static void VE4(byte *dst) {    // vertical
-		  const byte* top = dst - BPS;
-		  const byte vals[4] = {
+		  byte* top = dst - BPS;
+		  byte vals[4] = {
 			AVG3(top[-1], top[0], top[1]),
 			AVG3(top[ 0], top[1], top[2]),
 			AVG3(top[ 1], top[2], top[3]),
@@ -256,11 +256,11 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void HE4(byte *dst) {    // horizontal
-		  const int A = dst[-1 - BPS];
-		  const int B = dst[-1];
-		  const int C = dst[-1 + BPS];
-		  const int D = dst[-1 + 2 * BPS];
-		  const int E = dst[-1 + 3 * BPS];
+		  int A = dst[-1 - BPS];
+		  int B = dst[-1];
+		  int C = dst[-1 + BPS];
+		  int D = dst[-1 + 2 * BPS];
+		  int E = dst[-1 + 3 * BPS];
 		  *(uint*)(dst + 0 * BPS) = 0x01010101U * AVG3(A, B, C);
 		  *(uint*)(dst + 1 * BPS) = 0x01010101U * AVG3(B, C, D);
 		  *(uint*)(dst + 2 * BPS) = 0x01010101U * AVG3(C, D, E);
@@ -276,15 +276,15 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void RD4(byte *dst) {   // Down-right
-		  const int I = dst[-1 + 0 * BPS];
-		  const int J = dst[-1 + 1 * BPS];
-		  const int K = dst[-1 + 2 * BPS];
-		  const int L = dst[-1 + 3 * BPS];
-		  const int X = dst[-1 - BPS];
-		  const int A = dst[0 - BPS];
-		  const int B = dst[1 - BPS];
-		  const int C = dst[2 - BPS];
-		  const int D = dst[3 - BPS];
+		  int I = dst[-1 + 0 * BPS];
+		  int J = dst[-1 + 1 * BPS];
+		  int K = dst[-1 + 2 * BPS];
+		  int L = dst[-1 + 3 * BPS];
+		  int X = dst[-1 - BPS];
+		  int A = dst[0 - BPS];
+		  int B = dst[1 - BPS];
+		  int C = dst[2 - BPS];
+		  int D = dst[3 - BPS];
 		  DST(0, 3)                                     = AVG3(J, K, L);
 		  DST(0, 2) = DST(1, 3)                         = AVG3(I, J, K);
 		  DST(0, 1) = DST(1, 2) = DST(2, 3)             = AVG3(X, I, J);
@@ -295,14 +295,14 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void LD4(byte *dst) {   // Down-Left
-		  const int A = dst[0 - BPS];
-		  const int B = dst[1 - BPS];
-		  const int C = dst[2 - BPS];
-		  const int D = dst[3 - BPS];
-		  const int E = dst[4 - BPS];
-		  const int F = dst[5 - BPS];
-		  const int G = dst[6 - BPS];
-		  const int H = dst[7 - BPS];
+		  int A = dst[0 - BPS];
+		  int B = dst[1 - BPS];
+		  int C = dst[2 - BPS];
+		  int D = dst[3 - BPS];
+		  int E = dst[4 - BPS];
+		  int F = dst[5 - BPS];
+		  int G = dst[6 - BPS];
+		  int H = dst[7 - BPS];
 		  DST(0, 0)                                     = AVG3(A, B, C);
 		  DST(1, 0) = DST(0, 1)                         = AVG3(B, C, D);
 		  DST(2, 0) = DST(1, 1) = DST(0, 2)             = AVG3(C, D, E);
@@ -313,14 +313,14 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void VR4(byte *dst) {   // Vertical-Right
-		  const int I = dst[-1 + 0 * BPS];
-		  const int J = dst[-1 + 1 * BPS];
-		  const int K = dst[-1 + 2 * BPS];
-		  const int X = dst[-1 - BPS];
-		  const int A = dst[0 - BPS];
-		  const int B = dst[1 - BPS];
-		  const int C = dst[2 - BPS];
-		  const int D = dst[3 - BPS];
+		  int I = dst[-1 + 0 * BPS];
+		  int J = dst[-1 + 1 * BPS];
+		  int K = dst[-1 + 2 * BPS];
+		  int X = dst[-1 - BPS];
+		  int A = dst[0 - BPS];
+		  int B = dst[1 - BPS];
+		  int C = dst[2 - BPS];
+		  int D = dst[3 - BPS];
 		  DST(0, 0) = DST(1, 2) = AVG2(X, A);
 		  DST(1, 0) = DST(2, 2) = AVG2(A, B);
 		  DST(2, 0) = DST(3, 2) = AVG2(B, C);
@@ -335,14 +335,14 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void VL4(byte *dst) {   // Vertical-Left
-		  const int A = dst[0 - BPS];
-		  const int B = dst[1 - BPS];
-		  const int C = dst[2 - BPS];
-		  const int D = dst[3 - BPS];
-		  const int E = dst[4 - BPS];
-		  const int F = dst[5 - BPS];
-		  const int G = dst[6 - BPS];
-		  const int H = dst[7 - BPS];
+		  int A = dst[0 - BPS];
+		  int B = dst[1 - BPS];
+		  int C = dst[2 - BPS];
+		  int D = dst[3 - BPS];
+		  int E = dst[4 - BPS];
+		  int F = dst[5 - BPS];
+		  int G = dst[6 - BPS];
+		  int H = dst[7 - BPS];
 		  DST(0, 0) =             AVG2(A, B);
 		  DST(1, 0) = DST(0, 2) = AVG2(B, C);
 		  DST(2, 0) = DST(1, 2) = AVG2(C, D);
@@ -357,10 +357,10 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void HU4(byte *dst) {   // Horizontal-Up
-		  const int I = dst[-1 + 0 * BPS];
-		  const int J = dst[-1 + 1 * BPS];
-		  const int K = dst[-1 + 2 * BPS];
-		  const int L = dst[-1 + 3 * BPS];
+		  int I = dst[-1 + 0 * BPS];
+		  int J = dst[-1 + 1 * BPS];
+		  int K = dst[-1 + 2 * BPS];
+		  int L = dst[-1 + 3 * BPS];
 		  DST(0, 0) =             AVG2(I, J);
 		  DST(2, 0) = DST(0, 1) = AVG2(J, K);
 		  DST(2, 1) = DST(0, 2) = AVG2(K, L);
@@ -372,14 +372,14 @@ namespace NWebp.Internal.dsp
 		}
 
 		static void HD4(byte *dst) {  // Horizontal-Down
-		  const int I = dst[-1 + 0 * BPS];
-		  const int J = dst[-1 + 1 * BPS];
-		  const int K = dst[-1 + 2 * BPS];
-		  const int L = dst[-1 + 3 * BPS];
-		  const int X = dst[-1 - BPS];
-		  const int A = dst[0 - BPS];
-		  const int B = dst[1 - BPS];
-		  const int C = dst[2 - BPS];
+		  int I = dst[-1 + 0 * BPS];
+		  int J = dst[-1 + 1 * BPS];
+		  int K = dst[-1 + 2 * BPS];
+		  int L = dst[-1 + 3 * BPS];
+		  int X = dst[-1 - BPS];
+		  int A = dst[0 - BPS];
+		  int B = dst[1 - BPS];
+		  int C = dst[2 - BPS];
 
 		  DST(0, 0) = DST(2, 1) = AVG2(I, X);
 		  DST(0, 1) = DST(2, 2) = AVG2(J, I);
@@ -458,16 +458,16 @@ namespace NWebp.Internal.dsp
 		//------------------------------------------------------------------------------
 		// default C implementations
 
-		const VP8PredFunc VP8PredLuma4[NUM_BMODES] = {
+		VP8PredFunc VP8PredLuma4[NUM_BMODES] = {
 		  DC4, TM4, VE4, HE4, RD4, VR4, LD4, VL4, HD4, HU4
 		};
 
-		const VP8PredFunc VP8PredLuma16[NUM_B_DC_MODES] = {
+		VP8PredFunc VP8PredLuma16[NUM_B_DC_MODES] = {
 		  DC16, TM16, VE16, HE16,
 		  DC16NoTop, DC16NoLeft, DC16NoTopLeft
 		};
 
-		const VP8PredFunc VP8PredChroma8[NUM_B_DC_MODES] = {
+		VP8PredFunc VP8PredChroma8[NUM_B_DC_MODES] = {
 		  DC8uv, TM8uv, VE8uv, HE8uv,
 		  DC8uvNoTop, DC8uvNoLeft, DC8uvNoTopLeft
 		};
@@ -477,21 +477,21 @@ namespace NWebp.Internal.dsp
 
 		// 4 pixels in, 2 pixels out
 		static void do_filter2(byte* p, int step) {
-		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
-		  const int a = 3 * (q0 - p0) + sclip1[1020 + p1 - q1];
-		  const int a1 = sclip2[112 + ((a + 4) >> 3)];
-		  const int a2 = sclip2[112 + ((a + 3) >> 3)];
+		  int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
+		  int a = 3 * (q0 - p0) + sclip1[1020 + p1 - q1];
+		  int a1 = sclip2[112 + ((a + 4) >> 3)];
+		  int a2 = sclip2[112 + ((a + 3) >> 3)];
 		  p[-step] = clip1[255 + p0 + a2];
 		  p[    0] = clip1[255 + q0 - a1];
 		}
 
 		// 4 pixels in, 4 pixels out
 		static void do_filter4(byte* p, int step) {
-		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
-		  const int a = 3 * (q0 - p0);
-		  const int a1 = sclip2[112 + ((a + 4) >> 3)];
-		  const int a2 = sclip2[112 + ((a + 3) >> 3)];
-		  const int a3 = (a1 + 1) >> 1;
+		  int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
+		  int a = 3 * (q0 - p0);
+		  int a1 = sclip2[112 + ((a + 4) >> 3)];
+		  int a2 = sclip2[112 + ((a + 3) >> 3)];
+		  int a3 = (a1 + 1) >> 1;
 		  p[-2*step] = clip1[255 + p1 + a3];
 		  p[-  step] = clip1[255 + p0 + a2];
 		  p[      0] = clip1[255 + q0 - a1];
@@ -500,12 +500,12 @@ namespace NWebp.Internal.dsp
 
 		// 6 pixels in, 6 pixels out
 		static void do_filter6(byte* p, int step) {
-		  const int p2 = p[-3*step], p1 = p[-2*step], p0 = p[-step];
-		  const int q0 = p[0], q1 = p[step], q2 = p[2*step];
-		  const int a = sclip1[1020 + 3 * (q0 - p0) + sclip1[1020 + p1 - q1]];
-		  const int a1 = (27 * a + 63) >> 7;  // eq. to ((3 * a + 7) * 9) >> 7
-		  const int a2 = (18 * a + 63) >> 7;  // eq. to ((2 * a + 7) * 9) >> 7
-		  const int a3 = (9  * a + 63) >> 7;  // eq. to ((1 * a + 7) * 9) >> 7
+		  int p2 = p[-3*step], p1 = p[-2*step], p0 = p[-step];
+		  int q0 = p[0], q1 = p[step], q2 = p[2*step];
+		  int a = sclip1[1020 + 3 * (q0 - p0) + sclip1[1020 + p1 - q1]];
+		  int a1 = (27 * a + 63) >> 7;  // eq. to ((3 * a + 7) * 9) >> 7
+		  int a2 = (18 * a + 63) >> 7;  // eq. to ((2 * a + 7) * 9) >> 7
+		  int a3 = (9  * a + 63) >> 7;  // eq. to ((1 * a + 7) * 9) >> 7
 		  p[-3*step] = clip1[255 + p2 + a3];
 		  p[-2*step] = clip1[255 + p1 + a2];
 		  p[-  step] = clip1[255 + p0 + a1];
@@ -514,20 +514,20 @@ namespace NWebp.Internal.dsp
 		  p[ 2*step] = clip1[255 + q2 - a3];
 		}
 
-		static int hev(const byte* p, int step, int thresh) {
-		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
+		static int hev(byte* p, int step, int thresh) {
+		  int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
 		  return (abs0[255 + p1 - p0] > thresh) || (abs0[255 + q1 - q0] > thresh);
 		}
 
-		static int needs_filter(const byte* p, int step, int thresh) {
-		  const int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
+		static int needs_filter(byte* p, int step, int thresh) {
+		  int p1 = p[-2*step], p0 = p[-step], q0 = p[0], q1 = p[step];
 		  return (2 * abs0[255 + p0 - q0] + abs1[255 + p1 - q1]) <= thresh;
 		}
 
-		static int needs_filter2(const byte* p,
+		static int needs_filter2(byte* p,
 											 int step, int t, int it) {
-		  const int p3 = p[-4*step], p2 = p[-3*step], p1 = p[-2*step], p0 = p[-step];
-		  const int q0 = p[0], q1 = p[step], q2 = p[2*step], q3 = p[3*step];
+		  int p3 = p[-4*step], p2 = p[-3*step], p1 = p[-2*step], p0 = p[-step];
+		  int q0 = p[0], q1 = p[step], q2 = p[2*step], q3 = p[3*step];
 		  if ((2 * abs0[255 + p0 - q0] + abs1[255 + p1 - q1]) > t)
 			return 0;
 		  return abs0[255 + p3 - p2] <= it && abs0[255 + p2 - p1] <= it &&

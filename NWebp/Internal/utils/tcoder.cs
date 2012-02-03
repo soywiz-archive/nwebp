@@ -17,28 +17,28 @@ namespace NWebp.Internal
 		// Creates a tree-coder capable of coding symbols in
 		// the [0, max_symbol] range. Returns null in case of memory error.
 		// 'max_symbol' must be in the range [0, TCODER_MAX_SYMBOL)
-		const int TCODER_MAX_SYMBOL = (1 << 24);
+		int TCODER_MAX_SYMBOL = (1 << 24);
 
 		/*
 		TCoder* TCoderNew(int max_symbol);
 		// Re-initialize an existing object, make it ready for a new encoding or
 		// decoding cycle.
-		void TCoderInit(TCoder* const c);
+		void TCoderInit(TCoder* c);
 		// destroys the tree-coder object and frees memory.
-		void TCoderDelete(TCoder* const c);
+		void TCoderDelete(TCoder* c);
 
 		// Code next symbol 's'. If the bit-writer 'bw' is null, the function will
 		// just record the symbol, and update the internal frequency counters.
-		void TCoderEncode(TCoder* const c, int s, struct VP8BitWriter* const bw);
+		void TCoderEncode(TCoder* c, int s, struct VP8BitWriter* bw);
 		// Decode and return next symbol.
-		int TCoderDecode(TCoder* const c, struct VP8BitReader* const br);
+		int TCoderDecode(TCoder* c, struct VP8BitReader* br);
 
 		// Theoretical number of bits needed to code 'symbol' in the current state.
-		double TCoderSymbolCost(const TCoder* const c, int symbol);
+		double TCoderSymbolCost(TCoder* c, int symbol);
 		*/
 
 		static double log2(double d) {
-			const double kLog2Reciprocal = 1.442695040888963;
+			double kLog2Reciprocal = 1.442695040888963;
 			return Math.Log(d) * kLog2Reciprocal;
 		}
 
@@ -64,7 +64,7 @@ namespace NWebp.Internal
 				if (max_symbol < 0 || max_symbol >= TCODER_MAX_SYMBOL) {
 					return null;
 				}
-				size = sizeof(*c) + num_nodes * sizeof(*c->nodes_) + num_nodes * sizeof(*c->symbols_);
+				size = sizeof(*c) + num_nodes * sizeof(*c.nodes_) + num_nodes * sizeof(*c.symbols_);
 				memory = (byte*)malloc(size);
 				if (memory == null) return null;
 
@@ -168,7 +168,7 @@ namespace NWebp.Internal
 
 			// trivial method, mainly for debug
 			int SymbolToNode(int s) {
-			  const int pos = this.symbols_[s];
+			  int pos = this.symbols_[s];
 			  Global.assert(s >= 0 && s < this.>num_nodes_ && s != INVALID_SYMBOL);
 			  Global.assert(pos != INVALID_POS);
 			  Global.assert(this.nodes_[pos].symbol_ == s);
@@ -213,7 +213,7 @@ namespace NWebp.Internal
 		{
 			void UpdateNodeProbas(int pos) {
 			  Node node = this.nodes_[pos];
-			  const Count_t total = node.TotalCount();
+			  Count_t total = node.TotalCount();
 			  if (total < COUNTER_CUT_OFF) node.probaS_ = CalcProba(node.countS_, total, MAX_PROBA, 0);
 			  if (!this.IsLeaf(pos)) {
 				Count_t total_count = node.count_;
@@ -243,7 +243,7 @@ namespace NWebp.Internal
 				// Update the counters up the tree, possibly exchanging some nodes
 				++node.countS_;
 				while (pos > 1) {
-				  Node parent = c->nodes_[pos >> 1];
+				  Node parent = c.nodes_[pos >> 1];
 				  ++parent.count_;
 				  if (parent.countS_ < node.countS_) {
 					this.ExchangeSymbol(pos);
@@ -309,7 +309,7 @@ namespace NWebp.Internal
 			  if (!this.fixed_symbols_ && this.num_symbols_ < this.num_nodes_) {
 				if (this.num_symbols_ > 0) {
 				  if (bw != null) {
-					const int new_symbol_proba =
+					int new_symbol_proba =
 						CalcProba(this.num_symbols_, this.total_coded_, HALF_PROBA - 1, 0);
 					bw.VP8PutBit(is_new_symbol, new_symbol_proba);
 				  }
@@ -364,7 +364,7 @@ namespace NWebp.Internal
 			  // Check if we need to transmit the new symbol's value
 			  if (!this.fixed_symbols_ && this.num_symbols_ < this.num_nodes_) {
 				if (this.num_symbols_ > 0) {
-				  const int new_symbol_proba =
+				  int new_symbol_proba =
 					  CalcProba(this.num_symbols_, this.total_coded_, HALF_PROBA - 1, 0);
 				  is_new_symbol = br.VP8GetBit(new_symbol_proba);
 				} else {
@@ -391,8 +391,8 @@ namespace NWebp.Internal
 				  } else {
 					// Not yet done, keep traversing and branching.
 					if (!this.HasOnlyRightChild(pos)) {
-					  const int left_proba = node.probaL_;
-					  const int is_right = br.VP8GetBit(left_proba);
+					  int left_proba = node.probaL_;
+					  int is_right = br.VP8GetBit(left_proba);
 					  pos = (pos << 1) | is_right;
 					} else {
 					  pos <<= 1;

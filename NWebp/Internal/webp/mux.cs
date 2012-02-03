@@ -57,7 +57,7 @@ namespace NWebp.Internal
 	// Deletes the mux object.
 	// Parameters:
 	//   mux - (in/out) object to be deleted
-	WEBP_EXTERN(void) WebPMuxDelete(WebPMux* const mux);
+	WEBP_EXTERN(void) WebPMuxDelete(WebPMux* mux);
 
 	//------------------------------------------------------------------------------
 	// Mux creation.
@@ -73,7 +73,7 @@ namespace NWebp.Internal
 	// Returns:
 	//   A pointer to the mux object created from given data - on success.
 	//   null - In case of invalid data or memory error.
-	WEBP_EXTERN(WebPMux*) WebPMuxCreate(const byte* data, uint size, int copy_data, WebPMuxState* const mux_state);
+	WEBP_EXTERN(WebPMux*) WebPMuxCreate(byte* data, uint size, int copy_data, WebPMuxState* mux_state);
 
 	//------------------------------------------------------------------------------
 	// Single Image.
@@ -93,7 +93,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null.
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxSetImage(WebPMux* const mux, const byte* data, uint size, const byte* alpha_data, uint alpha_size, int copy_data);
+	WEBP_EXTERN(WebPMuxError) WebPMuxSetImage(WebPMux* mux, byte* data, uint size, byte* alpha_data, uint alpha_size, int copy_data);
 
 	// Gets a reference to the image in the mux object.
 	// The caller should NOT free the returned data.
@@ -106,7 +106,7 @@ namespace NWebp.Internal
 	//                               OR if mux contains animation/tiling.
 	//   WEBP_MUX_NOT_FOUND - if image is not present in mux object.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetImage(const WebPMux* const mux, WebPData* const image, WebPData* const alpha);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetImage(WebPMux* mux, WebPData* image, WebPData* alpha);
 
 	// Deletes the image in the mux object.
 	// Parameters:
@@ -116,7 +116,7 @@ namespace NWebp.Internal
 	//                               OR if mux contains animation/tiling.
 	//   WEBP_MUX_NOT_FOUND - if image is not present in mux object.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteImage(WebPMux* const mux);
+	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteImage(WebPMux* mux);
 
 	//------------------------------------------------------------------------------
 	// XMP Metadata.
@@ -133,7 +133,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null.
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxSetMetadata(WebPMux* const mux, const byte* data, uint size, int copy_data);
+	WEBP_EXTERN(WebPMuxError) WebPMuxSetMetadata(WebPMux* mux, byte* data, uint size, int copy_data);
 
 	// Gets a reference to the XMP metadata in the mux object.
 	// The caller should NOT free the returned data.
@@ -144,7 +144,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if either mux or metadata is null.
 	//   WEBP_MUX_NOT_FOUND - if metadata is not present in mux object.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetMetadata(const WebPMux* const mux, WebPData* const metadata);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetMetadata(WebPMux* mux, WebPData* metadata);
 
 	// Deletes the XMP metadata in the mux object.
 	// Parameters:
@@ -153,7 +153,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
 	//   WEBP_MUX_NOT_FOUND - If mux does not contain metadata.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteMetadata(WebPMux* const mux);
+	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteMetadata(WebPMux* mux);
 
 	//------------------------------------------------------------------------------
 	// ICC Color Profile.
@@ -170,7 +170,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if mux is null or data is null
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error
 	//   WEBP_MUX_OK - on success
-	WEBP_EXTERN(WebPMuxError) WebPMuxSetColorProfile(WebPMux* const mux, const byte* data, uint size, int copy_data);
+	WEBP_EXTERN(WebPMuxError) WebPMuxSetColorProfile(WebPMux* mux, byte* data, uint size, int copy_data);
 
 	// Gets a reference to the color profile in the mux object.
 	// The caller should NOT free the returned data.
@@ -181,7 +181,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if either mux or color_profile is null.
 	//   WEBP_MUX_NOT_FOUND - if color profile is not present in mux object.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetColorProfile(const WebPMux* const mux, WebPData* const color_profile);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetColorProfile(WebPMux* mux, WebPData* color_profile);
 
 	// Deletes the color profile in the mux object.
 	// Parameters:
@@ -190,7 +190,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
 	//   WEBP_MUX_NOT_FOUND - If mux does not contain color profile.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteColorProfile(WebPMux* const mux);
+	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteColorProfile(WebPMux* mux);
 
 	//------------------------------------------------------------------------------
 	// Animation.
@@ -216,7 +216,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - If we have less than (nth-1) frames before adding.
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxAddFrame(WebPMux* const mux, uint nth, const byte* data, uint size, const byte* alpha_data, uint alpha_size, uint x_offset, uint y_offset, uint duration, int copy_data);
+	WEBP_EXTERN(WebPMuxError) WebPMuxAddFrame(WebPMux* mux, uint nth, byte* data, uint size, byte* alpha_data, uint alpha_size, uint x_offset, uint y_offset, uint duration, int copy_data);
 
 	// TODO(urvang): Create a struct as follows to reduce argument list size:
 	// typedef struct {
@@ -246,7 +246,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - if there are less than nth frames in the mux object.
 	//   WEBP_MUX_BAD_DATA - if nth frame chunk in mux is invalid.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetFrame(const WebPMux* const mux, uint nth, WebPData* const image, WebPData* const alpha, uint* x_offset, uint* y_offset, uint* duration);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetFrame(WebPMux* mux, uint nth, WebPData* image, WebPData* alpha, uint* x_offset, uint* y_offset, uint* duration);
 
 	// Deletes an animation frame from the mux object.
 	// nth=0 has a special meaning - last position.
@@ -258,7 +258,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - If there are less than nth frames in the mux object
 	//                        before deletion.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteFrame(WebPMux* const mux, uint nth);
+	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteFrame(WebPMux* mux, uint nth);
 
 	// Sets the animation loop count in the mux object. Any existing loop count
 	// value(s) will be removed.
@@ -270,7 +270,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if mux is null
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxSetLoopCount(WebPMux* const mux, uint loop_count);
+	WEBP_EXTERN(WebPMuxError) WebPMuxSetLoopCount(WebPMux* mux, uint loop_count);
 
 	// Gets the animation loop count from the mux object.
 	// Parameters:
@@ -280,7 +280,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_INVALID_ARGUMENT - if either of mux or loop_count is null
 	//   WEBP_MUX_NOT_FOUND - if loop chunk is not present in mux object.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetLoopCount(const WebPMux* const mux, uint* loop_count);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetLoopCount(WebPMux* mux, uint* loop_count);
 
 	//------------------------------------------------------------------------------
 	// Tiling.
@@ -305,7 +305,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - If we have less than (nth-1) tiles before adding.
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxAddTile(WebPMux* const mux, uint nth, const byte* data, uint size, const byte* alpha_data, uint alpha_size, uint x_offset, uint y_offset, int copy_data);
+	WEBP_EXTERN(WebPMuxError) WebPMuxAddTile(WebPMux* mux, uint nth, byte* data, uint size, byte* alpha_data, uint alpha_size, uint x_offset, uint y_offset, int copy_data);
 
 	// Gets a reference to the nth tile from the mux object.
 	// The caller should NOT free the returned data.
@@ -323,7 +323,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - if there are less than nth tiles in the mux object.
 	//   WEBP_MUX_BAD_DATA - if nth tile chunk in mux is invalid.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetTile(const WebPMux* const mux, uint nth, WebPData* const image, WebPData* const alpha, uint* x_offset, uint* y_offset);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetTile(WebPMux* mux, uint nth, WebPData* image, WebPData* alpha, uint* x_offset, uint* y_offset);
 
 	// Deletes a tile from the mux object.
 	// nth=0 has a special meaning - last position
@@ -335,7 +335,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - If there are less than nth tiles in the mux object
 	//                        before deletion.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteTile(WebPMux* const mux, uint nth);
+	WEBP_EXTERN(WebPMuxError) WebPMuxDeleteTile(WebPMux* mux, uint nth);
 
 	//------------------------------------------------------------------------------
 	// Misc Utilities.
@@ -351,7 +351,7 @@ namespace NWebp.Internal
 	//   WEBP_MUX_NOT_FOUND - if VP8X chunk is not present in mux object.
 	//   WEBP_MUX_BAD_DATA - if VP8X chunk in mux is invalid.
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxGetFeatures(const WebPMux* const mux, uint* flags);
+	WEBP_EXTERN(WebPMuxError) WebPMuxGetFeatures(WebPMux* mux, uint* flags);
 
 	// Gets number of chunks having tag value tag in the mux object.
 	// Parameters:
@@ -361,7 +361,7 @@ namespace NWebp.Internal
 	// Returns:
 	//   WEBP_MUX_INVALID_ARGUMENT - if either mux, tag or num_elements is null
 	//   WEBP_MUX_OK - on success.
-	WEBP_EXTERN(WebPMuxError) WebPMuxNumNamedElements(const WebPMux* const mux, const char* tag, int* num_elements);
+	WEBP_EXTERN(WebPMuxError) WebPMuxNumNamedElements(WebPMux* mux, char* tag, int* num_elements);
 
 	// Assembles all chunks in WebP RIFF format and returns in output_data.
 	// This function also validates the mux object.
@@ -378,7 +378,7 @@ namespace NWebp.Internal
 	//                               null.
 	//   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 	//   WEBP_MUX_OK - on success
-	WEBP_EXTERN(WebPMuxError) WebPMuxAssemble(WebPMux* const mux, byte** output_data, uint* output_size);
+	WEBP_EXTERN(WebPMuxError) WebPMuxAssemble(WebPMux* mux, byte** output_data, uint* output_size);
 
 	//------------------------------------------------------------------------------
 	*/

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.dsp
+namespace NWebp.Internal
 {
 	class upsampling
 	{
@@ -27,40 +27,40 @@ namespace NWebp.Internal.dsp
 		#define LOAD_UV(u,v) ((u) | ((v) << 16))
 
 		#define UPSAMPLE_FUNC(FUNC_NAME, FUNC, XSTEP)                                  \
-		static void FUNC_NAME(const byte* top_y, const byte* bottom_y,           \
-							  const byte* top_u, const byte* top_v,              \
-							  const byte* cur_u, const byte* cur_v,              \
+		static void FUNC_NAME(byte* top_y, byte* bottom_y,           \
+							  byte* top_u, byte* top_v,              \
+							  byte* cur_u, byte* cur_v,              \
 							  byte* top_dst, byte* bottom_dst, int len) {        \
 		  int x;                                                                       \
-		  const int last_pixel_pair = (len - 1) >> 1;                                  \
+		  int last_pixel_pair = (len - 1) >> 1;                                  \
 		  uint tl_uv = LOAD_UV(top_u[0], top_v[0]);   /* top-left sample */        \
 		  uint l_uv  = LOAD_UV(cur_u[0], cur_v[0]);   /* left-sample */            \
 		  if (top_y) {                                                                 \
-			const uint uv0 = (3 * tl_uv + l_uv + 0x00020002u) >> 2;                \
+			uint uv0 = (3 * tl_uv + l_uv + 0x00020002u) >> 2;                \
 			FUNC(top_y[0], uv0 & 0xff, (uv0 >> 16), top_dst);                          \
 		  }                                                                            \
 		  if (bottom_y) {                                                              \
-			const uint uv0 = (3 * l_uv + tl_uv + 0x00020002u) >> 2;                \
+			uint uv0 = (3 * l_uv + tl_uv + 0x00020002u) >> 2;                \
 			FUNC(bottom_y[0], uv0 & 0xff, (uv0 >> 16), bottom_dst);                    \
 		  }                                                                            \
 		  for (x = 1; x <= last_pixel_pair; ++x) {                                     \
-			const uint t_uv = LOAD_UV(top_u[x], top_v[x]);  /* top sample */       \
-			const uint uv   = LOAD_UV(cur_u[x], cur_v[x]);  /* sample */           \
+			uint t_uv = LOAD_UV(top_u[x], top_v[x]);  /* top sample */       \
+			uint uv   = LOAD_UV(cur_u[x], cur_v[x]);  /* sample */           \
 			/* precompute invariant values associated with first and second diagonals*/\
-			const uint avg = tl_uv + t_uv + l_uv + uv + 0x00080008u;               \
-			const uint diag_12 = (avg + 2 * (t_uv + l_uv)) >> 3;                   \
-			const uint diag_03 = (avg + 2 * (tl_uv + uv)) >> 3;                    \
+			uint avg = tl_uv + t_uv + l_uv + uv + 0x00080008u;               \
+			uint diag_12 = (avg + 2 * (t_uv + l_uv)) >> 3;                   \
+			uint diag_03 = (avg + 2 * (tl_uv + uv)) >> 3;                    \
 			if (top_y) {                                                               \
-			  const uint uv0 = (diag_12 + tl_uv) >> 1;                             \
-			  const uint uv1 = (diag_03 + t_uv) >> 1;                              \
+			  uint uv0 = (diag_12 + tl_uv) >> 1;                             \
+			  uint uv1 = (diag_03 + t_uv) >> 1;                              \
 			  FUNC(top_y[2 * x - 1], uv0 & 0xff, (uv0 >> 16),                          \
 				   top_dst + (2 * x - 1) * XSTEP);                                     \
 			  FUNC(top_y[2 * x - 0], uv1 & 0xff, (uv1 >> 16),                          \
 				   top_dst + (2 * x - 0) * XSTEP);                                     \
 			}                                                                          \
 			if (bottom_y) {                                                            \
-			  const uint uv0 = (diag_03 + l_uv) >> 1;                              \
-			  const uint uv1 = (diag_12 + uv) >> 1;                                \
+			  uint uv0 = (diag_03 + l_uv) >> 1;                              \
+			  uint uv1 = (diag_12 + uv) >> 1;                                \
 			  FUNC(bottom_y[2 * x - 1], uv0 & 0xff, (uv0 >> 16),                       \
 				   bottom_dst + (2 * x - 1) * XSTEP);                                  \
 			  FUNC(bottom_y[2 * x + 0], uv1 & 0xff, (uv1 >> 16),                       \
@@ -71,12 +71,12 @@ namespace NWebp.Internal.dsp
 		  }                                                                            \
 		  if (!(len & 1)) {                                                            \
 			if (top_y) {                                                               \
-			  const uint uv0 = (3 * tl_uv + l_uv + 0x00020002u) >> 2;              \
+			  uint uv0 = (3 * tl_uv + l_uv + 0x00020002u) >> 2;              \
 			  FUNC(top_y[len - 1], uv0 & 0xff, (uv0 >> 16),                            \
 				   top_dst + (len - 1) * XSTEP);                                       \
 			}                                                                          \
 			if (bottom_y) {                                                            \
-			  const uint uv0 = (3 * l_uv + tl_uv + 0x00020002u) >> 2;              \
+			  uint uv0 = (3 * l_uv + tl_uv + 0x00020002u) >> 2;              \
 			  FUNC(bottom_y[len - 1], uv0 & 0xff, (uv0 >> 16),                         \
 				   bottom_dst + (len - 1) * XSTEP);                                    \
 			}                                                                          \
@@ -106,8 +106,8 @@ namespace NWebp.Internal.dsp
 		// simple point-sampling
 
 		#define SAMPLE_FUNC(FUNC_NAME, FUNC, XSTEP)                                    \
-		static void FUNC_NAME(const byte* top_y, const byte* bottom_y,           \
-							  const byte* u, const byte* v,                      \
+		static void FUNC_NAME(byte* top_y, byte* bottom_y,           \
+							  byte* u, byte* v,                      \
 							  byte* top_dst, byte* bottom_dst, int len) {        \
 		  int i;                                                                       \
 		  for (i = 0; i < len - 1; i += 2) {                                           \
@@ -144,7 +144,7 @@ namespace NWebp.Internal.dsp
 
 		#undef SAMPLE_FUNC
 
-		const WebPSampleLinePairFunc WebPSamplers[MODE_LAST] = {
+		WebPSampleLinePairFunc WebPSamplers[MODE_LAST] = {
 		  SampleRgbLinePair,       // MODE_RGB
 		  SampleRgbaLinePair,      // MODE_RGBA
 		  SampleBgrLinePair,       // MODE_BGR
@@ -154,7 +154,7 @@ namespace NWebp.Internal.dsp
 		  SampleRgb565LinePair     // MODE_RGB_565
 		};
 
-		const WebPSampleLinePairFunc WebPSamplersKeepAlpha[MODE_LAST] = {
+		WebPSampleLinePairFunc WebPSamplersKeepAlpha[MODE_LAST] = {
 		  SampleRgbLinePair,                // MODE_RGB
 		  SampleRgbaKeepAlphaLinePair,      // MODE_RGBA
 		  SampleBgrLinePair,                // MODE_BGR
@@ -168,7 +168,7 @@ namespace NWebp.Internal.dsp
 		// YUV444 converter
 
 		#define YUV444_FUNC(FUNC_NAME, FUNC, XSTEP)                                    \
-		static void FUNC_NAME(const byte* y, const byte* u, const byte* v,    \
+		static void FUNC_NAME(byte* y, byte* u, byte* v,    \
 							  byte* dst, int len) {                                 \
 		  int i;                                                                       \
 		  for (i = 0; i < len; ++i) FUNC(y[i], u[i], v[i], &dst[i * XSTEP]);           \
@@ -184,7 +184,7 @@ namespace NWebp.Internal.dsp
 
 		#undef YUV444_FUNC
 
-		const WebPYUV444Converter WebPYUV444Converters[MODE_LAST] = {
+		WebPYUV444Converter WebPYUV444Converters[MODE_LAST] = {
 		  Yuv444ToRgb,       // MODE_RGB
 		  Yuv444ToRgba,      // MODE_RGBA
 		  Yuv444ToBgr,       // MODE_BGR

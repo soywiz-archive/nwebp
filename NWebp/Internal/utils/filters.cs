@@ -29,10 +29,10 @@ namespace NWebp.Internal
 		// 'bpp' is number of bytes per pixel, and
 		// 'stride' is number of bytes per scan line (with possible padding).
 		// 'out' should be pre-allocated.
-		extern const WebPFilterFunc WebPFilters[(int)WEBP_FILTER_TYPE.WEBP_FILTER_LAST];
+		extern WebPFilterFunc WebPFilters[(int)WEBP_FILTER_TYPE.WEBP_FILTER_LAST];
 
 		// Reconstruct the original data from the given filtered data.
-		extern const WebPFilterFunc WebPUnfilters[(int)WEBP_FILTER_TYPE.WEBP_FILTER_LAST];
+		extern WebPFilterFunc WebPUnfilters[(int)WEBP_FILTER_TYPE.WEBP_FILTER_LAST];
 
 		// Fast estimate of a potentially good filter.
 		extern WEBP_FILTER_TYPE EstimateBestFilter(byte* data, int width, int height, int stride);
@@ -191,7 +191,7 @@ namespace NWebp.Internal
 		// Quick estimate of a potentially interesting filter mode to try, in addition
 		// to the default NONE.
 
-		const int SMAX = 16;
+		int SMAX = 16;
 		//#define SDIFF(a, b) (abs((a) - (b)) >> 4)   // Scoring diff, in [0..SMAX)
 		static int SDIFF(int a, int b)
 		{

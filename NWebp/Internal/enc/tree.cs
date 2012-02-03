@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.enc
+namespace NWebp.Internal
 {
 	class tree
 	{
@@ -12,7 +12,7 @@ namespace NWebp.Internal.enc
 		// Default probabilities
 
 		// Paragraph 13.5
-		const byte
+		byte
 		  VP8CoeffsProba0[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS] = {
 		  // genereated using vp8_default_coef_probs() in entropy.c:129
 		  { { { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 },
@@ -149,18 +149,18 @@ namespace NWebp.Internal.enc
 		  }
 		};
 
-		void VP8DefaultProbas(VP8Encoder* const enc) {
-		  VP8Proba* const probas = &enc->proba_;
-		  probas->use_skip_proba_ = 0;
-		  memset(probas->segments_, 255u, sizeof(probas->segments_));
-		  memcpy(probas->coeffs_, VP8CoeffsProba0, sizeof(VP8CoeffsProba0));
+		void VP8DefaultProbas(VP8Encoder* enc) {
+		  VP8Proba* probas = &enc.proba_;
+		  probas.use_skip_proba_ = 0;
+		  memset(probas.segments_, 255u, sizeof(probas.segments_));
+		  memcpy(probas.coeffs_, VP8CoeffsProba0, sizeof(VP8CoeffsProba0));
 		  // Note: we could hard-code the level_costs_ corresponding to VP8CoeffsProba0,
 		  // but that's ~11k of static data. Better call VP8CalculateLevelCosts() later.
-		  probas->dirty_ = 1;
+		  probas.dirty_ = 1;
 		}
 
 		// Paragraph 11.5.  900bytes.
-		static const byte kBModesProba[NUM_BMODES][NUM_BMODES][NUM_BMODES - 1] = {
+		static byte kBModesProba[NUM_BMODES][NUM_BMODES][NUM_BMODES - 1] = {
 		  { { 231, 120, 48, 89, 115, 113, 120, 152, 112 },
 			{ 152, 179, 64, 126, 170, 118, 46, 70, 95 },
 			{ 175, 69, 143, 80, 85, 82, 72, 155, 103 },
@@ -263,8 +263,8 @@ namespace NWebp.Internal.enc
 			{ 112, 19, 12, 61, 195, 128, 48, 4, 24 } }
 		};
 
-		static int PutI4Mode(VP8BitWriter* const bw, int mode,
-							 const byte* const prob) {
+		static int PutI4Mode(VP8BitWriter* bw, int mode,
+							 byte* prob) {
 		  if (VP8PutBit(bw, mode != B_DC_PRED, prob[0])) {
 			if (VP8PutBit(bw, mode != B_TM_PRED, prob[1])) {
 			  if (VP8PutBit(bw, mode != B_VE_PRED, prob[2])) {
@@ -285,7 +285,7 @@ namespace NWebp.Internal.enc
 		  return mode;
 		}
 
-		static void PutI16Mode(VP8BitWriter* const bw, int mode) {
+		static void PutI16Mode(VP8BitWriter* bw, int mode) {
 		  if (VP8PutBit(bw, (mode == TM_PRED || mode == H_PRED), 156)) {
 			VP8PutBit(bw, mode == TM_PRED, 128);    // TM or HE
 		  } else {
@@ -293,7 +293,7 @@ namespace NWebp.Internal.enc
 		  }
 		}
 
-		static void PutUVMode(VP8BitWriter* const bw, int uv_mode) {
+		static void PutUVMode(VP8BitWriter* bw, int uv_mode) {
 		  if (VP8PutBit(bw, uv_mode != DC_PRED, 142)) {
 			if (VP8PutBit(bw, uv_mode != V_PRED, 114)) {
 			  VP8PutBit(bw, uv_mode != H_PRED, 183);    // else: TM_PRED
@@ -301,48 +301,48 @@ namespace NWebp.Internal.enc
 		  }
 		}
 
-		static void PutSegment(VP8BitWriter* const bw, int s, const byte* p) {
+		static void PutSegment(VP8BitWriter* bw, int s, byte* p) {
 		  if (VP8PutBit(bw, s >= 2, p[0])) p += 1;
 		  VP8PutBit(bw, s & 1, p[1]);
 		}
 
-		void VP8CodeIntraModes(VP8Encoder* const enc) {
-		  VP8BitWriter* const bw = &enc->bw_;
+		void VP8CodeIntraModes(VP8Encoder* enc) {
+		  VP8BitWriter* bw = &enc.bw_;
 		  VP8EncIterator it;
 		  VP8IteratorInit(enc, &it);
 		  do {
-			const VP8MBInfo* mb = it.mb_;
-			const byte* preds = it.preds_;
-			if (enc->segment_hdr_.update_map_) {
-			  PutSegment(bw, mb->segment_, enc->proba_.segments_);
+			VP8MBInfo* mb = it.mb_;
+			byte* preds = it.preds_;
+			if (enc.segment_hdr_.update_map_) {
+			  PutSegment(bw, mb.segment_, enc.proba_.segments_);
 			}
-			if (enc->proba_.use_skip_proba_) {
-			  VP8PutBit(bw, mb->skip_, enc->proba_.skip_proba_);
+			if (enc.proba_.use_skip_proba_) {
+			  VP8PutBit(bw, mb.skip_, enc.proba_.skip_proba_);
 			}
-			if (VP8PutBit(bw, (mb->type_ != 0), 145)) {  // i16x16
+			if (VP8PutBit(bw, (mb.type_ != 0), 145)) {  // i16x16
 			  PutI16Mode(bw, preds[0]);
 			} else {
-			  const int preds_w = enc->preds_w_;
-			  const byte* top_pred = preds - preds_w;
+			  int preds_w = enc.preds_w_;
+			  byte* top_pred = preds - preds_w;
 			  int x, y;
 			  for (y = 0; y < 4; ++y) {
 				int left = preds[-1];
 				for (x = 0; x < 4; ++x) {
-				  const byte* const probas = kBModesProba[top_pred[x]][left];
+				  byte* probas = kBModesProba[top_pred[x]][left];
 				  left = PutI4Mode(bw, preds[x], probas);
 				}
 				top_pred = preds;
 				preds += preds_w;
 			  }
 			}
-			PutUVMode(bw, mb->uv_mode_);
+			PutUVMode(bw, mb.uv_mode_);
 		  } while (VP8IteratorNext(&it, 0));
 		}
 
 		//------------------------------------------------------------------------------
 		// Paragraph 13
 
-		const byte
+		byte
 			VP8CoeffsUpdateProba[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS] = {
 		  { { { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 },
 			  { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 },
@@ -478,14 +478,14 @@ namespace NWebp.Internal.enc
 		  }
 		};
 
-		void VP8WriteProbas(VP8BitWriter* const bw, const VP8Proba* const probas) {
+		void VP8WriteProbas(VP8BitWriter* bw, VP8Proba* probas) {
 		  int t, b, c, p;
 		  for (t = 0; t < NUM_TYPES; ++t) {
 			for (b = 0; b < NUM_BANDS; ++b) {
 			  for (c = 0; c < NUM_CTX; ++c) {
 				for (p = 0; p < NUM_PROBAS; ++p) {
-				  const byte p0 = probas->coeffs_[t][b][c][p];
-				  const int update = (p0 != VP8CoeffsProba0[t][b][c][p]);
+				  byte p0 = probas.coeffs_[t][b][c][p];
+				  int update = (p0 != VP8CoeffsProba0[t][b][c][p]);
 				  if (VP8PutBit(bw, update, VP8CoeffsUpdateProba[t][b][c][p])) {
 					VP8PutValue(bw, p0, 8);
 				  }
@@ -493,8 +493,8 @@ namespace NWebp.Internal.enc
 			  }
 			}
 		  }
-		  if (VP8PutBitUniform(bw, probas->use_skip_proba_)) {
-			VP8PutValue(bw, probas->skip_proba_, 8);
+		  if (VP8PutBitUniform(bw, probas.use_skip_proba_)) {
+			VP8PutValue(bw, probas.skip_proba_, 8);
 		  }
 		}
 

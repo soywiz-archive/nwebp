@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.mux
+namespace NWebp.Internal
 {
 	//------------------------------------------------------------------------------
 	// Defines and constants.
@@ -40,17 +40,38 @@ namespace NWebp.Internal.mux
 	// chunk and VP8 chunk),
 	//typedef struct WebPMuxImage WebPMuxImage;
 
-	class WebPMuxImage
+	partial class WebPMuxImage
 	{
-		WebPChunk  header_;      // Corresponds to FRAME_ID/TILE_ID.
-		WebPChunk  alpha_;       // Corresponds to ALPHA_ID.
-		WebPChunk  vp8_;         // Corresponds to IMAGE_ID.
-		int         is_partial_;  // True if only some of the chunks are filled.
+		/// <summary>
+		/// Corresponds to FRAME_ID/TILE_ID.
+		/// </summary>
+		WebPChunk  header_;
+
+		/// <summary>
+		/// Corresponds to ALPHA_ID.
+		/// </summary>
+		WebPChunk  alpha_;
+
+		/// <summary>
+		/// Corresponds to IMAGE_ID.
+		/// </summary>
+		WebPChunk  vp8_;        
+
+		/// <summary>
+		/// True if only some of the chunks are filled.
+		/// </summary>
+		int         is_partial_; 
+
+		/// <summary>
+		/// 
+		/// </summary>
 		WebPMuxImage next_;
 	}
 
-	// Main mux object. Stores data chunks.
-	class WebPMux
+	/// <summary>
+	/// Main mux object. Stores data chunks.
+	/// </summary>
+	partial class WebPMux
 	{
 		WebPMuxState    state_;
 		WebPMuxImage   images_;
@@ -64,18 +85,18 @@ namespace NWebp.Internal.mux
 
 	partial class Global
 	{
-		const int CHUNKS_PER_FRAME  = 2;
-		const int CHUNKS_PER_TILE   = 2;
+		int CHUNKS_PER_FRAME  = 2;
+		int CHUNKS_PER_TILE   = 2;
 
 		// Maximum chunk payload (data) size such that adding the header and padding
 		// won't overflow an uint32.
-		const uint MAX_CHUNK_PAYLOAD = (~0U - CHUNK_HEADER_SIZE - 1);
+		uint MAX_CHUNK_PAYLOAD = (~0U - CHUNK_HEADER_SIZE - 1);
 
-		const uint NIL_TAG = 0x00000000u;  // To signal void chunk.
+		uint NIL_TAG = 0x00000000u;  // To signal void chunk.
 
 	}
 
-	enum TAG_ID
+	public enum TAG_ID
 	{
 		VP8X_ID = 0,
 		ICCP_ID,
@@ -91,15 +112,16 @@ namespace NWebp.Internal.mux
 		LIST_ID
 	}
 
-	struct ChunkInfo
+	public partial class ChunkInfo
 	{
-		char*   chunkName;
+		//char*   chunkName;
+		string chunkName;
 		uint      chunkTag;
 		TAG_ID        chunkId;
 		uint      chunkSize;
 	}
 
-	extern const ChunkInfo kChunks[LIST_ID + 1];
+	extern ChunkInfo kChunks[LIST_ID + 1];
 
 	//------------------------------------------------------------------------------
 	// Helper functions.
@@ -129,10 +151,10 @@ namespace NWebp.Internal.mux
 
 	/*
 	// Initialize.
-	void ChunkInit(WebPChunk* const chunk);
+	void ChunkInit(WebPChunk* chunk);
 
 	// Get chunk id from chunk name.
-	TAG_ID ChunkGetIdFromName(const char* const what);
+	TAG_ID ChunkGetIdFromName(char* what);
 
 	// Get chunk id from chunk tag.
 	TAG_ID ChunkGetIdFromTag(uint tag);
@@ -142,24 +164,24 @@ namespace NWebp.Internal.mux
 	WebPChunk* ChunkSearchList(WebPChunk* first, uint nth, uint tag);
 
 	// Fill the chunk with the given data & image_info.
-	WebPMuxError ChunkAssignDataImageInfo(WebPChunk* chunk, const byte* data, uint data_size, WebPImageInfo* image_info, int copy_data, uint tag);
+	WebPMuxError ChunkAssignDataImageInfo(WebPChunk* chunk, byte* data, uint data_size, WebPImageInfo* image_info, int copy_data, uint tag);
 
 	// Sets 'chunk' at nth position in the 'chunk_list'.
 	// nth = 0 has the special meaning "last of the list".
-	WebPMuxError ChunkSetNth(const WebPChunk* chunk, WebPChunk** chunk_list, uint nth);
+	WebPMuxError ChunkSetNth(WebPChunk* chunk, WebPChunk** chunk_list, uint nth);
 
-	// Releases chunk and returns chunk->next_.
-	WebPChunk* ChunkRelease(WebPChunk* const chunk);
+	// Releases chunk and returns chunk.next_.
+	WebPChunk* ChunkRelease(WebPChunk* chunk);
 
-	// Deletes given chunk & returns chunk->next_.
-	WebPChunk* ChunkDelete(WebPChunk* const chunk);
+	// Deletes given chunk & returns chunk.next_.
+	WebPChunk* ChunkDelete(WebPChunk* chunk);
 	*/
 
 	// Size of a chunk including header and padding.
 	partial class WebPChunk
 	{
 		static uint ChunkDiskSize() {
-			assert(this.payload_size_ < MAX_CHUNK_PAYLOAD);
+			Global.assert(this.payload_size_ < MAX_CHUNK_PAYLOAD);
 			return SizeWithPadding(this.payload_size_);
 		}
 	}
@@ -175,21 +197,21 @@ namespace NWebp.Internal.mux
 	// MuxImage object management.
 
 	// Initialize.
-	void MuxImageInit(WebPMuxImage* const wpi);
+	void MuxImageInit(WebPMuxImage* wpi);
 
-	// Releases image 'wpi' and returns wpi->next.
-	WebPMuxImage* MuxImageRelease(WebPMuxImage* const wpi);
+	// Releases image 'wpi' and returns wpi.next.
+	WebPMuxImage* MuxImageRelease(WebPMuxImage* wpi);
 
 	// Delete image 'wpi' and return the next image in the list or null.
 	// 'wpi' can be null.
-	WebPMuxImage* MuxImageDelete(WebPMuxImage* const wpi);
+	WebPMuxImage* MuxImageDelete(WebPMuxImage* wpi);
 
 	// Delete all images in 'wpi_list'.
-	void MuxImageDeleteAll(WebPMuxImage** const wpi_list);
+	void MuxImageDeleteAll(WebPMuxImage** wpi_list);
 
 	// Count number of images matching 'tag' in the 'wpi_list'.
 	// If tag == NIL_TAG, any tag will be matched.
-	int MuxImageCount(WebPMuxImage* const wpi_list, TAG_ID id);
+	int MuxImageCount(WebPMuxImage* wpi_list, TAG_ID id);
 	*/
 
 	// Check if given ID corresponds to an image related chunk.
@@ -212,16 +234,16 @@ namespace NWebp.Internal.mux
 		assert(wpi != null);
 		switch (id) {
 		case FRAME_ID:
-		case TILE_ID: return &wpi->header_;
-		case ALPHA_ID: return &wpi->alpha_;
-		case IMAGE_ID: return &wpi->vp8_;
+		case TILE_ID: return &wpi.header_;
+		case ALPHA_ID: return &wpi.alpha_;
+		case IMAGE_ID: return &wpi.vp8_;
 		default: return null;
 		}
 	}
 
 	// Sets 'wpi' at nth position in the 'wpi_list'.
 	// nth = 0 has the special meaning "last of the list".
-	WebPMuxError MuxImageSetNth(const WebPMuxImage* wpi, WebPMuxImage** wpi_list,
+	WebPMuxError MuxImageSetNth(WebPMuxImage* wpi, WebPMuxImage** wpi_list,
 								uint nth);
 
 	// Delete nth image in the image list with given tag.
@@ -229,28 +251,28 @@ namespace NWebp.Internal.mux
 									TAG_ID id);
 
 	// Get nth image in the image list with given tag.
-	WebPMuxError MuxImageGetNth(const WebPMuxImage** wpi_list, uint nth,
+	WebPMuxError MuxImageGetNth(WebPMuxImage** wpi_list, uint nth,
 								TAG_ID id, WebPMuxImage** wpi);
 
 	// Total size of a list of images.
-	uint MuxImageListDiskSize(const WebPMuxImage* wpi_list);
+	uint MuxImageListDiskSize(WebPMuxImage* wpi_list);
 
 	// Write out the given list of images into 'dst'.
-	byte* MuxImageListEmit(const WebPMuxImage* wpi_list, byte* dst);
+	byte* MuxImageListEmit(WebPMuxImage* wpi_list, byte* dst);
 
 	//------------------------------------------------------------------------------
 	// Helper methods for mux.
 
 	// Returns the list where chunk with given ID is to be inserted in mux.
-	// Return value is null if this chunk should be inserted in mux->images_ list
+	// Return value is null if this chunk should be inserted in mux.images_ list
 	// or if 'id' is not known.
-	WebPChunk** GetChunkListFromId(const WebPMux* mux, TAG_ID id);
+	WebPChunk** GetChunkListFromId(WebPMux* mux, TAG_ID id);
 
 	// Validates that the given mux has a single image.
-	WebPMuxError ValidateForImage(const WebPMux* const mux);
+	WebPMuxError ValidateForImage(WebPMux* mux);
 
 	// Validates the given mux object.
-	WebPMuxError WebPMuxValidate(const WebPMux* const mux);
+	WebPMuxError WebPMuxValidate(WebPMux* mux);
 
 	//------------------------------------------------------------------------------
 	*/

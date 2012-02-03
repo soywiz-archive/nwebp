@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NWebp.Internal.dsp
+namespace NWebp.Internal
 {
 	class cpu
 	{

@@ -28,9 +28,9 @@ namespace NWebp.Internal
 	typedef struct VP8Io VP8Io;
 	*/
 	/*
-	typedef int (*VP8IoPutHook)(const VP8Io* io);
+	typedef int (*VP8IoPutHook)(VP8Io* io);
 	typedef int (*VP8IoSetupHook)(VP8Io* io);
-	typedef void (*VP8IoTeardownHook)(const VP8Io* io);
+	typedef void (*VP8IoTeardownHook)(VP8Io* io);
 	*/
 	delegate int VP8IoPutHook(ref VP8Io io);
 	delegate int VP8IoSetupHook(ref VP8Io io);
@@ -71,7 +71,7 @@ namespace NWebp.Internal
 		// during put()). Is NOT called if setup() failed.
 		VP8IoTeardownHook teardown;
 
-		// this is a recommendation for the user-side yuv->rgb converter. This flag
+		// this is a recommendation for the user-side yuv.rgb converter. This flag
 		// is set when calling setup() hook and can be overwritten by it. It then
 		// can be taken into consideration during the put() method.
 		int fancy_upsampling;
@@ -105,7 +105,7 @@ namespace NWebp.Internal
 	// Set the custom IO function pointers and user-data. The setter for IO hooks
 	// should be called before initiating incremental decoding. Returns true if
 	// WebPIDecoder object is successfully modified, false otherwise.
-	WEBP_EXTERN(int) WebPISetIOHooks(WebPIDecoder* const idec, VP8IoPutHook put, VP8IoSetupHook setup, VP8IoTeardownHook teardown, void* user_data);
+	WEBP_EXTERN(int) WebPISetIOHooks(WebPIDecoder* idec, VP8IoPutHook put, VP8IoSetupHook setup, VP8IoTeardownHook teardown, void* user_data);
 
 	// Main decoding object. This is an opaque structure.
 	typedef struct VP8Decoder VP8Decoder;
@@ -114,7 +114,7 @@ namespace NWebp.Internal
 	WEBP_EXTERN(VP8Decoder*) VP8New();
 	*/
 
-	partial class VP8Io
+	unsafe public partial class VP8Io
 	{
 		// Must be called to make sure 'io' is initialized properly.
 		// Returns false in case of version mismatch. Upon such failure, no other
@@ -125,24 +125,24 @@ namespace NWebp.Internal
 	}
 	/*
 	// Start decoding a new picture. Returns true if ok.
-	WEBP_EXTERN(int) VP8GetHeaders(VP8Decoder* const dec, VP8Io* const io);
+	WEBP_EXTERN(int) VP8GetHeaders(VP8Decoder* dec, VP8Io* io);
 
 	// Decode a picture. Will call VP8GetHeaders() if it wasn't done already.
 	// Returns false in case of error.
-	WEBP_EXTERN(int) VP8Decode(VP8Decoder* const dec, VP8Io* const io);
+	WEBP_EXTERN(int) VP8Decode(VP8Decoder* dec, VP8Io* io);
 
 	// Return current status of the decoder:
-	WEBP_EXTERN(VP8StatusCode) VP8Status(VP8Decoder* const dec);
+	WEBP_EXTERN(VP8StatusCode) VP8Status(VP8Decoder* dec);
 
 	// return readable string corresponding to the last status.
-	WEBP_EXTERN(const char*) VP8StatusMessage(VP8Decoder* const dec);
+	WEBP_EXTERN(char*) VP8StatusMessage(VP8Decoder* dec);
 
 	// Resets the decoder in its initial state, reclaiming memory.
 	// Not a mandatory call between calls to VP8Decode().
-	WEBP_EXTERN(void) VP8Clear(VP8Decoder* const dec);
+	WEBP_EXTERN(void) VP8Clear(VP8Decoder* dec);
 
 	// Destroy the decoder object.
-	WEBP_EXTERN(void) VP8Delete(VP8Decoder* const dec);
+	WEBP_EXTERN(void) VP8Delete(VP8Decoder* dec);
 	*/
 
 	//------------------------------------------------------------------------------
