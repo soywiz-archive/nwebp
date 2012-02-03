@@ -47,6 +47,12 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NWebpUnsafe\NWebpUnsafe.csproj">
+      <Project>{E9098AEE-1F55-43E7-A7ED-61CA08DCD466}</Project>
+      <Name>NWebpUnsafe</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -4,3 +4,5 @@
 *.suo
 /NWebp.Test/bin
 /NWebp.Test/obj
+/NWebpUnsafe/bin
+/NWebpUnsafe/obj

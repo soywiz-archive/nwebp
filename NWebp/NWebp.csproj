@@ -40,61 +40,9 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Internal\dec\alpha.cs" />
-    <Compile Include="Internal\dec\buffer.cs" />
-    <Compile Include="Internal\dec\frame.cs" />
-    <Compile Include="Internal\dec\idec.cs" />
-    <Compile Include="Internal\dec\io.cs" />
-    <Compile Include="Internal\dec\layer.cs" />
-    <Compile Include="Internal\dec\quant.cs" />
-    <Compile Include="Internal\dec\tree.cs" />
-    <Compile Include="Internal\dec\vp8.cs" />
-    <Compile Include="Internal\dec\vp8i.cs" />
-    <Compile Include="Internal\dec\webp.cs" />
-    <Compile Include="Internal\dec\webpi.cs" />
-    <Compile Include="Internal\_utils.cs" />
-    <Compile Include="Internal\dsp\cpu.cs" />
-    <Compile Include="Internal\dsp\dec.cs" />
-    <Compile Include="Internal\dsp\dsp.cs" />
-    <Compile Include="Internal\dsp\enc.cs" />
-    <Compile Include="Internal\dsp\upsampling.cs" />
-    <Compile Include="Internal\dsp\yuv.cs" />
-    <Compile Include="Internal\enc\alpha.cs" />
-    <Compile Include="Internal\enc\analysis.cs" />
-    <Compile Include="Internal\enc\config.cs" />
-    <Compile Include="Internal\enc\cost.cs" />
-    <Compile Include="Internal\enc\filter.cs" />
-    <Compile Include="Internal\enc\frame.cs" />
-    <Compile Include="Internal\enc\iterator.cs" />
-    <Compile Include="Internal\enc\layer.cs" />
-    <Compile Include="Internal\enc\picture.cs" />
-    <Compile Include="Internal\enc\quant.cs" />
-    <Compile Include="Internal\enc\syntax.cs" />
-    <Compile Include="Internal\enc\tree.cs" />
-    <Compile Include="Internal\enc\vp8enci.cs" />
-    <Compile Include="Internal\enc\webpenc.cs" />
-    <Compile Include="Internal\mux\muxedit.cs" />
-    <Compile Include="Internal\mux\muxi.cs" />
-    <Compile Include="Internal\mux\muxinternal.cs" />
-    <Compile Include="Internal\mux\muxread.cs" />
-    <Compile Include="Internal\utils\alpha.cs" />
-    <Compile Include="Internal\utils\bit_reader.cs" />
-    <Compile Include="Internal\utils\bit_writer.cs" />
-    <Compile Include="Internal\utils\filters.cs" />
-    <Compile Include="Internal\utils\quant_levels.cs" />
-    <Compile Include="Internal\utils\tcoder.cs" />
-    <Compile Include="Internal\utils\thread.cs" />
-    <Compile Include="Internal\webp\decode.cs" />
-    <Compile Include="Internal\webp\decode_vp8.cs" />
-    <Compile Include="Internal\webp\encode.cs" />
-    <Compile Include="Internal\webp\mux.cs" />
-    <Compile Include="Internal\webp\types.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Compile Include="Internal\utils\tcoderi.cs" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
